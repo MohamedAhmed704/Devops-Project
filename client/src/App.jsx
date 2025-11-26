@@ -1,11 +1,16 @@
-
+import AppRouter from "./routes/AppRouter";
 
 function App() {
 
   return (
-    <h1 class="text-3xl font-bold underline">
-    Hello world!
-  </h1>
+    <div className="app-layout flex">
+
+      <div className="flex-1 p-4">
+        <h1 className="text-3xl font-bold underline">Hello world!</h1>
+        <AppRouter />
+      </div>
+    </div>
+
   )
 }
 
