@@ -1,3 +1,5 @@
+// Allowed roles to create:
+
 import User from "../models/userModel.js";
 
 // GET ALL USERS IN COMPANY
@@ -6,7 +8,7 @@ export const getUsers = async (req, res) => {
   try {
     const companyId = req.user.company;
 
-    if (!["super_admin", "company_admin"].includes(req.user.role)) {
+    if (!["superAdmin", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Only admins can view users" });
     }
 
@@ -29,7 +31,7 @@ export const createEmployee = async (req, res) => {
       return res.status(400).json({ message: "User has no company assigned" });
     }
 
-    if (!["super_admin", "company_admin"].includes(req.user.role)) {
+    if (!["superAdmin", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Only admins can create employees" });
     }
 
@@ -46,7 +48,7 @@ export const createEmployee = async (req, res) => {
     }
 
     // Allowed roles to create:
-    const allowedRoles = ["employee", "company_admin"];
+    const allowedRoles = ["employee", "admin"];
 
     if (role && !allowedRoles.includes(role)) {
       return res.status(400).json({ message: "Invalid role assignment" });

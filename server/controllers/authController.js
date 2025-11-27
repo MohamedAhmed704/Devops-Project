@@ -25,7 +25,7 @@ export const registerCompany = async (req, res) => {
       name,
       email,
       password,
-      role: "super_admin",
+      role: "superAdmin",
       company: company._id,
       active: true,
     });

@@ -24,7 +24,7 @@ export const getMyCompany = async (req, res) => {
 // UPDATE COMPANY (company_admin only)
 export const updateCompany = async (req, res) => {
   try {
-    if (req.user.role !== "company_admin") {
+    if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Only company admin can update the company" });
     }
 
@@ -47,7 +47,7 @@ export const updateCompany = async (req, res) => {
 // SUPER ADMIN — GET ALL COMPANIES
 export const getAllCompanies = async (req, res) => {
   try {
-    if (req.user.role !== "super_admin") {
+    if (req.user.role !== "superAdmin") {
       return res.status(403).json({ message: "Only super admin can access all companies" });
     }
 
@@ -63,7 +63,7 @@ export const getAllCompanies = async (req, res) => {
 // SUPER ADMIN — DEACTIVATE A COMPANY
 export const deactivateCompany = async (req, res) => {
   try {
-    if (req.user.role !== "super_admin") {
+    if (req.user.role !== "superAdmin") {
       return res.status(403).json({ message: "Only super admin can deactivate companies" });
     }
 

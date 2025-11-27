@@ -10,7 +10,7 @@ export const createTeam = async (req, res) => {
       return res.status(400).json({ message: "User has no company assigned" });
 
     // Only admins can create teams
-    if (!["super_admin", "company_admin"].includes(req.user.role)) {
+    if (!["superAdmin", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Only admins can create teams" });
     }
 
@@ -46,7 +46,7 @@ export const addMember = async (req, res) => {
     const { teamId, userId } = req.body;
 
     // Admin check
-    if (!["super_admin", "company_admin"].includes(req.user.role)) {
+    if (!["superAdmin", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Only admins can add members" });
     }
 
@@ -111,7 +111,7 @@ export const getMyTeams = async (req, res) => {
   try {
     const companyId = req.user.company;
 
-    if (!["super_admin", "company_admin"].includes(req.user.role)) {
+    if (!["superAdmin", "admin"].includes(req.user.role)) {
       return res.status(403).json({ message: "Admins only" });
     }
 
