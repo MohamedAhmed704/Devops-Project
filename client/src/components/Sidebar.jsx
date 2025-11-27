@@ -133,7 +133,7 @@ export default function Navbar({ role }) {
           <div className="flex flex-col gap-4">
 
             {/* Mobile Search */}
-            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg w-full mb-3">
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg w-full mb-1">
               <Search size={18} className="text-gray-500" />
               <input
                 type="text"
@@ -150,7 +150,7 @@ export default function Navbar({ role }) {
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 py-2 border-b border-gray-600 hover:text-[#BBE1FA] transition ${isActive ? "text-[#BBE1FA] font-semibold" : ""
+                    `text-sm flex items-center gap-3 py-2 border-b border-gray-600 hover:text-[#BBE1FA] transition ${isActive ? "text-[#BBE1FA] font-semibold" : ""
                     }`
                   }
                   onClick={() => setOpenMobileMenu(false)}
