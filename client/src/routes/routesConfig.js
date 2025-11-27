@@ -3,7 +3,7 @@ import SA_Teams from "../pages/superadmin/Teams";
 import SA_Employees from "../pages/superadmin/Employees";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
 
-import A_Dashboard from "../pages/admin/Dashboard";
+import A_Dashboard from "../pages/admin/Dashboard/Dashboard";
 import A_Schedule from "../pages/admin/Schedule";
 import A_Employees from "../pages/admin/Employees";
 import A_TimeTracking from "../pages/admin/TimeTracking";
