@@ -20,7 +20,7 @@ export default function Navbar({ role }) {
     <div className="w-full shadow bg-white sticky top-0 z-50">
 
       {/* TOP NAVBAR */}
-      <div className="w-full flex items-center justify-between px-4 md:px-6 py-3 border-b">
+      <div className="w-full flex items-center justify-between px-4 md:px-10 py-3 border-b">
 
         {/* Left side: Hamburger + Website Name */}
         <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function Navbar({ role }) {
       </div>
 
       {/* BOTTOM NAVBAR (DESKTOP) */}
-      <nav className="hidden md:block w-full bg-[#1d2931] text-white">
+      <nav className="hidden md:block w-full bg-[#1d2931] text-white md:px-7">
         <ul className="flex items-center gap-10 px-6 py-3">
           {items.map((item) => {
             const Icon = item.icon;
@@ -129,7 +129,7 @@ export default function Navbar({ role }) {
 
       {/* MOBILE MENU  */}
       {openMobileMenu && (
-        <div className="md:hidden bg-[#0F4C75] text-white px-6 py-3">
+        <div className="md:hidden bg-[#1d2931] text-white px-6 py-3">
           <div className="flex flex-col gap-4">
 
             {/* Mobile Search */}
