@@ -1,17 +1,22 @@
 import Dashboard from "./pages/admin/Dashboard/Dashboard";
+import Home from "./pages/Home";
 import AppRouter from "./routes/AppRouter";
 
 function App() {
 
   return (
-    <div className="app-layout flex">
+    <>
+    <Home/>
 
-      <div className="flex-1">
-        {/* <AppRouter /> */}
-        <Dashboard />
-      </div>
+    </>
+    // <div className="app-layout flex">
 
-    </div>
+    //   <div className="flex-1">
+    //     {/* <AppRouter /> */}
+    //     <Dashboard />
+    //   </div>
+
+    // </div>
   )
 }
 
