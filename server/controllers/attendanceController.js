@@ -8,7 +8,7 @@ export const clockIn = async (req, res) => {
     const userId = req.user._id;
     const companyId = req.user.company;
 
-    // Find shift assigned to user that should start now.
+    // Find shift assigned to user that should start now
     const shift = await Shift.findOne({
       employee: userId,
       company: companyId,
