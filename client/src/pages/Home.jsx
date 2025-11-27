@@ -37,7 +37,7 @@ const Home = () => {
 
       {/* end navbar */}
       {/* start hero section */}
-      <div className="flex flex-col md:flex-row bg-gradient-to-r from-sky-200 to-stone-100 w-full">
+      <div className="flex flex-col md:flex-row bg-linear-to-r from-sky-200 to-stone-100 w-full">
         <div className="flex-1 m-4 p-5">
           <h3 className="font-semibold text-4xl">
             Smart Workforce <br /> Managemnt&{" "}
