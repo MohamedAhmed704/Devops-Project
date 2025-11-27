@@ -129,7 +129,7 @@ export default function Navbar({ role }) {
 
       {/* MOBILE MENU  */}
       {openMobileMenu && (
-        <div className="md:hidden bg-[#0F4C75] text-white px-6 py-3">
+        <div className="md:hidden bg-[#1d2931] text-white px-6 py-3">
           <div className="flex flex-col gap-4">
 
             {/* Mobile Search */}
