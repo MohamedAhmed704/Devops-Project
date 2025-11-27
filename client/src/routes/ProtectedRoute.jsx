@@ -1,15 +1,22 @@
 import { Navigate } from "react-router";
 
 export default function ProtectedRoute({ 
-    element: Component,
-    allowed,
-    role
+  children,
+  allowed,
+  role,
+  isAuthenticated
  }) {
 
-  if (!role) return <Navigate to="/login" replace />;
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
   
-  if (!allowed.includes(role)) 
+  // Redirect to unauthorized if role doesn't have access
+  if (!allowed.includes(role)) {
     return <Navigate to="/unauthorized" replace />;
+  }
   
-  return <Component />;
+  // Render protected content
+  return children;
 }
