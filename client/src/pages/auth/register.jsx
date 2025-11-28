@@ -57,9 +57,9 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9F7F7] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-lg border border-[#DBE2EF]">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-sm border border-[#e1e4eb]">
         <div>
-          <h2 className="text-center text-3xl font-extrabold text-[#112D4E]">
+          <h2 className="text-center text-2xl font-extrabold text-[#112D4E]">
             Create your Tadbire account
           </h2>
           <p className="mt-2 text-center text-sm text-[#3F72AF]">

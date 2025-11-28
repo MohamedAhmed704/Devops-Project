@@ -30,82 +30,89 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#F9F7F7] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-[#DBE2EF]">
+        
+        {/* Header */}
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-dark">
-            Sign in to your account
+          <h2 className="mt-4 text-center text-3xl font-extrabold text-[#112D4E]">
+            Welcome Back to <span className="text-[#3F72AF]">Tadbire</span>
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+          <p className="mt-3 text-center text-sm text-[#3F72AF]">
+            New here?{" "}
             <Link
               to="/register"
-              className="font-medium text-primary hover:text-dark"
+              className="font-medium text-[#112D4E] hover:text-[#3F72AF]"
             >
-              create a new account
+              Create an account
             </Link>
           </p>
         </div>
-        
+
+        {/* Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          <div className="space-y-5">
+
+            {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-dark">
+              <label htmlFor="email" className="block text-sm font-medium text-[#112D4E]">
                 Email Address
               </label>
               <input
                 id="email"
                 name="email"
                 type="email"
-                autoComplete="email"
                 required
                 value={form.email}
                 onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-accent-light rounded-md placeholder-gray-500 text-dark focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
-                placeholder="Enter your email address"
+                className="mt-1 block w-full px-3 py-2 border border-[#DBE2EF] rounded-md bg-[#F9F7F7] text-[#112D4E] placeholder-gray-400 focus:outline-none focus:ring-[#3F72AF] focus:border-[#3F72AF] sm:text-sm"
+                placeholder="Enter your email"
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-dark">
+              <label htmlFor="password" className="block text-sm font-medium text-[#112D4E]">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
                 required
                 value={form.password}
                 onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-accent-light rounded-md placeholder-gray-500 text-dark focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-[#DBE2EF] rounded-md bg-[#F9F7F7] text-[#112D4E] placeholder-gray-400 focus:outline-none focus:ring-[#3F72AF] focus:border-[#3F72AF] sm:text-sm"
                 placeholder="Enter your password"
               />
             </div>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
+            <div className="rounded-md bg-red-50 p-4 border border-red-200">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
+          {/* Login Button */}
           <div>
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md  bg-primary hover:bg-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-2 px-4 rounded-md text-sm font-medium text-white bg-[#19283a] hover:bg-[#274b74] transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3F72AF] disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
 
+          {/* Footer */}
           <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+            <p className="text-sm text-[#3F72AF]">
+              Don’t have an account?{" "}
               <Link
                 to="/register"
-                className="font-medium text-primary hover:text-dark"
+                className="font-medium text-[#112D4E] hover:text-[#3F72AF]"
               >
                 Sign up here
               </Link>
