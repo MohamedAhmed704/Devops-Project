@@ -6,7 +6,6 @@ function App() {
     <div className="app-layout flex">
       <div className="flex-1">
         <AppRouter />
-        <Home />
       </div>
     </div>
   );
