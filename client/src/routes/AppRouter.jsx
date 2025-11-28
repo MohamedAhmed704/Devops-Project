@@ -3,7 +3,7 @@ import routesConfig from "./routesConfig";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute"; 
 import Sidebar from "../components/Sidebar";
-import Home from "../pages/Home";
+import Home from "../pages/Home/Home";
 import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
 
