@@ -23,7 +23,7 @@ export const sendResetPasswordEmail = async (email, resetUrl) => {
             from: process.env.EMAIL_USER,
             subject: "Password Reset Request",
             html: `
-        <p>You requested a password reset.</p>
+        <p>You requested a password reset from tadber.</p>
         <p>Click this link to reset your password:</p>
         <a href="${resetUrl}">Reset Password</a>
         <p>This link expires in 10 minutes.</p>
