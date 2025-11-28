@@ -3,25 +3,25 @@ import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
-    name: { 
-      type: String, 
+    name: {
+      type: String,
       required: true,
-      trim: true 
+      trim: true
     },
 
-    email: { 
-      type: String, 
-      required: true, 
-      unique: true, 
+    email: {
+      type: String,
+      required: true,
+      unique: true,
       index: true,
       lowercase: true,
-      trim: true 
+      trim: true
     },
 
-    password: { 
-      type: String, 
+    password: {
+      type: String,
       required: true,
-      minlength: 6 
+      minlength: 6
     },
 
     // UPDATED ROLES → superAdmin | admin | employee
@@ -53,10 +53,12 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
 
     active: { type: Boolean, default: true },
+
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: { type: Date },
   },
   { timestamps: true }
 );
-
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
@@ -67,7 +69,6 @@ userSchema.pre("save", async function (next) {
 
   next();
 });
-
 
 // Compare password
 userSchema.methods.matchPassword = async function (enteredPassword) {
