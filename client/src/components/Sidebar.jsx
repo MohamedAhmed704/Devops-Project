@@ -8,12 +8,13 @@ import {
 } from "lucide-react";
 import routes from "../routes/routesConfig";
 import { NavLink } from "react-router";
+import {useAuth} from "../contexts/AuthContext.jsx";
 
 export default function Navbar({ role }) {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openNotificationMenu, setOpenNotificationMenu] = useState(false);
-
+  const { logout, userRole } = useAuth();
   const items = routes[role] || [];
 
   return (
@@ -88,13 +89,13 @@ export default function Navbar({ role }) {
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg z-50">
                 <ul className="flex flex-col">
                   <li className="px-4 py-2 text-gray-800 font-semibold underline-offset-8 ">
-                    Manager
+                    {userRole}
                   </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                    Profile
-                  </li>
+
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600">
-                    Logout
+                    <button onClick={logout} className="cursor-pointer">
+                       Logout  
+                    </button>
                   </li>
                 </ul>
               </div>
