@@ -1,3 +1,4 @@
+import Home from "./pages/Home/Home";
 import AppRouter from "./routes/AppRouter";
 
 function App() {

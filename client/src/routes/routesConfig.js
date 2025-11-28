@@ -27,7 +27,7 @@ import E_TimeOff from "../pages/employee/TimeOffRequests";
 
 const routes = {
 
-  superadmin: [
+  superAdmin: [
       { path: "/dashboard", element: SA_Dashboard, label: "Dashboard", icon: LayoutDashboard },
       { path: "/teams", element: SA_Teams, label: "Teams", icon: Users },
       { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
@@ -44,7 +44,7 @@ const routes = {
   ],
 
   employee: [
-      { path: "/schedule", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
+      { path: "/dashboard", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
       { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
       { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane }
   ]
