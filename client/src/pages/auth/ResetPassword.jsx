@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useSearchParams, Link } from "react-router";
+import { useSearchParams, Link, useNavigate } from "react-router";
 import apiClient from "../../api/apiClient.js";
+import { validateResetPassword } from "../../utils/validation.js";
 
 export default function ResetPassword() {
   const [newPassword, setPassword] = useState("");
@@ -9,6 +10,7 @@ export default function ResetPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [params] = useSearchParams();
+  const navigate = useNavigate();
 
   const token = params.get("token");
 
@@ -18,8 +20,14 @@ export default function ResetPassword() {
     setError("");
     setMessage("");
 
-    if (newPassword !== confirm) {
-      setError("Passwords do not match.");
+    // validate
+    const errors = validateResetPassword({
+      password: newPassword,
+      confirmPassword: confirm,
+    });
+
+    if (errors.password || errors.confirmPassword) {
+      setError(errors.password || errors.confirmPassword);
       setLoading(false);
       return;
     }
@@ -30,7 +38,13 @@ export default function ResetPassword() {
         newPassword,
       });
 
-      setMessage("Password reset successful. You can now log in.");
+      setMessage("Password reset successful! Redirecting to login...");
+
+      // redirect after 1.5s good for UX
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
     }
@@ -48,7 +62,6 @@ export default function ResetPassword() {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
 
-          {/* New Password */}
           <div>
             <label className="block text-sm font-medium text-[#112D4E]">
               New Password
@@ -63,7 +76,6 @@ export default function ResetPassword() {
             />
           </div>
 
-          {/* Confirm Password */}
           <div>
             <label className="block text-sm font-medium text-[#112D4E]">
               Confirm Password
@@ -78,19 +90,18 @@ export default function ResetPassword() {
             />
           </div>
 
-          {/* Messages */}
           {message && (
             <div className="rounded-md bg-green-50 border border-green-200 p-3">
               <p className="text-sm text-green-800">{message}</p>
             </div>
           )}
+
           {error && (
             <div className="rounded-md bg-red-50 border border-red-200 p-3">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          {/* Button */}
           <button
             type="submit"
             disabled={loading}

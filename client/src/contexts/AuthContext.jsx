@@ -58,12 +58,23 @@ export function AuthProvider({ children }) {
 
       return { success: false, error: data.message || "Registration failed" };
     } catch (err) {
+      const backendMessage = err.response?.data?.message || "";
+
+      //  Handle duplicate key (company name or email already exists)
+      if (backendMessage.includes("E11000")) {
+        return {
+          success: false,
+          error: "This company name or email is already in use.",
+        };
+      }
+
       return {
         success: false,
-        error: err.response?.data?.message || "Registration failed",
+        error: backendMessage || "Registration failed",
       };
     }
   };
+
 
   // Login
   const login = async (email, password) => {
