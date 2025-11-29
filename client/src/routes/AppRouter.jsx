@@ -1,18 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import routesConfig from "./routesConfig";
 import ProtectedRoute from "./ProtectedRoute";
-import PublicRoute from "./PublicRoute"; 
+import PublicRoute from "./PublicRoute";
 import Sidebar from "../components/Sidebar";
 import Home from "../pages/Home/Home";
 import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
-import {useAuth} from "../contexts/AuthContext.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import ForgetPassword from "../pages/auth/ForgetPassword.jsx";
+import ResetPassword from "../pages/auth/ResetPassword.jsx";
 
 export default function AppRouter() {
   const { isAuthenticated, userRole, loading } = useAuth();
   const roleRoutes = routesConfig[userRole] || [];
 
-  if (loading || (isAuthenticated && !userRole) ) {
+  if (loading || (isAuthenticated && !userRole)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div>Loading...</div>
@@ -39,7 +41,20 @@ export default function AppRouter() {
             <Register />
           </PublicRoute>
         } />
-        
+
+        <Route path="/forget-password" element={
+          <PublicRoute isAuthenticated={isAuthenticated}>
+            <ForgetPassword />
+          </PublicRoute>
+        } />
+
+        <Route path="/reset-password" element={
+          <PublicRoute isAuthenticated={isAuthenticated}>
+            <ResetPassword />
+          </PublicRoute>
+        } />
+
+
         <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
 
         {/* Main Protected Layout */}
