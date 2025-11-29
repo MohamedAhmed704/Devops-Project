@@ -25,28 +25,19 @@ export default function Login() {
     } else {
       setError(result.error);
     }
-    
+
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F9F7F7] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-[#DBE2EF]">
-        
+
         {/* Header */}
         <div>
           <h2 className="mt-4 text-center text-3xl font-extrabold text-[#112D4E]">
             Welcome Back to <span className="text-[#3F72AF]">Tadbire</span>
           </h2>
-          <p className="mt-3 text-center text-sm text-[#3F72AF]">
-            New here?{" "}
-            <Link
-              to="/register"
-              className="font-medium text-[#112D4E] hover:text-[#3F72AF]"
-            >
-              Create an account
-            </Link>
-          </p>
         </div>
 
         {/* Form */}
@@ -86,6 +77,14 @@ export default function Login() {
                 placeholder="Enter your password"
               />
             </div>
+          </div>
+          <div className="text-right">
+            <Link
+              to="/forget-password"
+              className="text-sm font-medium text-[#3F72AF] hover:text-[#112D4E]"
+            >
+              Forgot your password?
+            </Link>
           </div>
 
           {/* Error Message */}
