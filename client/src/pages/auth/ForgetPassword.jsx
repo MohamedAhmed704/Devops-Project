@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import apiClient from "../../api/apiClient.js";
+import { validateForgetPassword } from "../../utils/validation.js";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState("");
@@ -13,6 +14,14 @@ export default function ForgetPassword() {
     setLoading(true);
     setError("");
     setMessage("");
+
+    // run validation first
+    const errors = validateForgetPassword(email);
+    if (errors.email) {
+      setError(errors.email);
+      setLoading(false);
+      return;
+    }
 
     try {
       const res = await apiClient.post("/api/auth/forget-password", { email });
@@ -36,7 +45,7 @@ export default function ForgetPassword() {
         </p>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Email */}
+
           <div>
             <label className="block text-sm font-medium text-[#112D4E]">
               Email Address
@@ -51,12 +60,14 @@ export default function ForgetPassword() {
             />
           </div>
 
-          {/* Messages */}
+          {/* Success */}
           {message && (
             <div className="rounded-md bg-green-50 border border-green-200 p-3">
               <p className="text-sm text-green-800">{message}</p>
             </div>
           )}
+
+          {/* Error */}
           {error && (
             <div className="rounded-md bg-red-50 border border-red-200 p-3">
               <p className="text-sm text-red-700">{error}</p>
@@ -78,8 +89,8 @@ export default function ForgetPassword() {
               Sign in
             </Link>
           </p>
-        </form>
 
+        </form>
       </div>
     </div>
   );
