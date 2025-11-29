@@ -255,63 +255,62 @@ export default function TimeTracking() {
             {/* el view */}
             {open && (
               <div className="fixed inset-0  bg-opacity-25 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl p-6 w-[600px] shadow-lg relative">
-                  <button
-                    onClick={() => setOpen(false)}
-                    className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
-                  >
-                    ✕
-                  </button>
-
-                  <h2 className="text-lg font-semibold mb-4">
-                    Time Card Details
-                  </h2>
-
-                  <div className="grid grid-cols-2 gap-6">
-                    {/* Employee Info */}
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-2">
-                        Employee Information
-                      </h3>
-                      <p className="text-sm text-gray-700">
-                        Name: Sarah Johnson
-                      </p>
-                      <p className="text-sm text-gray-700">Date: 2024-01-15</p>
-                      <p className="text-sm text-gray-700">
-                        Location: Downtown Store
-                      </p>
-                    </div>
-
-                    {/* Time Info */}
-                    <div>
-                      <h3 className="font-semibold text-gray-800 mb-2">
-                        Time Information
-                      </h3>
-                      <p className="text-sm text-gray-700">
-                        Clock In: 09:00 AM
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        Clock Out: 05:30 PM
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        Break Duration: 30 min
-                      </p>
-                      <p className="text-sm text-gray-700">Total Hours: 8h</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <h3 className="font-semibold text-gray-800 mb-2">Notes</h3>
-                    <div className="bg-blue-100 p-3 rounded-md text-sm text-gray-800">
-                      Worked overtime for inventory
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex justify-end">
-                    <button className="dashboardBtn">
-                      <Pencil className="w-4" />
-                      Edit
+                <div className="fixed inset-0  bg-black bg-opacity-25 flex items-center justify-center">
+                  <div className="bg-white rounded-xl p-6 w-[600px] shadow-lg relative">
+                    <button
+                      onClick={() => setOpen(false)}
+                      className="absolute top-3 right-3 text-gray-600 hover:text-gray-800"
+                    >
+                      ✕
                     </button>
+                    <h2 className="text-lg font-semibold mb-4">
+                      Time Card Details
+                    </h2>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <h3 className="font-semibold text-gray-800 mb-2">
+                          Employee Information
+                        </h3>
+                        <p className="text-sm text-gray-700">
+                          Name: Sarah Johnson
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Date: 2024-01-15
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Location: Downtown Store
+                        </p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800 mb-2">
+                          Time Information
+                        </h3>
+                        <p className="text-sm text-gray-700">
+                          Clock In: 09:00 AM
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Clock Out: 05:30 PM
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          Break Duration: 30 min
+                        </p>
+                        <p className="text-sm text-gray-700">Total Hours: 8h</p>
+                      </div>
+                    </div>
+                    <div className="mt-6">
+                      <h3 className="font-semibold text-gray-800 mb-2">
+                        Notes
+                      </h3>
+                      <div className="bg-blue-100 p-3 rounded-md text-sm text-gray-800">
+                        Worked overtime for inventory
+                      </div>
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                      <button className="px-4 py-2 bg-white border rounded-md shadow-sm hover:bg-gray-100 flex items-center gap-2">
+                        <Pencil className="w-4"/>
+                        Edit
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
