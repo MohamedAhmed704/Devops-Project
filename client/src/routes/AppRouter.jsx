@@ -2,13 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import routesConfig from "./routesConfig";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
-import Sidebar from "../components/Sidebar";
 import Home from "../pages/Home/Home";
 import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import ForgetPassword from "../pages/auth/ForgetPassword.jsx";
 import ResetPassword from "../pages/auth/ResetPassword.jsx";
+import Navbar from "../components/Navbar.jsx";
 
 export default function AppRouter() {
   const { isAuthenticated, userRole, loading } = useAuth();
@@ -71,7 +71,7 @@ export default function AppRouter() {
 function MainAppLayout({ userRole, roleRoutes }) {
   return (
     <div className="">
-      <Sidebar role={userRole} />
+      <Navbar role={userRole} />
       <div className="">
         <Routes>
           {roleRoutes.map(route => (
