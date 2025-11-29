@@ -1,15 +1,15 @@
 import Dashboard from "./pages/admin/Dashboard/Dashboard";
+import Employees from "./pages/admin/Employees";
 import TimeTracking from "./pages/admin/TimeTracking";
 import Home from "./pages/Home";
 import AppRouter from "./routes/AppRouter";
 
 function App() {
-
   return (
     <>
-<TimeTracking/>
-    {/* <Home/> */}
-
+      <Employees />
+      {/* <TimeTracking/> */}
+      {/* <Home/> */}
     </>
     // <div className="app-layout flex">
 
@@ -19,7 +19,7 @@ function App() {
     //   </div>
 
     // </div>
-  )
+  );
 }
 
-export default App
+export default App;
