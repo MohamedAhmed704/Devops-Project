@@ -1,10 +1,12 @@
 import User from "../models/userModel.js";
 import Company from "../models/companyModel.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/token.js";
+import { sendResetPasswordEmail } from "../utils/emailService.js";
 
 // REGISTER SUPER ADMIN + COMPANY (First Setup)
 export const registerCompany = async (req, res) => {
@@ -25,7 +27,7 @@ export const registerCompany = async (req, res) => {
       name,
       email,
       password,
-      role: "super_admin",
+      role: "superAdmin",
       company: company._id,
       active: true,
     });
@@ -127,6 +129,72 @@ export const logoutUser = async (req, res) => {
     return res.json({ message: "Logged out successfully" });
   } catch (err) {
     console.error("logoutUser error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// FORGET PASSWORD - Send Reset Email
+export const forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't expose if user exists or not
+      return res.json({ message: "If the email exists, a reset link has been sent." });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash the token for security (store hashed)
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    // Set token and expiry on user
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    await user.save();
+
+    // Create reset URL (frontend link)
+    const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+
+    // Send email using service
+    await sendResetPasswordEmail(user.email, resetUrl);
+
+    return res.json({ message: "Reset email sent." });
+  } catch (err) {
+    console.error("forgetPassword error:", err);
+    return res.status(500).json({ message: "Email could not be sent." });
+  }
+};
+
+// RESET PASSWORD - Verify Token and Update Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // Hash the incoming token
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find user with valid token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    // Update password
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    return res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("resetPassword error:", err);
     return res.status(500).json({ message: err.message });
   }
 };

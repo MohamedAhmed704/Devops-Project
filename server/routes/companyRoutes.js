@@ -1,14 +1,26 @@
 import express from "express";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
-import Company from "../models/companyModel.js";
+import { protect, adminOnly, superAdminOnly } from "../middleware/authMiddleware.js";
+import {
+  getMyCompany,
+  updateCompany,
+  getAllCompanies,
+  getCompanyById,
+  deactivateCompany,
+  deleteCompany,
+  getCompanyStatistics
+} from "../controllers/companyController.js";
 
 const router = express.Router();
 
-router.get("/me", protect, async (req, res) => {
-  const companyId = req.user.company;
-  const company = await Company.findById(companyId);
-  if (!company) return res.status(404).json({ message: "Company not found" });
-  res.json(company);
-});
+// Company admin routes
+router.get("/me", protect, getMyCompany);
+router.put("/", protect, adminOnly, updateCompany);
+router.get("/statistics", protect, adminOnly, getCompanyStatistics);
+
+// Super admin only routes
+router.get("/all", protect, superAdminOnly, getAllCompanies);
+router.get("/:id", protect, superAdminOnly, getCompanyById);
+router.patch("/:id/deactivate", protect, superAdminOnly, deactivateCompany);
+router.delete("/:id", protect, superAdminOnly, deleteCompany);
 
 export default router;
