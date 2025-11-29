@@ -1,6 +1,3 @@
-import { Brain } from "lucide-react";
-import React from "react";
-
 const Footer = () => {
   const footerLinks = [
     {
@@ -23,10 +20,7 @@ const Footer = () => {
         {/* LOGO & DESCRIPTION */}
         <div className="flex flex-col items-start gap-4 md:w-1/3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-slate-800 flex items-center justify-center rounded-xl">
-              <Brain size={22} className="text-white" />
-            </div>
-            <h4 className="font-semibold text-xl">ShiftMind</h4>
+            <h4 className="font-semibold text-xl">Tadbir</h4>
           </div>
 
           <p className="text-gray-300 text-sm leading-relaxed">
@@ -57,7 +51,7 @@ const Footer = () => {
 
       {/* BOTTOM TEXT */}
       <div className="text-center text-gray-500 mt-10 text-sm">
-        © {new Date().getFullYear()} ShiftMind — All rights reserved.
+        © {new Date().getFullYear()} Tadbir — All rights reserved.
       </div>
     </footer>
   );

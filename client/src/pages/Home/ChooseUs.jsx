@@ -23,7 +23,7 @@ const ChooseUs = () => {
       {/* TEXT SECTION */}
       <div className="flex-1 p-6 md:p-12 mt-6 lg:mt-12">
         <h3 className="font-semibold text-3xl md:text-4xl text-white my-5">
-          Why Choose Tadbir
+          Why Choose Tadbir ?
         </h3>
 
         <div className="space-y-4 mt-6">
