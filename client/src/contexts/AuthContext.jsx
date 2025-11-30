@@ -13,7 +13,9 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("accessToken");
 
     if (token) {
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
       setAccessToken(token);
+      console.log("token on reload:", localStorage.getItem("accessToken"));
 
       apiClient
         .get("/api/users/me")
@@ -22,11 +24,18 @@ export function AuthProvider({ children }) {
         })
         .catch(() => {
           localStorage.removeItem("accessToken");
+          setAccessToken(null);
+        })
+        .finally(() => {
+          setLoading(false);
         });
+
+    } else {
+      setLoading(false);
     }
 
-    setLoading(false);
   }, []);
+
 
   // Listen for refreshed user data (from interceptor)
   useEffect(() => {
