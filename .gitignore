@@ -1,4 +1,4 @@
-# Dependencies
+# Node modules
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -10,10 +10,15 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+server/.env
+client/.env
 
 # Logs
 logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Runtime data
 pids/
@@ -21,16 +26,16 @@ pids/
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage/
 *.lcov
-
-# nyc test coverage
 .nyc_output
 
-# Editor directories and files
+# Dependency directories
+node_modules/
+
+# Editor files
 .vscode/
-!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
@@ -48,16 +53,19 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+client/dist/
+server/dist/
 
-# MongoDB data
+# Database
 data/
+*.sqlite
 
-# Documentation - Git ignore but keep locally
-project-documentation.md
-
-# Temporary files
+# Temp files
 *.tmp
 *.bak
 
 # IDE
 .history/
+
+# Documentation (local reference)
+project-documentation.md
