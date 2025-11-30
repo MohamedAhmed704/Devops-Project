@@ -15,7 +15,7 @@ const Employees = () => {
         </div>
 
         <div className="flex  items-end gap-2">
-          <button className="px-8 py-2 rounded-md bg-blue-600 text-gray-700 text-white flex items-center gap-1 shadow-sm">
+          <button className="px-8 py-2 rounded-md bg-blue-600 text-gray-700 flex items-center gap-1 shadow-sm">
             + Add Employee
           </button>
         </div>
