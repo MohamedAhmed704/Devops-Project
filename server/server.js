@@ -11,6 +11,7 @@ import companyRoutes from "./routes/companyRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import timeOffRoutes from "./routes/timeOffRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import otpRoutes from "./routes/otpRoutes.js";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -31,6 +32,7 @@ app.use("/api/shifts", shiftRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/timeoff", timeOffRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/otp", otpRoutes);
 
 app.get("/", (req, res) => {
   res.send("ShiftMind API Running - Smart Workforce Management System");

@@ -8,48 +8,210 @@ import {
 } from "../utils/token.js";
 import { sendResetPasswordEmail } from "../utils/emailService.js";
 
-// REGISTER SUPER ADMIN + COMPANY (First Setup)
+// REGISTER SUPER ADMIN + COMPANY (First Setup) - Register First, then OTP
 export const registerCompany = async (req, res) => {
   try {
     const { companyName, name, email, password } = req.body;
 
-    // Check duplicate email
-    const exists = await User.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ message: "Email already in use" });
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_EMAIL",
+        message: "Please provide a valid email address"
+      });
+    }
+
+    // Validate password strength
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: "WEAK_PASSWORD",
+        message: "Password must be at least 6 characters long"
+      });
+    }
+
+    // Check if user already exists and is verified
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser && existingUser.emailVerified) {
+      return res.status(400).json({
+        success: false,
+        error: "EMAIL_ALREADY_EXISTS",
+        message: "Email is already registered and verified"
+      });
     }
 
     // Create company
     const company = await Company.create({ name: companyName });
 
-    // Create super admin of this company
-    const superAdmin = await User.create({
-      name,
-      email,
-      password,
-      role: "superAdmin",
-      company: company._id,
-      active: true,
+    // Create user (pending verification)
+    let user;
+    if (existingUser) {
+      // Update existing unverified user
+      user = await User.findByIdAndUpdate(
+        existingUser._id,
+        {
+          name,
+          password,
+          role: "superAdmin",
+          company: company._id,
+          isActive: false, // Will be activated after OTP verification
+          active: false
+        },
+        { new: true }
+      );
+    } else {
+      // Create new user (pending verification)
+      user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password,
+        role: "superAdmin",
+        company: company._id,
+        emailVerified: false, // Pending verification
+        isActive: false, // Account not active yet
+        active: false
+      });
+    }
+
+    // Generate and send OTP for email verification
+    const OTP = await import("../models/otpModel.js");
+    const otpCode = OTP.default.generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Create OTP record
+    await OTP.default.create({
+      email: email.toLowerCase(),
+      otp: otpCode,
+      type: "email_verification",
+      expiresAt: expiresAt
     });
 
-    const accessToken = generateAccessToken(superAdmin);
-    const refreshToken = generateRefreshToken(superAdmin);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-    });
+    // Send OTP via email
+    const { sendOTPEmail } = await import("../utils/emailService.js");
+    await sendOTPEmail(email, otpCode);
 
     return res.status(201).json({
-      message: "Company Registered + Super Admin Created",
-      accessToken,
-      user: superAdmin,
-      company,
+      success: true,
+      message: "Registration successful! Please check your email to verify your account.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        isActive: user.isActive
+      },
+      company: {
+        id: company._id,
+        name: company.name
+      }
     });
   } catch (err) {
     console.error("registerCompany error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({
+      success: false,
+      error: "SERVER_ERROR",
+      message: "Registration failed. Please try again later."
+    });
+  }
+};
+
+// ACTIVATE ACCOUNT AFTER OTP VERIFICATION
+export const activateAccount = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Validate input
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        error: "MISSING_FIELDS",
+        message: "Email and OTP are required"
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_EMAIL",
+        message: "Please provide a valid email address"
+      });
+    }
+
+    // Find user
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "USER_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({
+        success: false,
+        error: "ALREADY_VERIFIED",
+        message: "Account is already verified"
+      });
+    }
+
+    // Verify OTP
+    const OTP = await import("../models/otpModel.js");
+    const otpRecord = await OTP.default.findValidOTP(email.toLowerCase(), otp, "email_verification");
+    
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_OTP",
+        message: "Invalid or expired OTP"
+      });
+    }
+
+    // Mark OTP as verified
+    await otpRecord.markAsVerified();
+
+    // Activate user account
+    user.emailVerified = true;
+    user.isActive = true;
+    user.active = true;
+    await user.save();
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+
+    // Set refresh token in cookies
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res.json({
+      success: true,
+      message: "Account activated successfully! You can now login.",
+      accessToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        emailVerified: user.emailVerified,
+        isActive: user.isActive
+      }
+    });
+
+  } catch (err) {
+    console.error("activateAccount error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "SERVER_ERROR",
+      message: "Account activation failed. Please try again later."
+    });
   }
 };
 

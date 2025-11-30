@@ -91,7 +91,25 @@ const userSchema = new mongoose.Schema(
 
     // Password reset fields
     resetPasswordToken: { type: String },
-    resetPasswordExpire: { type: Date }
+    resetPasswordExpire: { type: Date },
+
+    // Email verification fields
+    emailVerified: { 
+      type: Boolean, 
+      default: false 
+    },
+    emailVerificationToken: { 
+      type: String 
+    },
+    emailVerificationExpires: { 
+      type: Date 
+    },
+
+    // Account status
+    isActive: { 
+      type: Boolean, 
+      default: true 
+    }
   },
   { timestamps: true }
 );
@@ -117,6 +135,30 @@ userSchema.methods.updateLastLogin = async function () {
   await this.save();
 };
 
+// Email verification method
+userSchema.methods.verifyEmail = function() {
+  this.emailVerified = true;
+  this.emailVerificationToken = undefined;
+  this.emailVerificationExpires = undefined;
+  return this.save();
+};
+
+// Check if email verification is required
+userSchema.methods.isEmailVerificationRequired = function() {
+  return !this.emailVerified && this.emailVerificationExpires && this.emailVerificationExpires > Date.now();
+};
+
+// Generate email verification token
+userSchema.methods.generateEmailVerificationToken = function() {
+  const crypto = require('crypto');
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+  
+  this.emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+  this.emailVerificationExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  
+  return verificationToken; // Return unhashed token for email
+};
+
 // Virtual for full profile (optional)
 userSchema.virtual('profile').get(function() {
   return {
@@ -130,6 +172,8 @@ userSchema.virtual('profile').get(function() {
     hireDate: this.hireDate,
     avatar: this.avatar,
     active: this.active,
+    isActive: this.isActive,
+    emailVerified: this.emailVerified,
     company: this.company,
     team: this.team,
     lastLogin: this.lastLogin
