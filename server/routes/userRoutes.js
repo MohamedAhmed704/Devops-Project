@@ -12,6 +12,9 @@ import {
 
 const router = express.Router();
 
+// User routes
+router.get("/me", protect, getMe);
+
 // Admin routes
 router.get("/", protect, adminOnly, getUsers);
 router.post("/create-employee", protect, adminOrAbove, createEmployee);
@@ -20,7 +23,6 @@ router.put("/:id", protect, updateUser);
 router.patch("/:id/deactivate", protect, adminOnly, deactivateUser);
 router.patch("/:id/role", protect, adminOnly, changeUserRole);
 
-// User routes
-router.get("/me", protect, getMe);
+
 
 export default router;
