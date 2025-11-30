@@ -1,27 +1,20 @@
 import { useState } from "react";
-import {
-  Bell,
-  Search,
-  User,
-  Menu,
-  X,
-} from "lucide-react";
+import { Bell, Search, User, Menu, X } from "lucide-react";
 import routes from "../routes/routesConfig";
 import { NavLink } from "react-router";
+import { useAuth } from "../contexts/AuthContext.jsx";
 
 export default function Navbar({ role }) {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openProfileMenu, setOpenProfileMenu] = useState(false);
   const [openNotificationMenu, setOpenNotificationMenu] = useState(false);
-
+  const { logout, userRole } = useAuth();
   const items = routes[role] || [];
 
   return (
     <div className="w-full shadow bg-white sticky top-0 z-50">
-
       {/* TOP NAVBAR */}
       <div className="w-full flex items-center justify-between px-4 md:px-10 py-3 border-b">
-
         {/* Left side: Hamburger + Website Name */}
         <div className="flex items-center gap-2">
           <button
@@ -46,7 +39,6 @@ export default function Navbar({ role }) {
 
         {/* Icons Right */}
         <div className="flex items-center gap-4 md:gap-6 relative">
-
           {/* Notifications */}
           <div className="relative">
             <button
@@ -88,19 +80,18 @@ export default function Navbar({ role }) {
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg z-50">
                 <ul className="flex flex-col">
                   <li className="px-4 py-2 text-gray-800 font-semibold underline-offset-8 ">
-                    Manager
+                    {userRole}
                   </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                    Profile
-                  </li>
+
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-600">
-                    Logout
+                    <button onClick={logout} className="cursor-pointer">
+                      Logout
+                    </button>
                   </li>
                 </ul>
               </div>
             )}
           </div>
-
         </div>
       </div>
 
@@ -114,7 +105,8 @@ export default function Navbar({ role }) {
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center gap-2 hover:text-[#BBE1FA] transition ${isActive ? "text-[#BBE1FA] font-semibold" : ""
+                    `flex items-center gap-2 hover:text-[#BBE1FA] transition ${
+                      isActive ? "text-[#BBE1FA] font-semibold" : ""
                     }`
                   }
                 >
@@ -131,7 +123,6 @@ export default function Navbar({ role }) {
       {openMobileMenu && (
         <div className="md:hidden bg-[#1d2931] text-white px-6 py-3">
           <div className="flex flex-col gap-4">
-
             {/* Mobile Search */}
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg w-full mb-1">
               <Search size={18} className="text-gray-500" />
@@ -150,7 +141,8 @@ export default function Navbar({ role }) {
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `text-sm flex items-center gap-3 py-2 border-b border-gray-600 hover:text-[#BBE1FA] transition ${isActive ? "text-[#BBE1FA] font-semibold" : ""
+                    `text-sm flex items-center gap-3 py-2 border-b border-gray-600 hover:text-[#BBE1FA] transition ${
+                      isActive ? "text-[#BBE1FA] font-semibold" : ""
                     }`
                   }
                   onClick={() => setOpenMobileMenu(false)}
