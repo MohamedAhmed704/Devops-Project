@@ -1,51 +1,86 @@
 import Report from "../models/reportModel.js";
 import Attendance from "../models/attendanceModel.js";
-import TimeOff from "../models/timeOffModel.js";
 import User from "../models/userModel.js";
 import Shift from "../models/shiftModel.js";
-import Team from "../models/teamModel.js";
 
 // GENERATE ATTENDANCE REPORT
 export const generateAttendanceReport = async (req, res) => {
   try {
-    const companyId = req.user.company;
-    const userId = req.user._id;
-    const { startDate, endDate, teamId, type = "summary" } = req.body;
+    const adminId = req.user._id;
+    const userRole = req.user.role;
+    const { start_date, end_date, employee_id, type = "summary" } = req.body;
 
-    if (!["superAdmin", "admin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Only admins can generate reports" });
+    if (!["super_admin", "admin"].includes(userRole)) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Only admins can generate reports" 
+      });
     }
 
     // Validate dates
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(start_date);
+    const end = new Date(end_date);
     end.setHours(23, 59, 59, 999);
 
     if (isNaN(start) || isNaN(end)) {
-      return res.status(400).json({ message: "Invalid date format" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid date format" 
+      });
     }
 
     if (start >= end) {
-      return res.status(400).json({ message: "Start date must be before end date" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Start date must be before end date" 
+      });
     }
 
-    // Build query
+    // Build query based on user role
     let attendanceQuery = {
-      company: companyId,
       date: { $gte: start, $lte: end }
     };
 
-    if (teamId) {
-      const team = await Team.findById(teamId);
-      if (!team || team.company.toString() !== companyId.toString()) {
-        return res.status(400).json({ message: "Invalid team" });
+    let employees = [];
+    
+    if (userRole === "admin") {
+      // Admin can only access their branch employees
+      employees = await User.find({ 
+        branch_admin_id: adminId,
+        role: "employee"
+      });
+      
+      const employeeIds = employees.map(emp => emp._id);
+      
+      if (employee_id) {
+        // Verify the employee belongs to this admin
+        if (!employeeIds.includes(employee_id)) {
+          return res.status(403).json({ 
+            success: false,
+            message: "Employee not found in your branch" 
+          });
+        }
+        attendanceQuery.user_id = employee_id;
+      } else {
+        attendanceQuery.user_id = { $in: employeeIds };
       }
-      attendanceQuery.employee = { $in: team.members };
+    } else if (userRole === "super_admin") {
+      // Super admin can access all employees
+      employees = await User.find({ role: "employee" });
+      
+      if (employee_id) {
+        attendanceQuery.user_id = employee_id;
+        const employee = await User.findById(employee_id);
+        if (employee) employees = [employee];
+      } else {
+        const employeeIds = employees.map(emp => emp._id);
+        attendanceQuery.user_id = { $in: employeeIds };
+      }
     }
 
     // Get attendance data
     const attendanceRecords = await Attendance.find(attendanceQuery)
-      .populate("employee", "name email role team")
+      .populate("user_id", "name email position branch_admin_id")
       .sort({ date: 1 });
 
     // Calculate report data based on type
@@ -53,7 +88,7 @@ export const generateAttendanceReport = async (req, res) => {
     
     switch (type) {
       case "summary":
-        reportData = await generateAttendanceSummary(attendanceRecords, start, end);
+        reportData = await generateAttendanceSummary(attendanceRecords, start, end, employees);
         break;
       case "detailed":
         reportData = await generateDetailedAttendance(attendanceRecords, start, end);
@@ -62,171 +97,275 @@ export const generateAttendanceReport = async (req, res) => {
         reportData = await generateOvertimeReport(attendanceRecords, start, end);
         break;
       default:
-        reportData = await generateAttendanceSummary(attendanceRecords, start, end);
+        reportData = await generateAttendanceSummary(attendanceRecords, start, end, employees);
     }
 
     // Create report record
     const report = await Report.create({
-      company: companyId,
       type: "attendance",
       period: "custom",
-      startDate: start,
-      endDate: end,
+      start_date: start,
+      end_date: end,
       title: `Attendance Report - ${start.toDateString()} to ${end.toDateString()}`,
+      description: `Attendance report for ${employees.length} employees`,
       data: reportData,
-      generatedBy: userId
+      generated_by_admin_id: adminId,
+      employee_id: employee_id || null,
+      format: type === "detailed" ? "detailed" : "summary"
     });
 
     return res.status(201).json({
+      success: true,
       message: "Attendance report generated successfully",
-      report
+      data: {
+        report_info: {
+          id: report._id,
+          title: report.title,
+          type: report.type,
+          period: report.period,
+          start_date: report.start_date,
+          end_date: report.end_date,
+          format: report.format,
+          generated_at: report.createdAt
+        },
+        report_data: reportData  // ⭐⭐ إضافة البيانات الفعلية
+      }
     });
   } catch (err) {
     console.error("generateAttendanceReport error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
-// GENERATE TIME OFF REPORT
-export const generateTimeOffReport = async (req, res) => {
+// GENERATE SHIFT REPORT
+export const generateShiftReport = async (req, res) => {
   try {
-    const companyId = req.user.company;
-    const userId = req.user._id;
-    const { startDate, endDate, teamId, reportType = "summary" } = req.body;
+    const adminId = req.user._id;
+    const userRole = req.user.role;
+    const { start_date, end_date, employee_id, shift_type } = req.body;
 
-    if (!["superAdmin", "admin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Only admins can generate reports" });
+    if (!["super_admin", "admin"].includes(userRole)) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Only admins can generate reports" 
+      });
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(start_date);
+    const end = new Date(end_date);
     end.setHours(23, 59, 59, 999);
 
-    // Build query
-    let timeOffQuery = {
-      company: companyId,
-      startDate: { $gte: start, $lte: end }
+    // Build query based on user role
+    let shiftQuery = {
+      start_date_time: { $gte: start, $lte: end }
     };
 
-    if (teamId) {
-      const team = await Team.findById(teamId);
-      if (!team || team.company.toString() !== companyId.toString()) {
-        return res.status(400).json({ message: "Invalid team" });
+    if (userRole === "admin") {
+      // Admin can only access their branch employees
+      const employees = await User.find({ 
+        branch_admin_id: adminId,
+        role: "employee"
+      });
+      const employeeIds = employees.map(emp => emp._id);
+      
+      if (employee_id) {
+        if (!employeeIds.includes(employee_id)) {
+          return res.status(403).json({ 
+            success: false,
+            message: "Employee not found in your branch" 
+          });
+        }
+        shiftQuery.employee_id = employee_id;
+      } else {
+        shiftQuery.employee_id = { $in: employeeIds };
       }
-      timeOffQuery.employee = { $in: team.members };
+    } else if (userRole === "super_admin" && employee_id) {
+      shiftQuery.employee_id = employee_id;
     }
 
-    // Get time off data
-    const timeOffRequests = await TimeOff.find(timeOffQuery)
-      .populate("employee", "name email role team")
-      .populate("approvedBy", "name")
-      .sort({ startDate: 1 });
+    if (shift_type) {
+      shiftQuery.shift_type = shift_type;
+    }
 
-    // Generate report data
-    const reportData = await generateTimeOffAnalysis(timeOffRequests, start, end);
+    // Get shift data
+    const shifts = await Shift.find(shiftQuery)
+      .populate("employee_id", "name email position")
+      .populate("created_by_admin_id", "name branch_name")
+      .sort({ start_date_time: 1 });
+
+    // Generate shift report data
+    const reportData = await generateShiftAnalysis(shifts, start, end);
 
     // Create report record
     const report = await Report.create({
-      company: companyId,
-      type: "timeoff",
+      type: "shift",
       period: "custom",
-      startDate: start,
-      endDate: end,
-      title: `Time Off Report - ${start.toDateString()} to ${end.toDateString()}`,
+      start_date: start,
+      end_date: end,
+      title: `Shift Report - ${start.toDateString()} to ${end.toDateString()}`,
+      description: `Shift report covering ${shifts.length} shifts`,
       data: reportData,
-      generatedBy: userId
+      generated_by_admin_id: adminId,
+      employee_id: employee_id || null,
+      format: "summary"
     });
 
     return res.status(201).json({
-      message: "Time off report generated successfully",
-      report
+      success: true,
+      message: "Shift report generated successfully",
+      data: {
+        report_info: {
+          id: report._id,
+          title: report.title,
+          type: report.type,
+          period: report.period,
+          start_date: report.start_date,
+          end_date: report.end_date,
+          format: report.format,
+          generated_at: report.createdAt
+        },
+        report_data: reportData  // ⭐⭐ إضافة البيانات الفعلية
+      }
     });
   } catch (err) {
-    console.error("generateTimeOffReport error:", err);
-    return res.status(500).json({ message: err.message });
+    console.error("generateShiftReport error:", err);
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
-// GENERATE PRODUCTIVITY REPORT
-export const generateProductivityReport = async (req, res) => {
+// GENERATE EMPLOYEE PERFORMANCE REPORT
+export const generatePerformanceReport = async (req, res) => {
   try {
-    const companyId = req.user.company;
-    const userId = req.user._id;
-    const { startDate, endDate, teamId } = req.body;
+    const adminId = req.user._id;
+    const userRole = req.user.role;
+    const { start_date, end_date, employee_id } = req.body;
 
-    if (!["superAdmin", "admin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Only admins can generate reports" });
+    if (!["super_admin", "admin"].includes(userRole)) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Only admins can generate reports" 
+      });
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(start_date);
+    const end = new Date(end_date);
     end.setHours(23, 59, 59, 999);
 
-    // Get attendance data for productivity analysis
-    let attendanceQuery = {
-      company: companyId,
-      date: { $gte: start, $lte: end },
-      clockOut: { $exists: true } // Only completed shifts
-    };
+    // Build queries based on user role
+    let employeeQuery = { role: "employee" };
+    let attendanceQuery = { date: { $gte: start, $lte: end } };
+    let shiftQuery = { start_date_time: { $gte: start, $lte: end } };
 
-    if (teamId) {
-      const team = await Team.findById(teamId);
-      if (!team || team.company.toString() !== companyId.toString()) {
-        return res.status(400).json({ message: "Invalid team" });
+    if (userRole === "admin") {
+      employeeQuery.branch_admin_id = adminId;
+      
+      const employees = await User.find(employeeQuery);
+      const employeeIds = employees.map(emp => emp._id);
+      
+      if (employee_id) {
+        if (!employeeIds.includes(employee_id)) {
+          return res.status(403).json({ 
+            success: false,
+            message: "Employee not found in your branch" 
+          });
+        }
+        attendanceQuery.user_id = employee_id;
+        shiftQuery.employee_id = employee_id;
+      } else {
+        attendanceQuery.user_id = { $in: employeeIds };
+        shiftQuery.employee_id = { $in: employeeIds };
       }
-      attendanceQuery.employee = { $in: team.members };
+    } else if (userRole === "super_admin" && employee_id) {
+      attendanceQuery.user_id = employee_id;
+      shiftQuery.employee_id = employee_id;
+      employeeQuery._id = employee_id;
     }
 
-    const attendanceRecords = await Attendance.find(attendanceQuery)
-      .populate("employee", "name email role team")
-      .sort({ date: 1 });
+    // Get data in parallel
+    const [employees, attendanceRecords, shifts] = await Promise.all([
+      User.find(employeeQuery).select('name email position branch_admin_id'),
+      Attendance.find(attendanceQuery),
+      Shift.find(shiftQuery)
+    ]);
 
-    // Get shift data for comparison
-    const shifts = await Shift.find({
-      company: companyId,
-      startDateTime: { $gte: start, $lte: end },
-      status: { $in: ["assigned", "started", "completed"] }
-    }).populate("employee", "name email");
-
-    // Generate productivity analysis
-    const reportData = await generateProductivityAnalysis(attendanceRecords, shifts, start, end);
+    // Generate performance analysis
+    const reportData = await generatePerformanceAnalysis(employees, attendanceRecords, shifts, start, end);
 
     // Create report record
     const report = await Report.create({
-      company: companyId,
-      type: "productivity",
+      type: "performance",
       period: "custom",
-      startDate: start,
-      endDate: end,
-      title: `Productivity Report - ${start.toDateString()} to ${end.toDateString()}`,
+      start_date: start,
+      end_date: end,
+      title: `Performance Report - ${start.toDateString()} to ${end.toDateString()}`,
+      description: `Performance report for ${employees.length} employees`,
       data: reportData,
-      generatedBy: userId
+      generated_by_admin_id: adminId,
+      employee_id: employee_id || null,
+      format: "summary"
     });
 
     return res.status(201).json({
-      message: "Productivity report generated successfully",
-      report
+      success: true,
+      message: "Performance report generated successfully",
+      data: {
+        report_info: {
+          id: report._id,
+          title: report.title,
+          type: report.type,
+          period: report.period,
+          start_date: report.start_date,
+          end_date: report.end_date,
+          format: report.format,
+          generated_at: report.createdAt
+        },
+        report_data: reportData  // ⭐⭐ إضافة البيانات الفعلية
+      }
     });
   } catch (err) {
-    console.error("generateProductivityReport error:", err);
-    return res.status(500).json({ message: err.message });
+    console.error("generatePerformanceReport error:", err);
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
 // GET ALL REPORTS
 export const getReports = async (req, res) => {
   try {
-    const companyId = req.user.company;
+    const userId = req.user._id;
+    const userRole = req.user.role;
     const { type, period, page = 1, limit = 10 } = req.query;
 
-    let query = { company: companyId };
+    let query = {};
+
+    // Build query based on user role
+    if (userRole === "admin") {
+      query.generated_by_admin_id = userId;
+    } else if (userRole === "employee") {
+      query.$or = [
+        { employee_id: userId },
+        { access_level: "branch" },
+        { access_level: "company_wide", is_public: true },
+        { shared_with_users: userId }
+      ];
+    }
+    // Super admin can see all reports (no additional query)
 
     // Add filters
     if (type) query.type = type;
     if (period) query.period = period;
 
     const reports = await Report.find(query)
-      .populate("generatedBy", "name email")
+      .populate("generated_by_admin_id", "name email branch_name")
+      .populate("employee_id", "name email position")
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -234,131 +373,194 @@ export const getReports = async (req, res) => {
     const total = await Report.countDocuments(query);
 
     return res.json({
-      reports,
-      totalPages: Math.ceil(total / limit),
-      currentPage: parseInt(page),
-      total
+      success: true,
+      data: {
+        reports: reports.map(report => ({
+          id: report._id,
+          title: report.title,
+          type: report.type,
+          period: report.period,
+          start_date: report.start_date,
+          end_date: report.end_date,
+          format: report.format,
+          generated_by: report.generated_by_admin_id,
+          created_at: report.createdAt,
+          access_level: report.access_level,
+          is_public: report.is_public
+        })),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          total_pages: Math.ceil(total / limit)
+        }
+      }
     });
   } catch (err) {
     console.error("getReports error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
 // GET REPORT BY ID
 export const getReportById = async (req, res) => {
   try {
-    const companyId = req.user.company;
+    const userId = req.user._id;
+    const userRole = req.user.role;
     const { id } = req.params;
 
     const report = await Report.findById(id)
-      .populate("generatedBy", "name email")
-      .populate("sharedWith", "name email");
+      .populate("generated_by_admin_id", "name email branch_name")
+      .populate("employee_id", "name email position")
+      .populate("shared_with_users", "name email");
 
     if (!report) {
-      return res.status(404).json({ message: "Report not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Report not found" 
+      });
     }
 
-    // Check permissions
-    const isOwner = report.generatedBy._id.toString() === req.user._id.toString();
-    const isShared = report.sharedWith.some(user => user._id.toString() === req.user._id.toString());
-    const isAdmin = ["superAdmin", "admin"].includes(req.user.role);
-
-    if (!isOwner && !isShared && !isAdmin) {
-      return res.status(403).json({ message: "Not authorized to view this report" });
+    // Check permissions using the model method
+    if (!report.canUserAccess(userId, userRole)) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Not authorized to view this report" 
+      });
     }
 
-    if (report.company.toString() !== companyId.toString()) {
-      return res.status(403).json({ message: "Not allowed" });
-    }
-
-    return res.json(report);
+    return res.json({
+      success: true,
+      data: report
+    });
   } catch (err) {
     console.error("getReportById error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
 // SHARE REPORT WITH USERS
 export const shareReport = async (req, res) => {
   try {
-    const companyId = req.user.company;
+    const adminId = req.user._id;
     const { id } = req.params;
-    const { userIds } = req.body;
+    const { user_ids, access_level = "private" } = req.body;
 
-    if (!["superAdmin", "admin"].includes(req.user.role)) {
-      return res.status(403).json({ message: "Only admins can share reports" });
+    if (!["super_admin", "admin"].includes(req.user.role)) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Only admins can share reports" 
+      });
     }
 
     const report = await Report.findById(id);
     if (!report) {
-      return res.status(404).json({ message: "Report not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Report not found" 
+      });
     }
 
-    if (report.company.toString() !== companyId.toString()) {
-      return res.status(403).json({ message: "Not allowed" });
+    // Check if user owns the report or is super admin
+    if (report.generated_by_admin_id.toString() !== adminId.toString() && req.user.role !== "super_admin") {
+      return res.status(403).json({ 
+        success: false,
+        message: "Not authorized to share this report" 
+      });
     }
 
-    // Verify all users belong to the same company
+    // Verify all users exist
     const users = await User.find({ 
-      _id: { $in: userIds },
-      company: companyId 
+      _id: { $in: user_ids }
     });
 
-    if (users.length !== userIds.length) {
-      return res.status(400).json({ message: "Some users not found or don't belong to your company" });
+    if (users.length !== user_ids.length) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Some users not found" 
+      });
     }
 
-    report.sharedWith = userIds;
-    report.shareable = true;
+    // Update report sharing settings
+    report.shared_with_users = user_ids;
+    report.access_level = access_level;
+    report.is_public = access_level === "company_wide";
+    
     await report.save();
 
     return res.json({
+      success: true,
       message: "Report shared successfully",
-      sharedWith: users.map(user => ({ id: user._id, name: user.name, email: user.email }))
+      data: {
+        shared_with: users.map(user => ({ 
+          id: user._id, 
+          name: user.name, 
+          email: user.email 
+        })),
+        access_level: report.access_level
+      }
     });
   } catch (err) {
     console.error("shareReport error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
 // DELETE REPORT
 export const deleteReport = async (req, res) => {
   try {
-    const companyId = req.user.company;
+    const userId = req.user._id;
+    const userRole = req.user.role;
     const { id } = req.params;
 
     const report = await Report.findById(id);
     if (!report) {
-      return res.status(404).json({ message: "Report not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Report not found" 
+      });
     }
 
-    // Check permissions: only owner or admin can delete
-    const isOwner = report.generatedBy.toString() === req.user._id.toString();
-    const isAdmin = ["superAdmin", "admin"].includes(req.user.role);
+    // Check permissions: only owner or super admin can delete
+    const isOwner = report.generated_by_admin_id.toString() === userId.toString();
+    const isSuperAdmin = userRole === "super_admin";
 
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Not authorized to delete this report" });
-    }
-
-    if (report.company.toString() !== companyId.toString()) {
-      return res.status(403).json({ message: "Not allowed" });
+    if (!isOwner && !isSuperAdmin) {
+      return res.status(403).json({ 
+        success: false,
+        message: "Not authorized to delete this report" 
+      });
     }
 
     await Report.findByIdAndDelete(id);
 
-    return res.json({ message: "Report deleted successfully" });
+    return res.json({ 
+      success: true,
+      message: "Report deleted successfully" 
+    });
   } catch (err) {
     console.error("deleteReport error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
 // GET DASHBOARD STATISTICS
 export const getDashboardStats = async (req, res) => {
   try {
-    const companyId = req.user.company;
+    const userId = req.user._id;
+    const userRole = req.user.role;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -368,154 +570,194 @@ export const getDashboardStats = async (req, res) => {
     
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    // Parallel data fetching for performance
-    const [
-      totalEmployees,
-      activeShifts,
-      todayAttendance,
-      pendingTimeOff,
-      weeklyOvertime,
-      teamStats
-    ] = await Promise.all([
-      // Total employees
-      User.countDocuments({ company: companyId, role: "employee", active: true }),
-      
-      // Active shifts today
-      Shift.countDocuments({ 
-        company: companyId, 
-        status: "started",
-        startDateTime: { $gte: today } 
-      }),
-      
-      // Today's attendance summary
-      Attendance.aggregate([
-        {
-          $match: {
-            company: companyId,
-            date: { $gte: today }
-          }
-        },
-        {
-          $group: {
-            _id: "$status",
-            count: { $sum: 1 }
-          }
-        }
-      ]),
-      
-      // Pending time off requests
-      TimeOff.countDocuments({ company: companyId, status: "pending" }),
-      
-      // Weekly overtime total
-      Attendance.aggregate([
-        {
-          $match: {
-            company: companyId,
-            date: { $gte: weekStart },
-            overtime: { $gt: 0 }
-          }
-        },
-        {
-          $group: {
-            _id: null,
-            totalOvertime: { $sum: "$overtime" }
-          }
-        }
-      ]),
-      
-      // Team statistics
-      Team.find({ company: companyId }).populate("members")
-    ]);
+    let stats = {};
 
-    // Process today's attendance
-    const attendanceSummary = {
-      present: 0,
-      late: 0,
-      absent: 0
-    };
+    if (userRole === "employee") {
+      // Employee dashboard stats
+      const [todayAttendance, weekAttendance, totalShifts] = await Promise.all([
+        Attendance.findOne({
+          user_id: userId,
+          date: { $gte: today }
+        }),
+        Attendance.find({
+          user_id: userId,
+          date: { $gte: weekStart }
+        }),
+        Shift.countDocuments({
+          employee_id: userId,
+          start_date_time: { $gte: monthStart }
+        })
+      ]);
 
-    todayAttendance.forEach(item => {
-      attendanceSummary[item._id] = item.count;
+      stats = {
+        today: {
+          clocked_in: !!todayAttendance?.check_in,
+          status: todayAttendance?.status || "absent",
+          worked_hours: todayAttendance?.total_hours || 0
+        },
+        this_week: {
+          total_days: weekAttendance.length,
+          present_days: weekAttendance.filter(a => a.status === "present" || a.status === "late").length,
+          total_hours: weekAttendance.reduce((sum, a) => sum + a.total_hours, 0),
+          overtime: weekAttendance.reduce((sum, a) => sum + a.overtime, 0)
+        },
+        this_month: {
+          total_shifts: totalShifts
+        }
+      };
+
+    } else if (userRole === "admin") {
+      // Admin branch dashboard stats
+      const employees = await User.find({ 
+        branch_admin_id: userId,
+        role: "employee"
+      });
+
+      const employeeIds = employees.map(emp => emp._id);
+
+      const [todayAttendance, weekAttendance, pendingShifts, branchReports] = await Promise.all([
+        Attendance.find({
+          user_id: { $in: employeeIds },
+          date: { $gte: today }
+        }),
+        Attendance.find({
+          user_id: { $in: employeeIds },
+          date: { $gte: weekStart }
+        }),
+        Shift.countDocuments({
+          employee_id: { $in: employeeIds },
+          status: "scheduled",
+          start_date_time: { $gte: today }
+        }),
+        Report.countDocuments({
+          generated_by_admin_id: userId,
+          created_at: { $gte: monthStart }
+        })
+      ]);
+
+      const presentToday = todayAttendance.filter(a => a.status === "present" || a.status === "late").length;
+
+      stats = {
+        branch: {
+          total_employees: employees.length,
+          present_today: presentToday,
+          absent_today: employees.length - presentToday,
+          attendance_rate: (presentToday / employees.length * 100).toFixed(1)
+        },
+        this_week: {
+          total_hours: weekAttendance.reduce((sum, a) => sum + a.total_hours, 0),
+          total_overtime: weekAttendance.reduce((sum, a) => sum + a.overtime, 0),
+          average_hours: (weekAttendance.reduce((sum, a) => sum + a.total_hours, 0) / employees.length).toFixed(2)
+        },
+        upcoming: {
+          pending_shifts: pendingShifts
+        },
+        reports: {
+          generated_this_month: branchReports
+        }
+      };
+
+    } else if (userRole === "super_admin") {
+      // Super admin system-wide stats
+      const [totalAdmins, totalEmployees, totalReports, systemAttendance] = await Promise.all([
+        User.countDocuments({ role: "admin" }),
+        User.countDocuments({ role: "employee" }),
+        Report.countDocuments({ created_at: { $gte: monthStart } }),
+        Attendance.countDocuments({ date: { $gte: today } })
+      ]);
+
+      stats = {
+        system: {
+          total_branches: totalAdmins,
+          total_employees: totalEmployees,
+          active_today: systemAttendance,
+          reports_generated: totalReports
+        },
+        this_month: {
+          new_branches: await User.countDocuments({ 
+            role: "admin", 
+            created_at: { $gte: monthStart } 
+          }),
+          new_employees: await User.countDocuments({ 
+            role: "employee", 
+            created_at: { $gte: monthStart } 
+          })
+        }
+      };
+    }
+
+    return res.json({
+      success: true,
+      data: stats
     });
-
-    // Process team stats
-    const teamStatistics = teamStats.map(team => ({
-      id: team._id,
-      name: team.name,
-      memberCount: team.members.length,
-      activeMembers: team.members.filter(m => m.active).length
-    }));
-
-    const stats = {
-      overview: {
-        totalEmployees,
-        activeShifts,
-        pendingTimeOff,
-        weeklyOvertime: weeklyOvertime[0]?.totalOvertime || 0
-      },
-      attendance: attendanceSummary,
-      teams: teamStatistics
-    };
-
-    return res.json(stats);
   } catch (err) {
     console.error("getDashboardStats error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({ 
+      success: false,
+      message: err.message 
+    });
   }
 };
 
-// HELPER FUNCTIONS
-async function generateAttendanceSummary(records, start, end) {
+// HELPER FUNCTIONS (بدون تغيير)
+async function generateAttendanceSummary(records, start, end, employees) {
   const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-  const employees = [...new Set(records.map(r => r.employee._id.toString()))];
+  const employeeIds = [...new Set(records.map(r => r.user_id._id.toString()))];
   
   const summary = {
-    period: { start, end, totalDays },
-    totalRecords: records.length,
-    totalEmployees: employees.length,
-    attendanceRate: 0,
-    totalWorkedHours: 0,
-    totalOvertimeHours: 0,
-    lateCount: 0,
-    byEmployee: [],
-    byDay: []
+    period: { start, end, total_days: totalDays },
+    total_records: records.length,
+    total_employees: employees.length,
+    employees_with_records: employeeIds.length,
+    attendance_rate: 0,
+    total_worked_hours: 0,
+    total_overtime_hours: 0,
+    late_count: 0,
+    by_employee: [],
+    daily_summary: []
   };
 
   // Calculate by employee
   const employeeMap = new Map();
   
   records.forEach(record => {
-    const empId = record.employee._id.toString();
+    const empId = record.user_id._id.toString();
     if (!employeeMap.has(empId)) {
       employeeMap.set(empId, {
-        employee: record.employee,
+        employee: record.user_id,
         records: [],
-        totalWorked: 0,
+        total_worked: 0,
         overtime: 0,
-        lateCount: 0
+        late_count: 0
       });
     }
     
     const empData = employeeMap.get(empId);
     empData.records.push(record);
-    empData.totalWorked += record.totalWorked || 0;
+    empData.total_worked += record.total_hours || 0;
     empData.overtime += record.overtime || 0;
-    if (record.status === "late") empData.lateCount++;
+    if (record.status === "late") empData.late_count++;
   });
 
-  summary.byEmployee = Array.from(employeeMap.values()).map(emp => ({
-    employee: emp.employee,
-    totalWorkedHours: (emp.totalWorked / 60).toFixed(2),
-    overtimeHours: (emp.overtime / 60).toFixed(2),
-    lateCount: emp.lateCount,
-    attendanceRate: ((emp.records.length / totalDays) * 100).toFixed(2)
+  summary.by_employee = Array.from(employeeMap.values()).map(emp => ({
+    employee: {
+      id: emp.employee._id,
+      name: emp.employee.name,
+      email: emp.employee.email,
+      position: emp.employee.position
+    },
+    total_worked_hours: emp.total_worked.toFixed(2),
+    overtime_hours: emp.overtime.toFixed(2),
+    late_count: emp.late_count,
+    attendance_rate: ((emp.records.length / totalDays) * 100).toFixed(2)
   }));
 
   // Calculate totals
-  summary.totalWorkedHours = (records.reduce((sum, r) => sum + (r.totalWorked || 0), 0) / 60).toFixed(2);
-  summary.totalOvertimeHours = (records.reduce((sum, r) => sum + (r.overtime || 0), 0) / 60).toFixed(2);
-  summary.lateCount = records.filter(r => r.status === "late").length;
-  summary.attendanceRate = ((records.length / (employees.length * totalDays)) * 100).toFixed(2);
+  summary.total_worked_hours = records.reduce((sum, r) => sum + (r.total_hours || 0), 0).toFixed(2);
+  summary.total_overtime_hours = records.reduce((sum, r) => sum + (r.overtime || 0), 0).toFixed(2);
+  summary.late_count = records.filter(r => r.status === "late").length;
+  summary.attendance_rate = employeeIds.length > 0 ? 
+    ((records.length / (employeeIds.length * totalDays)) * 100).toFixed(2) : 0;
 
   return summary;
 }
@@ -525,13 +767,19 @@ async function generateDetailedAttendance(records, start, end) {
     period: { start, end },
     records: records.map(record => ({
       date: record.date,
-      employee: record.employee,
-      clockIn: record.clockIn,
-      clockOut: record.clockOut,
-      totalWorked: record.totalWorked,
+      employee: {
+        id: record.user_id._id,
+        name: record.user_id.name,
+        email: record.user_id.email
+      },
+      check_in: record.check_in,
+      check_out: record.check_out,
+      total_hours: record.total_hours,
       overtime: record.overtime,
       status: record.status,
-      breaks: record.breaks
+      breaks: record.breaks,
+      location: record.location,
+      notes: record.notes
     }))
   };
 }
@@ -541,120 +789,150 @@ async function generateOvertimeReport(records, start, end) {
   
   return {
     period: { start, end },
-    totalOvertimeHours: (overtimeRecords.reduce((sum, r) => sum + r.overtime, 0) / 60).toFixed(2),
+    total_overtime_hours: overtimeRecords.reduce((sum, r) => sum + r.overtime, 0).toFixed(2),
     employees: overtimeRecords.map(record => ({
-      employee: record.employee,
+      employee: {
+        id: record.user_id._id,
+        name: record.user_id.name,
+        email: record.user_id.email
+      },
       date: record.date,
-      overtimeMinutes: record.overtime,
-      overtimeHours: (record.overtime / 60).toFixed(2),
-      totalWorked: record.totalWorked
+      overtime_hours: record.overtime.toFixed(2),
+      total_worked_hours: record.total_hours,
+      reason: record.notes
     }))
   };
 }
 
-async function generateTimeOffAnalysis(requests, start, end) {
+async function generateShiftAnalysis(shifts, start, end) {
   const summary = {
     period: { start, end },
-    totalRequests: requests.length,
-    byStatus: {
-      pending: requests.filter(r => r.status === "pending").length,
-      approved: requests.filter(r => r.status === "approved").length,
-      rejected: requests.filter(r => r.status === "rejected").length
+    total_shifts: shifts.length,
+    by_status: {
+      scheduled: shifts.filter(s => s.status === "scheduled").length,
+      in_progress: shifts.filter(s => s.status === "in_progress").length,
+      completed: shifts.filter(s => s.status === "completed").length,
+      cancelled: shifts.filter(s => s.status === "cancelled").length
     },
-    byType: {},
-    byEmployee: [],
-    approvalRate: 0
+    by_type: {
+      regular: shifts.filter(s => s.shift_type === "regular").length,
+      overtime: shifts.filter(s => s.shift_type === "overtime").length,
+      holiday: shifts.filter(s => s.shift_type === "holiday").length,
+      weekend: shifts.filter(s => s.shift_type === "weekend").length,
+      emergency: shifts.filter(s => s.shift_type === "emergency").length
+    },
+    by_employee: [],
+    coverage_rate: 0
   };
-
-  // Calculate by type
-  const types = ["annual", "sick", "unpaid", "emergency", "maternity"];
-  types.forEach(type => {
-    summary.byType[type] = requests.filter(r => r.type === type).length;
-  });
 
   // Calculate by employee
   const employeeMap = new Map();
-  requests.forEach(request => {
-    const empId = request.employee._id.toString();
+  shifts.forEach(shift => {
+    const empId = shift.employee_id._id.toString();
     if (!employeeMap.has(empId)) {
       employeeMap.set(empId, {
-        employee: request.employee,
-        requests: [],
-        totalDays: 0
+        employee: shift.employee_id,
+        shifts: [],
+        total_hours: 0
       });
     }
     
     const empData = employeeMap.get(empId);
-    empData.requests.push(request);
-    empData.totalDays += request.duration;
+    empData.shifts.push(shift);
+    const shiftHours = shift.getScheduledDuration ? shift.getScheduledDuration() / 60 : 0;
+    empData.total_hours += shiftHours;
   });
 
-  summary.byEmployee = Array.from(employeeMap.values());
-
-  // Calculate approval rate
-  const processed = requests.filter(r => r.status !== "pending").length;
-  summary.approvalRate = processed > 0 ? 
-    ((summary.byStatus.approved / processed) * 100).toFixed(2) : 0;
+  summary.by_employee = Array.from(employeeMap.values()).map(emp => ({
+    employee: emp.employee,
+    total_shifts: emp.shifts.length,
+    total_hours: emp.total_hours.toFixed(2),
+    completed_shifts: emp.shifts.filter(s => s.status === "completed").length
+  }));
 
   return summary;
 }
 
-async function generateProductivityAnalysis(attendance, shifts, start, end) {
-  const employeeProductivity = new Map();
+async function generatePerformanceAnalysis(employees, attendanceRecords, shifts, start, end) {
+  const performanceData = [];
+  const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
-  // Initialize employee data
-  attendance.forEach(record => {
-    const empId = record.employee._id.toString();
-    if (!employeeProductivity.has(empId)) {
-      employeeProductivity.set(empId, {
-        employee: record.employee,
-        totalWorked: 0,
-        scheduledHours: 0,
-        overtime: 0,
-        lateCount: 0,
-        attendanceCount: 0
-      });
-    }
+  employees.forEach(employee => {
+    const empId = employee._id.toString();
     
-    const empData = employeeProductivity.get(empId);
-    empData.totalWorked += record.totalWorked || 0;
-    empData.overtime += record.overtime || 0;
-    if (record.status === "late") empData.lateCount++;
-    empData.attendanceCount++;
-  });
-
-  // Calculate scheduled hours from shifts
-  shifts.forEach(shift => {
-    const empId = shift.employee._id.toString();
-    if (employeeProductivity.has(empId)) {
-      const shiftDuration = (shift.endDateTime - shift.startDateTime) / (1000 * 60); // minutes
-      employeeProductivity.get(empId).scheduledHours += shiftDuration;
-    }
-  });
-
-  // Calculate productivity metrics
-  const productivityData = Array.from(employeeProductivity.values()).map(emp => {
-    const workedHours = emp.totalWorked / 60;
-    const scheduledHours = emp.scheduledHours / 60;
-    const productivity = scheduledHours > 0 ? (workedHours / scheduledHours) * 100 : 0;
+    const empAttendance = attendanceRecords.filter(record => 
+      record.user_id.toString() === empId
+    );
     
-    return {
-      employee: emp.employee,
-      workedHours: workedHours.toFixed(2),
-      scheduledHours: scheduledHours.toFixed(2),
-      productivity: productivity.toFixed(2),
-      overtimeHours: (emp.overtime / 60).toFixed(2),
-      lateCount: emp.lateCount,
-      attendanceRate: ((emp.attendanceCount / Math.ceil((end - start) / (1000 * 60 * 60 * 24))) * 100).toFixed(2)
-    };
+    const empShifts = shifts.filter(shift => 
+      shift.employee_id.toString() === empId
+    );
+
+    const totalWorkedHours = empAttendance.reduce((sum, record) => sum + (record.total_hours || 0), 0);
+    const totalOvertime = empAttendance.reduce((sum, record) => sum + (record.overtime || 0), 0);
+    const lateCount = empAttendance.filter(record => record.status === "late").length;
+    const completedShifts = empShifts.filter(shift => shift.status === "completed").length;
+    
+    const attendanceRate = totalDays > 0 ? (empAttendance.length / totalDays) * 100 : 0;
+    const shiftCompletionRate = empShifts.length > 0 ? (completedShifts / empShifts.length) * 100 : 0;
+
+    performanceData.push({
+      employee: {
+        id: employee._id,
+        name: employee.name,
+        email: employee.email,
+        position: employee.position
+      },
+      attendance: {
+        rate: attendanceRate.toFixed(2),
+        total_days: empAttendance.length,
+        late_count: lateCount
+      },
+      work: {
+        total_hours: totalWorkedHours.toFixed(2),
+        overtime_hours: totalOvertime.toFixed(2),
+        average_daily_hours: (totalWorkedHours / (empAttendance.length || 1)).toFixed(2)
+      },
+      shifts: {
+        total: empShifts.length,
+        completed: completedShifts,
+        completion_rate: shiftCompletionRate.toFixed(2)
+      },
+      performance_score: calculatePerformanceScore(
+        attendanceRate, 
+        shiftCompletionRate, 
+        lateCount, 
+        totalOvertime
+      )
+    });
   });
 
   return {
     period: { start, end },
-    employees: productivityData,
+    employees: performanceData,
     averages: {
-      avgProductivity: (productivityData.reduce((sum, emp) => sum + parseFloat(emp.productivity), 0) / productivityData.length).toFixed(2),
-      avgAttendance: (productivityData.reduce((sum, emp) => sum + parseFloat(emp.attendanceRate), 0) / productivityData.length).toFixed(2)
+      avg_attendance: (performanceData.reduce((sum, emp) => sum + parseFloat(emp.attendance.rate), 0) / performanceData.length).toFixed(2),
+      avg_performance: (performanceData.reduce((sum, emp) => sum + emp.performance_score, 0) / performanceData.length).toFixed(2)
     }
   };
+}
+
+function calculatePerformanceScore(attendanceRate, shiftCompletionRate, lateCount, overtime) {
+  let score = 0;
+  
+  // Attendance weight: 40%
+  score += (attendanceRate * 0.4);
+  
+  // Shift completion weight: 30%
+  score += (shiftCompletionRate * 0.3);
+  
+  // Punctuality weight: 20% (penalty for lateness)
+  const punctualityScore = Math.max(0, 100 - (lateCount * 5));
+  score += (punctualityScore * 0.2);
+  
+  // Overtime bonus: 10% (capped at 20 hours overtime)
+  const overtimeBonus = Math.min(overtime, 20) * 0.5;
+  score += overtimeBonus;
+  
+  return Math.min(score, 100).toFixed(2);
 }

@@ -1,9 +1,15 @@
 import express from "express";
-import { protect, adminOrAbove } from "../middleware/authMiddleware.js";
+import { 
+  protect, 
+  employeeOnly, 
+  adminOnly,
+  adminOrAbove,
+  superAdminOnly 
+} from "../middleware/authMiddleware.js";
 import {
   generateAttendanceReport,
-  generateTimeOffReport,
-  generateProductivityReport,
+  generateShiftReport,
+  generatePerformanceReport,
   getReports,
   getReportById,
   shareReport,
@@ -13,16 +19,21 @@ import {
 
 const router = express.Router();
 
-// Report generation routes (Admin only)
-router.post("/attendance", protect, adminOrAbove, generateAttendanceReport);
-router.post("/timeoff", protect, adminOrAbove, generateTimeOffReport);
-router.post("/productivity", protect, adminOrAbove, generateProductivityReport);
+// All routes require authentication
+router.use(protect);
 
-// Report management routes
-router.get("/", protect, getReports);
-router.get("/dashboard-stats", protect, getDashboardStats);
-router.get("/:id", protect, getReportById);
-router.post("/:id/share", protect, adminOrAbove, shareReport);
-router.delete("/:id", protect, deleteReport);
+// Report generation routes (Admin and Super Admin only)
+router.post("/attendance", adminOrAbove, generateAttendanceReport);
+router.post("/shift", adminOrAbove, generateShiftReport);
+router.post("/performance", adminOrAbove, generatePerformanceReport);
+
+// Report sharing and management (Admin and Super Admin only)
+router.post("/:id/share", adminOrAbove, shareReport);
+router.delete("/:id", adminOrAbove, deleteReport);
+
+// Report access routes (all authenticated users with permissions)
+router.get("/", getReports); // Users see reports they have access to
+router.get("/dashboard-stats", getDashboardStats); // Role-specific dashboard stats
+router.get("/:id", getReportById); // Access control handled in controller
 
 export default router;
