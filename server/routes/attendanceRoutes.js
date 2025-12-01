@@ -1,25 +1,37 @@
 import express from "express";
-import { protect, employeeOrAbove } from "../middleware/authMiddleware.js";
+import { 
+  protect, 
+  employeeOnly, 
+  adminOnly, 
+  adminOrAbove,
+  checkEmployeeAccess 
+} from "../middleware/authMiddleware.js";
 import {
   clockIn,
   clockOut,
   startBreak,
   endBreak,
   getMyAttendance,
-  getTeamAttendance,
-  getAttendanceSummary
+  getBranchAttendance,
+  getAttendanceSummary,
+  getEmployeeAttendance
 } from "../controllers/attendanceController.js";
 
 const router = express.Router();
 
-// Employee routes
-router.post("/clock-in", protect, employeeOrAbove, clockIn);
-router.post("/clock-out", protect, employeeOrAbove, clockOut);
-router.post("/break/start", protect, employeeOrAbove, startBreak);
-router.post("/break/end", protect, employeeOrAbove, endBreak);
-router.get("/my-attendance", protect, employeeOrAbove, getMyAttendance);
-router.get("/my-summary", protect, employeeOrAbove, getAttendanceSummary);
+// All routes require authentication
+router.use(protect);
 
-router.get("/team/:teamId", protect, getTeamAttendance);
+// Employee only routes
+router.post("/clock-in", employeeOnly, clockIn);
+router.post("/clock-out", employeeOnly, clockOut);
+router.post("/break/start", employeeOnly, startBreak);
+router.post("/break/end", employeeOnly, endBreak);
+router.get("/my-attendance", employeeOnly, getMyAttendance);
+router.get("/my-summary", employeeOnly, getAttendanceSummary);
+
+// Admin only routes (branch attendance management)
+router.get("/branch", adminOnly, getBranchAttendance);
+router.get("/employee/:employeeId", adminOnly, checkEmployeeAccess, getEmployeeAttendance);
 
 export default router;

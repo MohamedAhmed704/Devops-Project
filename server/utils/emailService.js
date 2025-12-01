@@ -2,9 +2,11 @@ import nodemailer from "nodemailer";
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url';
+
 // Get the directory name in ESM
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
 // Create transporter
 const createTransporter = () => {
     return nodemailer.createTransport({
@@ -107,16 +109,36 @@ export const sendResetPasswordEmail = async (email, resetUrl) => {
 };
 
 // Send OTP verification email
-export const sendOTPEmail = async (email, otpCode) => {
+export const sendOTPEmail = async (email, otpCode, type = "email_verification") => {
     try {
         const transporter = createTransporter();
         const logoPath = path.join(__dirname, '..', 'assets', 'logo.png')
         const logoExists = fs.existsSync(logoPath)
 
+        // تحديد الـ Subject حسب نوع الـ OTP
+        const subjectMap = {
+            email_verification: "Email Verification - Tadber Shift Planner",
+            password_reset: "Password Reset OTP - Tadber Shift Planner",
+            phone_verification: "Phone Verification - Tadber Shift Planner"
+        };
+
+        // تحديد الـ Title حسب نوع الـ OTP
+        const titleMap = {
+            email_verification: "Verify Your Email Address",
+            password_reset: "Password Reset Verification", 
+            phone_verification: "Verify Your Phone Number"
+        };
+
+        const messageMap = {
+            email_verification: "To complete your registration, please use the following verification code:",
+            password_reset: "To reset your password, please use the following verification code:",
+            phone_verification: "To verify your phone number, please use the following verification code:"
+        };
+
         const mailOptions = {
             to: email,
             from: process.env.EMAIL_USER,
-            subject: "Email Verification - Tadber Shift Planner",
+            subject: subjectMap[type] || "Verification Code - Tadber Shift Planner",
             attachments: logoExists ? [
                 {
                     filename: 'logo.png',
@@ -142,15 +164,11 @@ export const sendOTPEmail = async (email, otpCode) => {
         <!-- Content -->
         <div style="padding: 30px;">
             <h1 style="color: #112D4E; font-size: 24px; margin-bottom: 15px; text-align: center; font-weight: bold;">
-                Verify Your Email Address
+                ${titleMap[type] || "Verification Code"}
             </h1>
 
             <p style="color: #3F72AF; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
-                Thank you for signing up for <strong>Tadber Shift Planner</strong>!
-            </p>
-
-            <p style="color: #112D4E; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-                To complete your registration, please use the following verification code:
+                ${messageMap[type] || "Please use the following verification code:"}
             </p>
 
             <!-- OTP Code Display -->
@@ -161,11 +179,11 @@ export const sendOTPEmail = async (email, otpCode) => {
             </div>
 
             <p style="color: #112D4E; font-size: 14px; line-height: 1.6;">
-                This code will expire in <strong>10 minutes</strong> for security reasons. If you didn't request this verification, please ignore this email.
+                This code will expire in <strong>10 minutes</strong> for security reasons.
             </p>
 
             <p style="color: #3F72AF; font-size: 14px; margin-top: 30px; text-align: center;">
-                If you have trouble entering the code, you can request a new one from the verification page.
+                If you didn't request this verification, please ignore this email.
             </p>
         </div>
 
@@ -192,4 +210,3 @@ export const sendOTPEmail = async (email, otpCode) => {
         throw err;
     }
 };
-

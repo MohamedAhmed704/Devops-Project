@@ -1,21 +1,19 @@
 import Attendance from "../models/attendanceModel.js";
 import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
-import Team from "../models/teamModel.js";
 
 // CLOCK IN (start shift) - Create attendance record
 export const clockIn = async (req, res) => {
   try {
     const userId = req.user._id;
-    const companyId = req.user.company;
+    const userRole = req.user.role;
 
     // Check if already clocked in today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
     const existingAttendance = await Attendance.findOne({
-      employee: userId,
-      company: companyId,
+      user_id: userId,
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
@@ -30,45 +28,50 @@ export const clockIn = async (req, res) => {
 
     // Find today's shift for the user
     const shift = await Shift.findOne({
-      employee: userId,
-      company: companyId,
-      status: "assigned",
-      startDateTime: { 
+      employee_id: userId,
+      status: "scheduled",
+      start_date_time: { 
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
       }
     });
 
     // Calculate late minutes if shift exists
-    let lateMinutes = 0;
+    let late_minutes = 0;
     const now = new Date();
     
-    if (shift && shift.startDateTime < now) {
-      lateMinutes = Math.floor((now - shift.startDateTime) / (1000 * 60));
+    if (shift && shift.start_date_time < now) {
+      late_minutes = Math.floor((now - shift.start_date_time) / (1000 * 60));
     }
 
     // Create attendance record
     const attendance = await Attendance.create({
-      employee: userId,
-      company: companyId,
+      user_id: userId,
       date: today,
-      clockIn: now,
-      lateMinutes: lateMinutes,
-      status: lateMinutes > 0 ? "late" : "present"
+      check_in: now,
+      late_minutes: late_minutes,
+      status: late_minutes > 0 ? "late" : "present",
+      location: req.body.location || "Office"
     });
 
     // Update shift status if exists
     if (shift) {
-      shift.status = "started";
-      shift.startedAt = now;
+      shift.status = "in_progress";
+      shift.actual_start_time = now;
       await shift.save();
     }
 
     return res.status(201).json({
       message: "Clocked in successfully",
-      attendance,
-      isLate: lateMinutes > 0,
-      lateMinutes
+      attendance: {
+        id: attendance._id,
+        check_in: attendance.check_in,
+        status: attendance.status,
+        late_minutes: attendance.late_minutes,
+        location: attendance.location
+      },
+      is_late: late_minutes > 0,
+      late_minutes
     });
   } catch (err) {
     console.error("clockIn error:", err);
@@ -80,20 +83,18 @@ export const clockIn = async (req, res) => {
 export const clockOut = async (req, res) => {
   try {
     const userId = req.user._id;
-    const companyId = req.user.company;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     // Find today's attendance record
     const attendance = await Attendance.findOne({
-      employee: userId,
-      company: companyId,
+      user_id: userId,
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
       },
-      clockOut: { $exists: false }
+      check_out: { $exists: false }
     });
 
     if (!attendance) {
@@ -103,25 +104,16 @@ export const clockOut = async (req, res) => {
     }
 
     const now = new Date();
-    attendance.clockOut = now;
-
-    // Calculate overtime (if worked more than 8 hours)
-    const workedMs = now - attendance.clockIn;
-    const workedMinutes = Math.floor(workedMs / (1000 * 60));
-    const standardWorkMinutes = 8 * 60; // 8 hours
-    
-    if (workedMinutes > standardWorkMinutes) {
-      attendance.overtime = workedMinutes - standardWorkMinutes;
-    }
+    attendance.check_out = now;
+    attendance.notes = req.body.notes || attendance.notes;
 
     await attendance.save();
 
     // Update shift status if exists
     const shift = await Shift.findOne({
-      employee: userId,
-      company: companyId,
-      status: "started",
-      startDateTime: { 
+      employee_id: userId,
+      status: "in_progress",
+      start_date_time: { 
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
       }
@@ -129,14 +121,21 @@ export const clockOut = async (req, res) => {
 
     if (shift) {
       shift.status = "completed";
-      shift.endedAt = now;
+      shift.actual_end_time = now;
       await shift.save();
     }
 
     return res.json({
       message: "Clocked out successfully",
-      attendance,
-      totalWorked: attendance.totalWorked,
+      attendance: {
+        id: attendance._id,
+        check_in: attendance.check_in,
+        check_out: attendance.check_out,
+        total_hours: attendance.total_hours,
+        overtime: attendance.overtime,
+        status: attendance.status
+      },
+      total_hours: attendance.total_hours,
       overtime: attendance.overtime
     });
   } catch (err) {
@@ -149,19 +148,17 @@ export const clockOut = async (req, res) => {
 export const startBreak = async (req, res) => {
   try {
     const userId = req.user._id;
-    const companyId = req.user.company;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const attendance = await Attendance.findOne({
-      employee: userId,
-      company: companyId,
+      user_id: userId,
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
       },
-      clockOut: { $exists: false }
+      check_out: { $exists: false }
     });
 
     if (!attendance) {
@@ -187,7 +184,7 @@ export const startBreak = async (req, res) => {
 
     return res.json({
       message: "Break started",
-      attendance
+      break_start: new Date()
     });
   } catch (err) {
     console.error("startBreak error:", err);
@@ -199,14 +196,12 @@ export const startBreak = async (req, res) => {
 export const endBreak = async (req, res) => {
   try {
     const userId = req.user._id;
-    const companyId = req.user.company;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const attendance = await Attendance.findOne({
-      employee: userId,
-      company: companyId,
+      user_id: userId,
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
@@ -232,8 +227,8 @@ export const endBreak = async (req, res) => {
 
     return res.json({
       message: "Break ended",
-      attendance,
-      breakDuration: lastBreak.duration
+      break_duration: lastBreak.duration,
+      break_end: new Date()
     });
   } catch (err) {
     console.error("endBreak error:", err);
@@ -245,18 +240,194 @@ export const endBreak = async (req, res) => {
 export const getMyAttendance = async (req, res) => {
   try {
     const userId = req.user._id;
-    const companyId = req.user.company;
-    const { startDate, endDate } = req.query;
+    const { start_date, end_date } = req.query;
 
     let query = {
-      employee: userId,
-      company: companyId
+      user_id: userId
     };
 
     // Add date range filter if provided
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+    if (start_date && end_date) {
+      const start = new Date(start_date);
+      const end = new Date(end_date);
+      end.setHours(23, 59, 59, 999);
+
+      query.date = {
+        $gte: start,
+        $lte: end
+      };
+    }
+
+    const attendance = await Attendance.find(query)
+      .sort({ date: -1 });
+
+    return res.json({
+      records: attendance,
+      total: attendance.length,
+      total_hours: attendance.reduce((sum, record) => sum + record.total_hours, 0),
+      total_overtime: attendance.reduce((sum, record) => sum + record.overtime, 0)
+    });
+  } catch (err) {
+    console.error("getMyAttendance error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// GET BRANCH ATTENDANCE (Admin only)
+export const getBranchAttendance = async (req, res) => {
+  try {
+    const adminId = req.user._id;
+    const { date } = req.query;
+
+    const targetDate = date ? new Date(date) : new Date();
+    targetDate.setHours(0, 0, 0, 0);
+
+    // Get all employees under this admin
+    const employees = await User.find({ 
+      branch_admin_id: adminId,
+      role: "employee"
+    }).select('_id name email position');
+
+    const employeeIds = employees.map(emp => emp._id);
+
+    const attendance = await Attendance.find({
+      user_id: { $in: employeeIds },
+      date: {
+        $gte: targetDate,
+        $lt: new Date(targetDate.getTime() + 24 * 60 * 60 * 1000)
+      }
+    })
+      .populate("user_id", "name email position")
+      .sort({ check_in: -1 });
+
+    // Calculate summary
+    const presentCount = attendance.filter(a => a.status === "present" || a.status === "late").length;
+    const lateCount = attendance.filter(a => a.status === "late").length;
+    const absentCount = employees.length - presentCount;
+
+    return res.json({
+      branch_name: req.user.branch_name,
+      date: targetDate,
+      employees_total: employees.length,
+      records: attendance,
+      summary: {
+        present: presentCount,
+        late: lateCount,
+        absent: absentCount,
+        attendance_rate: (presentCount / employees.length * 100).toFixed(1)
+      }
+    });
+  } catch (err) {
+    console.error("getBranchAttendance error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// GET ATTENDANCE SUMMARY (for dashboard)
+export const getAttendanceSummary = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const userRole = req.user.role;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const thisWeek = new Date(today);
+    thisWeek.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
+
+    let summary = {};
+
+    if (userRole === "employee") {
+      // Employee summary
+      const todayAttendance = await Attendance.findOne({
+        user_id: userId,
+        date: {
+          $gte: today,
+          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        }
+      });
+
+      const weekAttendance = await Attendance.find({
+        user_id: userId,
+        date: {
+          $gte: thisWeek,
+          $lte: today
+        }
+      });
+
+      summary = {
+        today: {
+          clocked_in: !!todayAttendance?.check_in,
+          check_in_time: todayAttendance?.check_in,
+          status: todayAttendance?.status || "absent",
+          worked_hours: todayAttendance?.total_hours || 0
+        },
+        this_week: {
+          total_days: weekAttendance.length,
+          present_days: weekAttendance.filter(a => a.status === "present" || a.status === "late").length,
+          total_hours: weekAttendance.reduce((sum, a) => sum + a.total_hours, 0),
+          total_overtime: weekAttendance.reduce((sum, a) => sum + a.overtime, 0)
+        }
+      };
+    } else if (userRole === "admin") {
+      // Admin branch summary
+      const employees = await User.find({ 
+        branch_admin_id: userId,
+        role: "employee"
+      });
+
+      const todayAttendance = await Attendance.find({
+        user_id: { $in: employees.map(emp => emp._id) },
+        date: {
+          $gte: today,
+          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        }
+      });
+
+      const presentCount = todayAttendance.filter(a => a.status === "present" || a.status === "late").length;
+
+      summary = {
+        branch: {
+          total_employees: employees.length,
+          present_today: presentCount,
+          absent_today: employees.length - presentCount,
+          attendance_rate: (presentCount / employees.length * 100).toFixed(1)
+        }
+      };
+    }
+
+    return res.json(summary);
+  } catch (err) {
+    console.error("getAttendanceSummary error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// GET ATTENDANCE BY EMPLOYEE (Admin only)
+export const getEmployeeAttendance = async (req, res) => {
+  try {
+    const adminId = req.user._id;
+    const employeeId = req.params.employeeId;
+    const { start_date, end_date } = req.query;
+
+    // Verify employee belongs to this admin
+    const employee = await User.findOne({
+      _id: employeeId,
+      branch_admin_id: adminId,
+      role: "employee"
+    });
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found in your branch" });
+    }
+
+    let query = {
+      user_id: employeeId
+    };
+
+    if (start_date && end_date) {
+      const start = new Date(start_date);
+      const end = new Date(end_date);
       end.setHours(23, 59, 59, 999);
 
       query.date = {
@@ -267,111 +438,22 @@ export const getMyAttendance = async (req, res) => {
 
     const attendance = await Attendance.find(query)
       .sort({ date: -1 })
-      .populate("employee", "name email");
+      .populate("user_id", "name email position");
 
     return res.json({
+      employee: {
+        id: employee._id,
+        name: employee.name,
+        email: employee.email,
+        position: employee.position
+      },
       records: attendance,
       total: attendance.length,
-      totalWorked: attendance.reduce((sum, record) => sum + record.totalWorked, 0),
-      totalOvertime: attendance.reduce((sum, record) => sum + record.overtime, 0)
+      total_hours: attendance.reduce((sum, record) => sum + record.total_hours, 0),
+      total_overtime: attendance.reduce((sum, record) => sum + record.overtime, 0)
     });
   } catch (err) {
-    console.error("getMyAttendance error:", err);
-    return res.status(500).json({ message: err.message });
-  }
-};
-
-// GET TEAM ATTENDANCE (Admin only)
-export const getTeamAttendance = async (req, res) => {
-  try {
-    const companyId = req.user.company;
-    const { teamId, date } = req.params;
-
-    const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ message: "Team not found" });
-
-    if (team.company.toString() !== companyId.toString()) {
-      return res.status(403).json({ message: "Not allowed" });
-    }
-
-    const targetDate = date ? new Date(date) : new Date();
-    targetDate.setHours(0, 0, 0, 0);
-
-    const attendance = await Attendance.find({
-      company: companyId,
-      employee: { $in: team.members },
-      date: {
-        $gte: targetDate,
-        $lt: new Date(targetDate.getTime() + 24 * 60 * 60 * 1000)
-      }
-    })
-      .populate("employee", "name email role")
-      .sort({ clockIn: -1 });
-
-    return res.json({
-      team: team.name,
-      date: targetDate,
-      records: attendance,
-      present: attendance.filter(a => a.status === "present" || a.status === "late").length,
-      absent: attendance.filter(a => a.status === "absent").length,
-      late: attendance.filter(a => a.status === "late").length
-    });
-  } catch (err) {
-    console.error("getTeamAttendance error:", err);
-    return res.status(500).json({ message: err.message });
-  }
-};
-
-// GET ATTENDANCE SUMMARY (for dashboard)
-export const getAttendanceSummary = async (req, res) => {
-  try {
-    const userId = req.user._id;
-    const companyId = req.user.company;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const thisWeek = new Date(today);
-    thisWeek.setDate(today.getDate() - today.getDay()); // Start of week (Sunday)
-
-    // Today's attendance
-    const todayAttendance = await Attendance.findOne({
-      employee: userId,
-      company: companyId,
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      }
-    });
-
-    // This week's attendance
-    const weekAttendance = await Attendance.find({
-      employee: userId,
-      company: companyId,
-      date: {
-        $gte: thisWeek,
-        $lte: today
-      }
-    });
-
-    const summary = {
-      today: {
-        clockedIn: !!todayAttendance?.clockIn,
-        clockInTime: todayAttendance?.clockIn,
-        status: todayAttendance?.status || "absent",
-        workedMinutes: todayAttendance?.totalWorked || 0
-      },
-      thisWeek: {
-        totalDays: weekAttendance.length,
-        presentDays: weekAttendance.filter(a => a.status === "present" || a.status === "late").length,
-        totalWorked: weekAttendance.reduce((sum, a) => sum + a.totalWorked, 0),
-        totalOvertime: weekAttendance.reduce((sum, a) => sum + a.overtime, 0)
-      }
-    };
-
-    return res.json(summary);
-  } catch (err) {
-    console.error("getAttendanceSummary error:", err);
+    console.error("getEmployeeAttendance error:", err);
     return res.status(500).json({ message: err.message });
   }
 };

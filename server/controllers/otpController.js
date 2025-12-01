@@ -1,7 +1,6 @@
 import OTP from "../models/otpModel.js";
 import User from "../models/userModel.js";
 import { sendOTPEmail } from "../utils/emailService.js";
-import crypto from "crypto";
 
 // Generate and send OTP for email verification
 export const sendOTP = async (req, res) => {
@@ -18,9 +17,8 @@ export const sendOTP = async (req, res) => {
       });
     }
 
-    // Check if user already exists and is verified
     const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser && existingUser.emailVerified) {
+    if (existingUser && existingUser.email_verified) {
       return res.status(400).json({
         success: false,
         error: "EMAIL_ALREADY_VERIFIED",
@@ -48,13 +46,16 @@ export const sendOTP = async (req, res) => {
     });
 
     // Send OTP via email
-    await sendOTPEmail(email, otpCode);
+    await sendOTPEmail(email, otpCode, "email_verification");
 
     return res.status(201).json({
       success: true,
       message: "OTP sent successfully. Please check your email.",
+      data: {
+        email: email,
+        expires_at: expiresAt
+      },
       // In development, you might want to return the OTP for testing
-      // Remove this in production!
       ...(process.env.NODE_ENV === 'development' && { otp: otpCode })
     });
 
@@ -105,6 +106,17 @@ export const verifyOTP = async (req, res) => {
     const otpRecord = await OTP.findValidOTP(email.toLowerCase(), otp, "email_verification");
     
     if (!otpRecord) {
+      // ⭐ زيادة attempts إذا OTP غلط
+      const failedOTP = await OTP.findOne({
+        email: email.toLowerCase(),
+        type: "email_verification",
+        isVerified: false
+      });
+      
+      if (failedOTP) {
+        await failedOTP.incrementAttempts();
+      }
+
       return res.status(400).json({
         success: false,
         error: "INVALID_OTP",
@@ -124,29 +136,22 @@ export const verifyOTP = async (req, res) => {
     // Mark OTP as verified
     await otpRecord.markAsVerified();
 
-    // Find or create user
-    let user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() });
     
     if (user) {
-      // Update existing user
-      if (!user.emailVerified) {
-        await user.verifyEmail();
-      }
-    } else {
-      // Create temporary user record (pending full registration)
-      user = await User.create({
-        email: email.toLowerCase(),
-        emailVerified: true,
-        isActive: false, // Will be activated after full registration
-        role: "employee" // Default role, will be updated during full registration
-      });
+      user.email_verified = true;
+      user.is_active = true;
+      await user.save();
     }
 
     return res.json({
       success: true,
       message: "Email verified successfully",
-      emailVerified: true,
-      userId: user._id
+      data: {
+        email_verified: true,
+        user_id: user?._id,
+        email: email
+      }
     });
 
   } catch (error) {
@@ -174,12 +179,20 @@ export const resendOTP = async (req, res) => {
       });
     }
 
-    // Check if there's a recent OTP (within 1 minute)
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (user && user.email_verified) {
+      return res.status(400).json({
+        success: false,
+        error: "ALREADY_VERIFIED",
+        message: "Email is already verified"
+      });
+    }
+
     const recentOTP = await OTP.findOne({
       email: email.toLowerCase(),
       type: "email_verification",
       isVerified: false,
-      createdAt: { $gt: new Date(Date.now() - 60 * 1000) } // 1 minute ago
+      createdAt: { $gt: new Date(Date.now() - 60 * 1000) }
     });
 
     if (recentOTP) {
@@ -210,11 +223,15 @@ export const resendOTP = async (req, res) => {
     });
 
     // Send OTP via email
-    await sendOTPEmail(email, otpCode);
+    await sendOTPEmail(email, otpCode, "email_verification");
 
     return res.json({
       success: true,
       message: "OTP resent successfully. Please check your email.",
+      data: {
+        email: email,
+        expires_at: expiresAt
+      },
       // In development, you might want to return the OTP for testing
       ...(process.env.NODE_ENV === 'development' && { otp: otpCode })
     });
@@ -248,10 +265,12 @@ export const checkVerificationStatus = async (req, res) => {
 
     return res.json({
       success: true,
-      email: email,
-      emailVerified: user ? user.emailVerified : false,
-      userExists: !!user,
-      isActive: user ? user.isActive : false
+      data: {
+        email: email,
+        email_verified: user ? user.email_verified : false,
+        user_exists: !!user,
+        is_active: user ? user.is_active : false
+      }
     });
 
   } catch (error) {
@@ -272,7 +291,9 @@ export const cleanupExpiredOTPs = async (req, res) => {
     return res.json({
       success: true,
       message: `Cleaned up ${result.deletedCount} expired OTPs`,
-      deletedCount: result.deletedCount
+      data: {
+        deleted_count: result.deletedCount
+      }
     });
 
   } catch (error) {

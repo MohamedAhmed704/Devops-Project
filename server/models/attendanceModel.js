@@ -1,25 +1,21 @@
 import mongoose from "mongoose";
 
 const attendanceSchema = new mongoose.Schema({
-  employee: { 
+  user_id: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User", 
     required: true 
   },
-  company: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Company", 
-    required: true 
-  },
   date: { 
     type: Date, 
-    required: true 
+    required: true,
+    default: Date.now
   },
-  clockIn: { 
+  check_in: { 
     type: Date, 
     required: true 
   },
-  clockOut: { 
+  check_out: { 
     type: Date 
   },
   breaks: [{
@@ -27,36 +23,38 @@ const attendanceSchema = new mongoose.Schema({
     end: Date,
     duration: Number // in minutes
   }],
-  totalWorked: { 
+  total_hours: { 
     type: Number, 
     default: 0 
-  }, // in minutes
+  }, // in hours
   overtime: { 
     type: Number, 
     default: 0 
-  }, // in minutes
-  lateMinutes: { 
+  }, // in hours
+  late_minutes: { 
     type: Number, 
     default: 0 
   },
   status: {
     type: String,
-    enum: ["present", "absent", "late", "half-day"],
+    enum: ["present", "absent", "late", "half_day", "leave"],
     default: "present"
   },
-  notes: String
-}, { timestamps: true });
+  notes: String,
+  location: String
+}, { 
+  timestamps: true 
+});
 
 // Index for quick queries
-attendanceSchema.index({ employee: 1, date: 1 }, { unique: true });
-attendanceSchema.index({ company: 1, date: 1 });
+attendanceSchema.index({ user_id: 1, date: 1 }, { unique: true });
 
 // Pre-save middleware to calculate durations
 attendanceSchema.pre("save", function(next) {
-  // Calculate total worked minutes
-  if (this.clockIn && this.clockOut) {
-    const workedMs = this.clockOut - this.clockIn;
-    this.totalWorked = Math.floor(workedMs / (1000 * 60)); // Convert to minutes
+  // Calculate total worked hours
+  if (this.check_in && this.check_out) {
+    const workedMs = this.check_out - this.check_in;
+    let totalHours = workedMs / (1000 * 60 * 60); // Convert to hours
     
     // Subtract break durations
     if (this.breaks && this.breaks.length > 0) {
@@ -67,9 +65,11 @@ attendanceSchema.pre("save", function(next) {
         return total;
       }, 0);
       
-      const totalBreakMinutes = Math.floor(totalBreakMs / (1000 * 60));
-      this.totalWorked = Math.max(0, this.totalWorked - totalBreakMinutes);
+      const totalBreakHours = totalBreakMs / (1000 * 60 * 60);
+      totalHours = Math.max(0, totalHours - totalBreakHours);
     }
+    
+    this.total_hours = parseFloat(totalHours.toFixed(2));
   }
   
   // Calculate break durations
@@ -82,7 +82,54 @@ attendanceSchema.pre("save", function(next) {
     });
   }
   
+  // Auto-calculate status based on time
+  if (this.check_in) {
+    const checkInHour = this.check_in.getHours();
+    const checkInMinute = this.check_in.getMinutes();
+    
+    if (checkInHour > 9 || (checkInHour === 9 && checkInMinute > 15)) {
+      this.status = "late";
+      this.late_minutes = (checkInHour - 9) * 60 + (checkInMinute - 15);
+    } else {
+      this.status = "present";
+    }
+  }
+  
   next();
 });
+
+// Static method to get attendance by user and date range
+attendanceSchema.statics.findByUserAndDateRange = function(userId, startDate, endDate) {
+  return this.find({
+    user_id: userId,
+    date: {
+      $gte: startDate,
+      $lte: endDate
+    }
+  }).sort({ date: 1 });
+};
+
+// Static method to get attendance by admin (all employees under admin)
+attendanceSchema.statics.findByAdmin = function(adminId, date) {
+  return this.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "user_id",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+    {
+      $unwind: "$user"
+    },
+    {
+      $match: {
+        "user.parent_admin_id": mongoose.Types.ObjectId(adminId),
+        date: date
+      }
+    }
+  ]);
+};
 
 export default mongoose.model("Attendance", attendanceSchema);

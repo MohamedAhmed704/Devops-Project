@@ -1,19 +1,18 @@
 import User from "../models/userModel.js";
-import Company from "../models/companyModel.js";
+import OTP from "../models/otpModel.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/token.js";
-import { sendResetPasswordEmail } from "../utils/emailService.js";
+import { sendResetPasswordEmail, sendOTPEmail } from "../utils/emailService.js";
 
-// REGISTER SUPER ADMIN + COMPANY (First Setup) - Register First, then OTP
-export const registerCompany = async (req, res) => {
+// REGISTER SUPER ADMIN (First Setup) - With OTP Verification
+export const registerSuperAdmin = async (req, res) => {
   try {
-    const { companyName, name, email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -23,7 +22,6 @@ export const registerCompany = async (req, res) => {
       });
     }
 
-    // Validate password strength
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
@@ -32,83 +30,58 @@ export const registerCompany = async (req, res) => {
       });
     }
 
-    // Check if user already exists and is verified
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser && existingUser.emailVerified) {
+    const existingSuperAdmin = await User.findOne({ role: "super_admin" });
+    if (existingSuperAdmin) {
       return res.status(400).json({
         success: false,
-        error: "EMAIL_ALREADY_EXISTS",
-        message: "Email is already registered and verified"
+        error: "SUPER_ADMIN_EXISTS",
+        message: "Super admin already exists"
       });
     }
 
-    // Create company
-    const company = await Company.create({ name: companyName });
-
-    // Create user (pending verification)
-    let user;
-    if (existingUser) {
-      // Update existing unverified user
-      user = await User.findByIdAndUpdate(
-        existingUser._id,
-        {
-          name,
-          password,
-          role: "superAdmin",
-          company: company._id,
-          isActive: false, // Will be activated after OTP verification
-          active: false
-        },
-        { new: true }
-      );
-    } else {
-      // Create new user (pending verification)
-      user = await User.create({
-        name,
-        email: email.toLowerCase(),
-        password,
-        role: "superAdmin",
-        company: company._id,
-        emailVerified: false, // Pending verification
-        isActive: false, // Account not active yet
-        active: false
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({
+        success: false,
+        error: "EMAIL_EXISTS",
+        message: "Email already in use"
       });
     }
 
-    // Generate and send OTP for email verification
-    const OTP = await import("../models/otpModel.js");
-    const otpCode = OTP.default.generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const superAdmin = await User.create({
+      name,
+      email,
+      password,
+      role: "super_admin",
+      is_active: false,
+      email_verified: false
+    });
 
-    // Create OTP record
-    await OTP.default.create({
+    const otpCode = OTP.generateOTP();
+
+    await OTP.create({
       email: email.toLowerCase(),
       otp: otpCode,
       type: "email_verification",
-      expiresAt: expiresAt
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
     });
 
-    // Send OTP via email
-    const { sendOTPEmail } = await import("../utils/emailService.js");
-    await sendOTPEmail(email, otpCode);
+    await sendOTPEmail(email, otpCode, "email_verification");
 
     return res.status(201).json({
       success: true,
-      message: "Registration successful! Please check your email to verify your account.",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        isActive: user.isActive
-      },
-      company: {
-        id: company._id,
-        name: company.name
+      message: "Super Admin registered successfully! Please check your email.",
+      data: {
+        id: superAdmin._id,
+        name: superAdmin.name,
+        email: superAdmin.email,
+        role: superAdmin.role,
+        email_verified: superAdmin.email_verified,
+        is_active: superAdmin.is_active
       }
     });
   } catch (err) {
-    console.error("registerCompany error:", err);
+    console.error("registerSuperAdmin error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
@@ -117,12 +90,11 @@ export const registerCompany = async (req, res) => {
   }
 };
 
-// ACTIVATE ACCOUNT AFTER OTP VERIFICATION
-export const activateAccount = async (req, res) => {
+// VERIFY EMAIL WITH OTP
+export const verifyEmail = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    // Validate input
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
@@ -131,7 +103,6 @@ export const activateAccount = async (req, res) => {
       });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
@@ -141,7 +112,6 @@ export const activateAccount = async (req, res) => {
       });
     }
 
-    // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(404).json({
@@ -151,18 +121,16 @@ export const activateAccount = async (req, res) => {
       });
     }
 
-    if (user.emailVerified) {
+    if (user.email_verified) {
       return res.status(400).json({
         success: false,
         error: "ALREADY_VERIFIED",
-        message: "Account is already verified"
+        message: "Email is already verified"
       });
     }
 
-    // Verify OTP
-    const OTP = await import("../models/otpModel.js");
-    const otpRecord = await OTP.default.findValidOTP(email.toLowerCase(), otp, "email_verification");
-    
+    const otpRecord = await OTP.findValidOTP(email.toLowerCase(), otp, "email_verification");
+
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
@@ -171,20 +139,15 @@ export const activateAccount = async (req, res) => {
       });
     }
 
-    // Mark OTP as verified
     await otpRecord.markAsVerified();
 
-    // Activate user account
-    user.emailVerified = true;
-    user.isActive = true;
-    user.active = true;
+    user.email_verified = true;
+    user.is_active = true;
     await user.save();
 
-    // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Set refresh token in cookies
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -193,69 +156,183 @@ export const activateAccount = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Account activated successfully! You can now login.",
+      message: "Email verified successfully!",
       accessToken,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
-        emailVerified: user.emailVerified,
-        isActive: user.isActive
+        email_verified: user.email_verified,
+        is_active: user.is_active
       }
     });
 
   } catch (err) {
-    console.error("activateAccount error:", err);
+    console.error("verifyEmail error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: "Account activation failed. Please try again later."
+      message: "Email verification failed."
     });
   }
 };
 
-// LOGIN (Any User: Super Admin, Admin, Employee)
+// RESEND OTP
+export const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: "MISSING_EMAIL",
+        message: "Email is required"
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "USER_NOT_FOUND",
+        message: "User not found"
+      });
+    }
+
+    if (user.email_verified) {
+      return res.status(400).json({
+        success: false,
+        error: "ALREADY_VERIFIED",
+        message: "Email is already verified"
+      });
+    }
+
+    await OTP.updateMany(
+      {
+        email: email.toLowerCase(),
+        type: "email_verification",
+        isVerified: false
+      },
+      { expiresAt: Date.now() }
+    );
+
+    const otpCode = OTP.generateOTP();
+
+    await OTP.create({
+      email: email.toLowerCase(),
+      otp: otpCode,
+      type: "email_verification",
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+    });
+
+    await sendOTPEmail(email, otpCode, "email_verification");
+
+    return res.json({
+      success: true,
+      message: "OTP sent successfully.",
+      data: {
+        email: email,
+        expires_in: "10 minutes"
+      }
+    });
+  } catch (err) {
+    console.error("resendOTP error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "SERVER_ERROR",
+      message: "Failed to resend OTP."
+    });
+  }
+};
+
+// LOGIN
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).populate("company");
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_CREDENTIALS",
+        message: "Invalid credentials"
+      });
     }
 
-    if (!user.active) {
-      return res.status(403).json({ message: "User account is inactive" });
+    if (user.role === "super_admin" && !user.email_verified) {
+      return res.status(403).json({
+        success: false,
+        error: "EMAIL_NOT_VERIFIED",
+        message: "Verify email before logging in"
+      });
+    }
+
+    if (!user.is_active) {
+      return res.status(403).json({
+        success: false,
+        error: "ACCOUNT_INACTIVE",
+        message: "Account inactive"
+      });
     }
 
     const match = await user.matchPassword(password);
     if (!match) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        success: false,
+        error: "INVALID_CREDENTIALS",
+        message: "Invalid credentials"
+      });
     }
+
+    await user.updateLastLogin();
 
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    // Set refresh token in cookies
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
     });
 
+    let userResponse = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      email_verified: user.email_verified,
+      is_active: user.is_active,
+      lastLogin: user.lastLogin
+    };
+
+    if (user.role === "admin") {
+      userResponse.branch_name = user.branch_name;
+    }
+
+    if (user.role === "employee") {
+      const admin = await user.getBranchAdmin();
+      userResponse.branch_name = admin?.branch_name;
+      userResponse.branch_admin_name = admin?.name;
+    }
+
     return res.json({
+      success: true,
       message: "Logged in successfully",
       accessToken,
-      user,
+      user: userResponse,
     });
   } catch (err) {
     console.error("loginUser error:", err);
-    return res.status(500).json({ message: err.message });
+    return res.status(500).json({
+      success: false,
+      error: "SERVER_ERROR",
+      message: err.message
+    });
   }
 };
 
-// REFRESH TOKEN → NEW ACCESS TOKEN
+// REFRESH TOKEN
 export const refreshAccessToken = async (req, res) => {
   const token = req.cookies.refreshToken;
 
@@ -271,7 +348,7 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
-    if (!user.active) {
+    if (!user.is_active) {
       return res.status(403).json({ message: "User account is inactive" });
     }
 
@@ -284,7 +361,7 @@ export const refreshAccessToken = async (req, res) => {
   }
 };
 
-// LOGOUT (Clear Refresh Token)
+// LOGOUT
 export const logoutUser = async (req, res) => {
   try {
     res.clearCookie("refreshToken");
@@ -295,32 +372,26 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-// FORGET PASSWORD - Send Reset Email
+// FORGET PASSWORD
 export const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      // Don't expose if user exists or not
       return res.json({ message: "If the email exists, a reset link has been sent." });
     }
 
-    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Hash the token for security (store hashed)
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
-    // Set token and expiry on user
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000; // 10 min
+    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    // Create reset URL (frontend link)
     const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
 
-    // Send email using service
     await sendResetPasswordEmail(user.email, resetUrl);
 
     return res.json({ message: "Reset email sent." });
@@ -330,15 +401,13 @@ export const forgetPassword = async (req, res) => {
   }
 };
 
-// RESET PASSWORD - Verify Token and Update Password
+// RESET PASSWORD
 export const resetPassword = async (req, res) => {
   try {
     const { token, newPassword } = req.body;
 
-    // Hash the incoming token
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Find user with valid token
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
@@ -348,7 +417,6 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-    // Update password
     user.password = newPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
@@ -358,5 +426,127 @@ export const resetPassword = async (req, res) => {
   } catch (err) {
     console.error("resetPassword error:", err);
     return res.status(500).json({ message: err.message });
+  }
+};
+
+// GET PROFILE
+export const getMyProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    let profileData = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      position: user.position,
+      department: user.department,
+      hireDate: user.hireDate,
+      avatar: user.avatar,
+      is_active: user.is_active,
+      email_verified: user.email_verified,
+      lastLogin: user.lastLogin
+    };
+
+    if (user.role === "admin") {
+      profileData.branch_name = user.branch_name;
+    }
+
+    if (user.role === "employee") {
+      const admin = await user.getBranchAdmin();
+      profileData.branch_name = admin?.branch_name;
+      profileData.branch_admin_name = admin?.name;
+      profileData.branch_admin_email = admin?.email;
+    }
+
+    res.json(profileData);
+  } catch (err) {
+    console.error("getMyProfile error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// UPDATE PROFILE
+export const updateMyProfile = async (req, res) => {
+  try {
+    const { name, phone, position, department } = req.body;
+
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+
+    if (position && user.role !== "super_admin") user.position = position;
+    if (department && user.role !== "super_admin") user.department = department;
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        position: user.position,
+        department: user.department
+      }
+    });
+  } catch (err) {
+    console.error("updateMyProfile error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// ⭐ ADD createAdmin HERE ⭐
+export const createAdmin = async (req, res) => {
+  try {
+    const { name, email, password, branch_name } = req.body;
+
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({
+        success: false,
+        error: "EMAIL_EXISTS",
+        message: "Email is already in use"
+      });
+    }
+
+    const admin = await User.create({
+      name,
+      email,
+      password,
+      role: "admin",
+      branch_name,
+      is_active: true,
+      email_verified: true
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Admin created successfully",
+      admin: {
+        id: admin._id,
+        email: admin.email,
+        branch_name: admin.branch_name
+      }
+    });
+  } catch (err) {
+    console.error("createAdmin error:", err);
+    return res.status(500).json({
+      success: false,
+      error: "SERVER_ERROR",
+      message: err.message
+    });
   }
 };

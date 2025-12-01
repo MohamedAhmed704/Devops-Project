@@ -1,9 +1,16 @@
 import express from "express";
-import { protect, adminOnly } from "../middleware/authMiddleware.js";
+import { 
+  protect, 
+  employeeOnly, 
+  adminOnly,
+  adminOrAbove,
+  checkBranchAccess 
+} from "../middleware/authMiddleware.js";
 import {
   createShift,
-  getTeamShifts,
+  getBranchShifts,
   getMyShifts,
+  getTodayShifts,
   updateShift,
   deleteShift,
   createBulkShifts
@@ -11,22 +18,18 @@ import {
 
 const router = express.Router();
 
-// Admin creates single shift
-router.post("/", protect, adminOnly, createShift);
+// All routes require authentication
+router.use(protect);
 
-// Admin creates multiple shifts (BULK)
-router.post("/bulk", protect, adminOnly, createBulkShifts);
+// Employee only routes
+router.get("/me", employeeOnly, getMyShifts);
+router.get("/today", employeeOnly, getTodayShifts);
 
-// Admin views all shifts for a team
-router.get("/team/:teamId", protect, adminOnly, getTeamShifts);
-
-// Employee (or any logged user) views their own shifts
-router.get("/me", protect, getMyShifts);
-
-// Admin updates shift
-router.put("/:id", protect, adminOnly, updateShift);
-
-// Admin deletes shift
-router.delete("/:id", protect, adminOnly, deleteShift);
+// Admin only routes (branch shift management)
+router.post("/", adminOnly, createShift);
+router.post("/bulk", adminOnly, createBulkShifts);
+router.get("/branch", adminOnly, getBranchShifts);
+router.put("/:id", adminOnly, updateShift);
+router.delete("/:id", adminOnly, deleteShift);
 
 export default router;

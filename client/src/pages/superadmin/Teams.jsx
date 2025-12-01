@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import apiClient from "../../api/apiClient";
+import { useLoading } from "../../contexts/LoaderContext";
 
 export default function Teams() {
   const [companies, setCompanies] = useState([]);
   const [page, setPage] = useState(1);
 
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const {show, hide, loading} = useLoading();
 
   const fetchCompanies = async () => {
     try {
-      setLoading(true);
+      show();
       setError(null);
 
       const res = await apiClient.get(`/api/companies/all`);
@@ -21,7 +22,7 @@ export default function Teams() {
     } catch (err) {
       setError(err.message ||"Failed to load companies.");
     } finally {
-      setLoading(false);
+      hide();
     }
   };
 
@@ -44,12 +45,6 @@ export default function Teams() {
           Companies
         </h1>
 
-        {/* Loading */}
-        {loading && (
-          <div className="text-center py-10 text-lg text-slate-500">
-            Loading companies...
-          </div>
-        )}
 
         {/* Error */}
         {error && (

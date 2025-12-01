@@ -5,13 +5,16 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import teamRoutes from "./routes/teamRoutes.js";
 import shiftRoutes from "./routes/shiftRoutes.js";
-import companyRoutes from "./routes/companyRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js";
-import timeOffRoutes from "./routes/timeOffRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import otpRoutes from "./routes/otpRoutes.js";
+
+// Add to routes
+// Import the new routes
+import superAdminRoutes from "./routes/superAdminRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import employeeRoutes from "./routes/employeeRoutes.js";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -24,15 +27,24 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+// Base API routes
 app.use("/api/auth", authRoutes);      
 app.use("/api/users", userRoutes);      
-app.use("/api/companies", companyRoutes);
-app.use("/api/teams", teamRoutes);     
 app.use("/api/shifts", shiftRoutes);   
 app.use("/api/attendance", attendanceRoutes);
-app.use("/api/timeoff", timeOffRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/otp", otpRoutes);
+
+// New role-based routes
+app.use("/api/super-admin", superAdminRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/employee", employeeRoutes);
+app.use("/api/otp", otpRoutes);
+
+// Remove old routes that are no longer needed
+// app.use("/api/companies", companyRoutes);    ❌ Removed
+// app.use("/api/teams", teamRoutes);          ❌ Removed  
+// app.use("/api/timeoff", timeOffRoutes);     ❌ Removed
 
 app.get("/", (req, res) => {
   res.send("ShiftMind API Running - Smart Workforce Management System");
@@ -47,45 +59,36 @@ app.listen(PORT, () =>
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`)
 );
 
+// 🎯 Updated Features - ShiftMind New Architecture
 
-// 🎯 Upcoming Features - ShiftMind Roadmap
+// 🏢 New Branch-Based System
+// Super Admin → Manages entire system and all branches
+// Branch Admin → Manages their specific branch and employees  
+// Employee → Belongs to a specific branch with limited access
 
-// 🔄 Shift Swap System
-// Employee requests shift swap → ShiftSwapRequest model (pending/approved/rejected)
-// Auto-match available employees → AI-powered matching algorithm
-// Manager approval workflow → Notifications + quick actions
+// 🔐 Enhanced Role-Based Access
+// Super Admin: Full system access + branch management
+// Admin: Branch-specific management + employee oversight
+// Employee: Personal data + attendance + shifts
 
-// 📱 Real-time Employee Status  
-// Live clock-in/out tracking → WebSockets for real-time updates
-// Break status monitoring → Live dashboard for managers
-// Location-based attendance → Optional GPS verification
+// 📊 Consolidated Features
+// Attendance tracking with branch isolation
+// Shift management per branch
+// Reports with branch-level permissions
+// Employee management within branches
 
-// 📊 Advanced Analytics
-// Predictive scheduling → AI forecasts busy periods
-// Employee performance insights → Productivity scoring
-// Cost optimization reports → Overtime vs hiring analysis
+// 🚀 Improved Security
+// Branch isolation prevents cross-branch data access
+// Granular permissions for each role
+// Automatic access control based on branch_admin_id
 
-// 🔔 Smart Notifications
-// Automated reminders → Shift reminders via email/SMS
-// Approval workflows → Manager notifications for requests
-// System alerts → Anomaly detection (high overtime, frequent absences)
+// 💡 Key Benefits
+// Scalable multi-branch architecture
+// Secure data isolation between branches
+// Flexible role-based permissions
+// Simplified user management
 
-// 🎨 Enhanced UI/UX
-// Drag & drop scheduling → Interactive calendar interface
-// Mobile-first design → PWA for mobile devices
-// Dark mode support → Better user experience
-
-// 💰 Billing & Subscription
-// Multi-tier plans → Free, Pro, Enterprise
-// Usage analytics → Track feature utilization
-// Invoice management → Automated billing system
-
-// 🔐 Advanced Security
-// Role-based permissions → Granular access control
-// Audit logs → Track all system changes
-// Data encryption → Enhanced security measures
-
-// 🤖 AI Features
-// Auto-schedule generator → AI creates optimal schedules
-// HR insights assistant → LLM-powered analysis and reports
-// Predictive staffing → Forecast staffing needs based on historical data
+// 🔄 Removed Features (No Longer Needed)
+// Company entity (replaced by branch system)
+// Team entity (replaced by branch hierarchy)  
+// TimeOff module (integrated into attendance system)
