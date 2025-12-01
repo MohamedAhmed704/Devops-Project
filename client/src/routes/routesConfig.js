@@ -6,12 +6,14 @@ import {
   Clock,
   BarChart3,
   Plane,
+  FingerprintPattern,
 } from "lucide-react";
 
 import SA_Dashboard from "../pages/superadmin/Dashboard";
 import SA_Teams from "../pages/superadmin/Teams";
 import SA_Employees from "../pages/superadmin/Employees";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
+import SA_Profile from "../pages/superadmin/Profile";
 
 import A_Dashboard from "../pages/admin/Dashboard/Dashboard";
 import A_Schedule from "../pages/admin/Schedule";
@@ -27,11 +29,12 @@ import E_TimeOff from "../pages/employee/TimeOffRequests";
 
 const routes = {
 
-  superadmin: [
+  superAdmin: [
       { path: "/dashboard", element: SA_Dashboard, label: "Dashboard", icon: LayoutDashboard },
       { path: "/teams", element: SA_Teams, label: "Teams", icon: Users },
       { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
-      { path: "/time-off", element: SA_TimeOffRequests, label: "Time Off", icon: Plane }
+      { path: "/time-off", element: SA_TimeOffRequests, label: "Time Off", icon: Plane },
+      { path: "/profile", element: SA_Profile, label: "Profile", icon: FingerprintPattern },
   ],
 
   admin: [
@@ -44,7 +47,7 @@ const routes = {
   ],
 
   employee: [
-      { path: "/schedule", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
+      { path: "/dashboard", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
       { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
       { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane }
   ]
