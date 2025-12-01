@@ -21,7 +21,7 @@ import {
   unlinkGoogleAccountController,
   getGoogleAuthStatusController
 } from "../controllers/googleAuthController.js";
-import { protect } from "../middleware/authMiddleware.js";
+
 
 const router = express.Router();
 
