@@ -109,6 +109,27 @@ const userSchema = new mongoose.Schema(
     isActive: { 
       type: Boolean, 
       default: true 
+    },
+
+    // Google OAuth fields
+    googleId: { 
+      type: String, 
+      unique: true, 
+      sparse: true 
+    },
+    authProvider: { 
+      type: String, 
+      enum: ['local', 'google'], 
+      default: 'local' 
+    },
+    googleProfilePicture: { 
+      type: String 
+    },
+    googleAccessToken: { 
+      type: String 
+    },
+    googleRefreshToken: { 
+      type: String 
     }
   },
   { timestamps: true }
