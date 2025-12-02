@@ -9,13 +9,16 @@ import {
   FingerprintPattern,
 } from "lucide-react";
 
+
+// Shared Pages
+import SA_Profile from "../shared/Profile";
+
 // Super Admin Pages
 import SA_Dashboard from "../pages/superadmin/Dashboard";
 import SA_Teams from "../pages/superadmin/Teams";
 import SA_Employees from "../pages/superadmin/Employees";
 import SA_Reports from "../pages/superadmin/Reports";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
-import SA_Profile from "../pages/superadmin/Profile";
 
 // Admin Pages
 import A_Dashboard from "../pages/admin/Dashboard/Dashboard";
@@ -47,7 +50,8 @@ const routes = {
     { path: "/employees", element: A_Employees, label: "Employees", icon: Users },
     { path: "/time-tracking", element: A_TimeTracking, label: "Time Tracking", icon: Clock },
     { path: "/time-off", element: A_TimeOff, label: "Time Off", icon: Plane },
-    { path: "/reports", element: A_Reports, label: "Reports", icon: BarChart3 }
+    { path: "/reports", element: A_Reports, label: "Reports", icon: BarChart3 },
+    { path: "/profile", element: SA_Profile, label: "Profile", icon: FingerprintPattern },
   ],
 
   employee: [
