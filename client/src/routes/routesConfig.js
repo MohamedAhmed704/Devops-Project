@@ -21,7 +21,7 @@ import SA_Reports from "../pages/superadmin/Reports";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
 
 // Admin Pages
-import A_Dashboard from "../pages/admin/Dashboard/Dashboard";
+import A_Dashboard from "../pages/admin/Dashboard";
 import A_Schedule from "../pages/admin/Schedule";
 import A_Employees from "../pages/admin/Employees";
 import A_TimeTracking from "../pages/admin/TimeTracking";
