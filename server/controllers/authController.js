@@ -30,22 +30,6 @@ export const registerSuperAdmin = async (req, res) => {
       });
     }
 
-<<<<<<< HEAD
-=======
-    // ⭐⭐ التعديل: تم حذف التحقق من وجود Super Admin مسبقاً للسماح بتعدد حسابات Super Admin ⭐⭐
-    /*
-    const existingSuperAdmin = await User.findOne({ role: "super_admin" });
-    if (existingSuperAdmin) {
-      return res.status(400).json({
-        success: false,
-        error: "SUPER_ADMIN_EXISTS",
-        message: "Super admin already exists"
-      });
-    }
-    */
-    // ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
-
->>>>>>> 12cbd151061c4e6e7772cb3fcede8a2b7b1fda5e
     const exists = await User.findOne({ email });
     if (exists) {
       return res.status(400).json({
@@ -525,10 +509,6 @@ export const createAdmin = async (req, res) => {
   try {
     const { name, email, password, branch_name } = req.body;
     
-<<<<<<< HEAD
-=======
-    // ⭐ التعديل: نحتاج إلى الحصول على ID الـ Super Admin لربطه بالـ Admin الجديد ⭐
->>>>>>> 12cbd151061c4e6e7772cb3fcede8a2b7b1fda5e
     const superAdminId = req.user._id;
 
     const exists = await User.findOne({ email });
@@ -548,11 +528,7 @@ export const createAdmin = async (req, res) => {
       branch_name,
       is_active: true,
       email_verified: true,
-<<<<<<< HEAD
       super_admin_id: superAdminId
-=======
-      super_admin_id: superAdminId // ⭐ ربط المدير بالـ Super Admin المالك
->>>>>>> 12cbd151061c4e6e7772cb3fcede8a2b7b1fda5e
     });
 
     return res.status(201).json({

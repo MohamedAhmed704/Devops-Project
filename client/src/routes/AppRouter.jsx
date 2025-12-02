@@ -18,7 +18,8 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 export default function AppRouter() {
   const { loading } = useAuth();
 
-  // Wait for AuthContext to finish loading during refresh
+  // 1. Wait for AuthContext to finish loading during refresh
+  // (This handles the first check: AuthContext is reading token, fetching user)
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -27,14 +28,7 @@ export default function AppRouter() {
     );
   }
 
-  // eslint-disable-next-line no-undef
-  if (loading || (isAuthenticated && !userRole)) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div>Loading...</div>
-      </div>
-    );
-  }
+
 
   return (
     <BrowserRouter>
@@ -45,9 +39,9 @@ export default function AppRouter() {
 
 function RoutesWrapper() {
   // eslint-disable-next-line no-unused-vars
-  const { isAuthenticated, userRole, status } = useAuth();
+  const { isAuthenticated, userRole, status } = useAuth(); 
 
-  // Prevent empty navbar + missing routes after refresh
+  // 2. Handle temporary state: Token exists (isAuthenticated=true) but userRole is still null/undefined during hydration/refresh.
   if (isAuthenticated && !userRole) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -60,7 +54,7 @@ function RoutesWrapper() {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, userRole, status } = useAuth();
+  const { isAuthenticated, userRole, status } = useAuth(); 
   const roleRoutes = routesConfig[userRole] || [];
 
   return (
@@ -145,6 +139,7 @@ function AppRoutes() {
 }
 
 function VerifiedRoute({ status }) {
+  // ... (المنطق سليم)
   if (status === "pending_verification") {
     return <Navigate to="/verify-otp" replace />;
   }
@@ -153,6 +148,7 @@ function VerifiedRoute({ status }) {
 }
 
 function MainAppLayout() {
+  // ... (المنطق سليم)
   const { userRole } = useAuth();
   const roleRoutes = routesConfig[userRole] || [];
 
