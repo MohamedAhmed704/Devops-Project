@@ -1,6 +1,6 @@
-import apiClient from "../apiClient";
+import apiClient from "../../apiClient";
 
-export const adminService = {
+export const dashboardService = {
     getDashboard: () => apiClient.get("/api/admin/dashboard"),
     getDashboardStats : () => apiClient.get("/api/reports/dashboard-stats")
 

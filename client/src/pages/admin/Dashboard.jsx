@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { adminService } from "../../api/services/adminService";
+import { dashboardService } from "../../api/services/admin/dashboardService";
 import { useLoading } from "../../contexts/LoaderContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
@@ -31,8 +31,8 @@ export default function AdminDashboard() {
       
       // Fetch both endpoints in parallel
       const [dashboardRes, statsRes] = await Promise.all([
-        adminService.getDashboard(),
-        adminService.getDashboardStats()
+        dashboardService.getDashboard(),
+        dashboardService.getDashboardStats()
       ]);
       
       setDashboardData(dashboardRes.data.data);
