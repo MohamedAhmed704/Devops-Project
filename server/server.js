@@ -33,7 +33,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/shifts", shiftRoutes);   
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/reports", reportRoutes);
-app.use("/api/otp", otpRoutes);
 
 // New role-based routes
 app.use("/api/super-admin", superAdminRoutes);
