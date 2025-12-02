@@ -43,7 +43,7 @@ const routes = {
 
   admin: [
     { path: "/dashboard", element: A_Dashboard, label: "Dashboard", icon: LayoutDashboard },
-    { path: "/schedule", element: A_Schedule, label: "Schedule", icon: CalendarDays },
+    { path: "/schedule", element: A_Schedule, label: "Scheduler", icon: CalendarDays },
     { path: "/employees", element: A_Employees, label: "Employees", icon: Users },
     { path: "/time-tracking", element: A_TimeTracking, label: "Time Tracking", icon: Clock },
     { path: "/time-off", element: A_TimeOff, label: "Time Off", icon: Plane },
