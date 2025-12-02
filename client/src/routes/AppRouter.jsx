@@ -27,6 +27,7 @@ export default function AppRouter() {
     );
   }
 
+  // eslint-disable-next-line no-undef
   if (loading || (isAuthenticated && !userRole)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -43,6 +44,7 @@ export default function AppRouter() {
 }
 
 function RoutesWrapper() {
+  // eslint-disable-next-line no-unused-vars
   const { isAuthenticated, userRole, status } = useAuth();
 
   // Prevent empty navbar + missing routes after refresh

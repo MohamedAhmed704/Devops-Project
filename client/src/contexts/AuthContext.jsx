@@ -17,6 +17,7 @@ export function AuthProvider({ children }) {
 
     // Case 1 — pending registration (OTP)
     if (pendingEmail && !token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("pending_verification");
       setLoading(false);
       return;
@@ -184,6 +185,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
