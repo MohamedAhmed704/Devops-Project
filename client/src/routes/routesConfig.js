@@ -13,6 +13,7 @@ import {
 import SA_Dashboard from "../pages/superadmin/Dashboard";
 import SA_Teams from "../pages/superadmin/Teams";
 import SA_Employees from "../pages/superadmin/Employees";
+import SA_Reports from "../pages/superadmin/Reports";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
 import SA_Profile from "../pages/superadmin/Profile";
 
@@ -35,7 +36,8 @@ const routes = {
       { path: "/dashboard", element: SA_Dashboard, label: "Dashboard", icon: LayoutDashboard },
       { path: "/teams", element: SA_Teams, label: "Teams", icon: Users },
       { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
-      { path: "/time-off", element: SA_TimeOffRequests, label: "Time Off", icon: Plane },
+      { path: "/time-off", element: SA_TimeOffRequests, label: "Leave Requests", icon: Plane },
+      { path: "/reports", element: SA_Reports, label: "Reports", icon: BarChart3 },
       { path: "/profile", element: SA_Profile, label: "Profile", icon: FingerprintPattern },
   ],
 
