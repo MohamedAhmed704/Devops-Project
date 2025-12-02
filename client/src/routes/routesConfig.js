@@ -7,8 +7,6 @@ import {
   BarChart3,
   Plane,
   FingerprintPattern,
-  Building,      
-  ArrowRightLeft,
 } from "lucide-react";
 
 // Super Admin Pages
@@ -32,37 +30,13 @@ import E_TimeTracking from "../pages/employee/TimeTracking";
 import E_TimeOff from "../pages/employee/TimeOffRequests";
 
 const routes = {
+
   super_admin: [
-    { 
-      path: "/dashboard", 
-      element: SA_Dashboard, 
-      label: "Dashboard", 
-      icon: LayoutDashboard 
-    },
-    { 
-      path: "/teams", 
-      element: SA_Teams, 
-      label: "Branches",
-      icon: Building   
-    },
-    { 
-      path: "/employees", 
-      element: SA_Employees, 
-      label: "Transfer Employees",
-      icon: ArrowRightLeft
-    },
-    { 
-      path: "/time-off", 
-      element: SA_TimeOffRequests, 
-      label: "Time Off", 
-      icon: Plane 
-    },
-    { 
-      path: "/profile", 
-      element: SA_Profile, 
-      label: "Profile", 
-      icon: FingerprintPattern 
-    },
+      { path: "/dashboard", element: SA_Dashboard, label: "Dashboard", icon: LayoutDashboard },
+      { path: "/teams", element: SA_Teams, label: "Teams", icon: Users },
+      { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
+      { path: "/time-off", element: SA_TimeOffRequests, label: "Time Off", icon: Plane },
+      { path: "/profile", element: SA_Profile, label: "Profile", icon: FingerprintPattern },
   ],
 
   admin: [
@@ -75,9 +49,9 @@ const routes = {
   ],
 
   employee: [
-    { path: "/dashboard", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
-    { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
-    { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane }
+      { path: "/dashboard", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
+      { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
+      { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane }
   ]
 };
 
