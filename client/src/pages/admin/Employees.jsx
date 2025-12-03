@@ -323,62 +323,65 @@ const Employees = () => {
     }
   };
 
-  // Handle delete employee with SweetAlert confirmation
-  const handleDeleteEmployee = async (employeeId, employeeName) => {
-    // Show SweetAlert confirmation dialog
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: `You are about to delete "${employeeName}". This action cannot be undone!`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      reverseButtons: true,
-    });
-    
-    if (result.isConfirmed) {
-      try {
-        showLoader();
-        
-        // For now, just remove from local state
-        setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
-        
-        // Show success toast
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: `Employee "${employeeName}" has been deleted successfully`,
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-        });
-        
-        // Re-apply filters after deletion
-        applyFilters();
-        
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.response?.data?.message || 'Failed to delete employee',
-          toast: true,
-          position: 'top-end',
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true,
-        });
-        console.error("Delete error:", error);
-      } finally {
-        hideLoader();
-      }
+// Handle delete employee with SweetAlert confirmation
+const handleDeleteEmployee = async (employeeId, employeeName) => {
+  // Show SweetAlert confirmation dialog
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to delete "${employeeName}". This action cannot be undone!`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    reverseButtons: true,
+  });
+  
+  if (result.isConfirmed) {
+    try {
+      showLoader();
+      
+      // ACTUAL DELETE API CALL - UNCOMMENT THIS
+      await employeesService.deleteEmployee(employeeId);
+      
+      // Update local state
+      setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
+      
+      // Show success toast
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: `Employee "${employeeName}" has been deleted successfully`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      
+      // Re-apply filters after deletion
+      applyFilters();
+      
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to delete employee',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+      console.error("Delete error:", error);
+    } finally {
+      hideLoader();
     }
-    
-    setShowActionsMenu(null);
-  };
+  }
+  
+  setShowActionsMenu(null);
+};
 
   // Handle edit
   const handleEdit = (employee) => {
