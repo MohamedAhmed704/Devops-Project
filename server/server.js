@@ -9,7 +9,7 @@ import shiftRoutes from "./routes/shiftRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import otpRoutes from "./routes/otpRoutes.js";
-
+import notificationRoutes from "./routes/notificationRoutes.js";
 // Add to routes
 // Import the new routes
 import superAdminRoutes from "./routes/superAdminRoutes.js";
@@ -39,7 +39,7 @@ app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/employee", employeeRoutes);
 app.use("/api/otp", otpRoutes);
-
+app.use("/api/notifications", notificationRoutes);
 app.get("/", (req, res) => {
   res.send("ShiftMind API Running - Smart Workforce Management System");
 });
