@@ -139,7 +139,6 @@ function AppRoutes() {
 }
 
 function VerifiedRoute({ status }) {
-  // ... (المنطق سليم)
   if (status === "pending_verification") {
     return <Navigate to="/verify-otp" replace />;
   }
@@ -148,11 +147,10 @@ function VerifiedRoute({ status }) {
 }
 
 function MainAppLayout() {
-  // ... (المنطق سليم)
   const { userRole } = useAuth();
   const roleRoutes = routesConfig[userRole] || [];
 
-  if (!userRole) return null; // prevent navbar flicker
+  if (!userRole) return null; 
 
   return (
     <div>
@@ -168,7 +166,6 @@ function MainAppLayout() {
             />
           ))}
 
-          {/* Fallback for unknown protected routes */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </div>
