@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -16,8 +16,7 @@ export default function Schedule() {
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShiftId, setSelectedShiftId] = useState(null);
-  const [isReadOnly, setIsReadOnly] = useState(false); // ✅ حالة لمنع التعديل على الماضي
-
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [formData, setFormData] = useState({
     employee_ids: [], 
     title: "",
@@ -33,7 +32,6 @@ export default function Schedule() {
     try {
       show();
       const [shiftsRes, employeesRes] = await Promise.all([
-        // ✅ طلب 1000 شيفت لتجاوز الـ Pagination الافتراضي وضمان ظهور كافة البيانات
         shiftService.getBranchShifts({ limit: 1000 }), 
         apiClient.get("/api/admin/employees")
       ]);
@@ -54,10 +52,9 @@ export default function Schedule() {
     fetchData();
   }, []);
 
-  // ✅ Helper: Map DB shift to Calendar Event with AUTOMATIC STATUS COLORING
+  // Helper: Map DB shift to Calendar Event with AUTOMATIC STATUS COLORING
   const mapShiftToEvent = (s) => {
     const now = new Date();
-    // ✅ تحويل النصوص إلى كائنات Date لضمان العرض الصحيح في Week/Day View
     const start = new Date(s.start_date_time);
     const end = new Date(s.end_date_time);
     const isPast = end < now;
@@ -81,19 +78,19 @@ export default function Schedule() {
     return {
       id: s._id,
       title: `${s.employee_id?.name || "Unknown"} - ${s.title}`,
-      start: start, // ✅ تمرير كائن Date
-      end: end,     // ✅ تمرير كائن Date
+      start: start,
+      end: end,    
       backgroundColor: color,
       borderColor: borderColor,
-      allDay: false, // ✅ إجبار الحدث ليكون بتوقيت محدد وليس طوال اليوم
+      allDay: false, 
       extendedProps: { 
         employeeId: s.employee_id?._id,
         rawTitle: s.title,
         type: s.shift_type,
         location: s.location,
         notes: s.notes,
-        status: s.status, // ✅ نحتاج الحالة
-        isPast: isPast    // ✅ نحتاج نعرف لو ماضي
+        status: s.status, 
+        isPast: isPast
       },
     };
   };
@@ -117,12 +114,11 @@ export default function Schedule() {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  // 2. Handle Event Click (Open Edit Mode)
+  // Handle Event Click (Open Edit Mode)
   const handleEventClick = (info) => {
     const event = info.event;
     const props = event.extendedProps;
 
-    // ✅ منطق الحماية: لو الشيفت مكتمل، نخليه قراءة فقط
     const readOnly = props.status === 'completed';
     setIsReadOnly(readOnly);
 
@@ -140,7 +136,7 @@ export default function Schedule() {
     setIsModalOpen(true);
   };
 
-  // 3. Reset Form & Modal
+  // Reset Form & Modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedShiftId(null);
@@ -156,10 +152,10 @@ export default function Schedule() {
     });
   };
 
-  // 4. Handle Submit
+  // Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isReadOnly) return; // منع الإرسال لو قراءة فقط
+    if (isReadOnly) return;
 
     if (formData.employee_ids.length === 0 || !formData.start_date_time || !formData.end_date_time) {
       return alert("Please select at least one employee and time range.");
@@ -203,7 +199,7 @@ export default function Schedule() {
       }
 
       handleCloseModal();
-      fetchData(); // ✅ إعادة تحميل البيانات لتظهر الشيفتات الجديدة
+      fetchData(); 
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Operation failed");
@@ -212,9 +208,9 @@ export default function Schedule() {
     }
   };
 
-  // 5. Handle Delete
+  // Handle Delete
   const handleDelete = async () => {
-    if (isReadOnly) return; // منع الحذف لو قراءة فقط
+    if (isReadOnly) return; 
     if (!window.confirm("Are you sure you want to delete this shift?")) return;
     
     try {
@@ -240,12 +236,12 @@ export default function Schedule() {
           <p className="text-slate-500 text-sm">Plan and manage employee shifts.</p>
         </div>
         
-        {/* مفتاح الألوان (Legend) */}
         <div className="hidden md:flex gap-3 text-xs">
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Scheduled</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400"></span> Completed</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Missed</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Regular</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>Overtime</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#8b5cf6]"></span>Holiday</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ec4899]"></span>Weekend</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>Emergency</span>
         </div>
 
         <button 
@@ -268,7 +264,7 @@ export default function Schedule() {
           }}
           events={events}
           height="auto"
-          slotMinTime="00:00:00" // ✅ بداية اليوم من منتصف الليل لرؤية كل الشيفتات
+          slotMinTime="00:00:00"
           slotMaxTime="24:00:00"
           allDaySlot={false}
           eventClick={handleEventClick}
@@ -316,7 +312,7 @@ export default function Schedule() {
                 <div className="relative">
                   <Users className="absolute left-3 top-3 text-slate-400" size={18} />
                   <select 
-                    disabled={isReadOnly} // 🔒 تعطيل
+                    disabled={isReadOnly} 
                     multiple={!selectedShiftId}
                     required
                     className={`w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 h-32 ${isReadOnly ? 'bg-gray-50 text-gray-500' : 'bg-white'}`}
@@ -432,7 +428,6 @@ export default function Schedule() {
 
               {/* Footer Buttons */}
               <div className="flex gap-3 pt-2">
-                {/* زر الحذف يختفي لو الشيفت مكتمل */}
                 {selectedShiftId && !isReadOnly && (
                   <button 
                     type="button" 
@@ -448,7 +443,6 @@ export default function Schedule() {
                   {isReadOnly ? "Close" : "Cancel"}
                 </button>
                 
-                {/* زر الحفظ يختفي لو الشيفت مكتمل */}
                 {!isReadOnly && (
                   <button type="submit" className="flex-1 py-2.5 bg-[#112D4E] text-white rounded-xl hover:bg-[#274b74] font-medium transition shadow-md flex items-center justify-center gap-2">
                     {selectedShiftId ? <><Save size={18} /> Update Shift</> : "Create Shift"}
