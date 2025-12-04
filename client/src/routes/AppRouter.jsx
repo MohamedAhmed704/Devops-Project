@@ -10,6 +10,8 @@ import Register from "../pages/auth/register";
 import ForgetPassword from "../pages/auth/ForgetPassword.jsx";
 import ResetPassword from "../pages/auth/ResetPassword.jsx";
 import VerifyOtp from "../pages/auth/VerifyOtp.jsx";
+import AuthSuccess from "../pages/auth/AuthSuccess.jsx";
+import AuthError from "../pages/auth/AuthError.jsx";
 
 import OtpRoute from "./OtpRoute.jsx";
 import ResetPasswordRoute from "./ResetPasswordRoute.jsx";
@@ -117,6 +119,10 @@ function AppRoutes() {
           </OtpRoute>
         }
       />
+
+      {/* Google Auth Routes */}
+      <Route path="/auth/success" element={<AuthSuccess />} />
+      <Route path="/auth/error" element={<AuthError />} />
 
       {/* Unauthorized */}
       <Route path="/unauthorized" element={<div>Unauthorized Access</div>} />
