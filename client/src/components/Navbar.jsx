@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
-import { Bell, Search, User, Menu, X, Check, Megaphone } from "lucide-react";
+import { useState, useEffect, useContext } from "react";
+import { Bell, User, Menu, X, Check, Megaphone, Moon, Sun } from "lucide-react";
 import routes from "../routes/routesConfig";
 import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { notificationService } from "../api/services/notificationService";
 import AnnouncementModal from "./AnnouncementModal";
+import { ThemeContext } from "../contexts/ThemeContext.jsx";
 
 export default function Navbar({ role }) {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
@@ -14,6 +15,7 @@ export default function Navbar({ role }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { logout, userRole, user } = useAuth();
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const items = routes[role] || [];
   const navigate = useNavigate();
 
@@ -77,6 +79,18 @@ export default function Navbar({ role }) {
 
         {/* Right Side Icons */}
         <div className="flex items-center gap-3 md:gap-5 relative">
+
+          <button
+            onClick={toggleTheme}
+            className="p-2 hover:bg-gray-100 rounded-full text-slate-600 hover:text-[#112D4E] transition relative group"
+          >
+            {theme === "light" ? (
+              <Moon className="w-6 h-6" />
+            ) : (
+              <Sun className="w-6 h-6" />
+            )}
+          </button>
+
           {["super_admin", "admin"].includes(userRole) && (
             <button
               onClick={() => setShowAnnouncementModal(true)}
