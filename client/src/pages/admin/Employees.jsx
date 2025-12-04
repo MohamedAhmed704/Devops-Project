@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLoading } from "../../contexts/LoaderContext";
 import { employeesService } from "../../api/services/admin/employeesService";
 import {
@@ -9,7 +9,6 @@ import {
   Edit2,
   Trash2,
   Eye,
-  Calendar,
   Clock,
   CheckCircle,
   XCircle,
@@ -274,10 +273,8 @@ const Employees = () => {
       try {
         showLoader();
         
-        // ✅ Send 'is_active' to backend (keep backend happy)
         await employeesService.toggleEmployeeStatus(employeeId, { is_active: newStatus });
         
-        // ✅ Update local 'isActive' immediately (keep frontend happy)
         setEmployees(prev => prev.map(emp => 
           emp._id === employeeId 
             ? { 
@@ -286,7 +283,6 @@ const Employees = () => {
                 is_active: newStatus, // Sync backup
                 stats: {
                   ...emp.stats,
-                  // If inactive, set status to absent, otherwise keep or reset
                   today_status: newStatus ? (emp.stats?.today_status || "absent") : "absent"
                 }
               }
@@ -417,7 +413,6 @@ const Employees = () => {
     });
   };
 
-  // ✅ Get Status Badge (Uses normalized 'isActive')
   const getStatusBadge = (employee) => {
     const isActive = employee.isActive; 
     const todayStatus = employee.stats?.today_status;

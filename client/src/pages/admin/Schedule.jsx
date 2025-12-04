@@ -7,6 +7,7 @@ import { useLoading } from "../../contexts/LoaderContext";
 import shiftService from "../../api/services/admin/shiftService";
 import apiClient from "../../api/apiClient";
 import { Plus, X, Clock, MapPin, FileText, Users, Trash2, Save, AlertCircle, Lock } from "lucide-react";
+import { Alert } from "../../utils/alertService.js";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
@@ -27,7 +28,7 @@ export default function Schedule() {
     notes: ""
   });
 
-  // 1. Fetch Shifts & Employees
+  // Fetch Shifts & Employees
   const fetchData = async () => {
     try {
       show();
@@ -158,7 +159,7 @@ export default function Schedule() {
     if (isReadOnly) return;
 
     if (formData.employee_ids.length === 0 || !formData.start_date_time || !formData.end_date_time) {
-      return alert("Please select at least one employee and time range.");
+      return Alert.warning("Please select at least one employee and time range.");
     }
 
     try {
@@ -175,7 +176,7 @@ export default function Schedule() {
           location: formData.location,
           notes: formData.notes
         });
-        alert("Shift updated successfully!");
+        Alert.success("Shift updated successfully!");
       } else {
         // Create
         if (formData.employee_ids.length === 1) {
@@ -195,14 +196,14 @@ export default function Schedule() {
           }));
           await shiftService.createBulkShifts({ shifts: shiftsArray });
         }
-        alert("Shift(s) created successfully!");
+        Alert.success("Shift(s) created successfully!");
       }
 
       handleCloseModal();
       fetchData(); 
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || "Operation failed");
+      Alert.error(err.response?.data?.message || "Operation failed");
     } finally {
       hide();
     }
@@ -211,16 +212,17 @@ export default function Schedule() {
   // Handle Delete
   const handleDelete = async () => {
     if (isReadOnly) return; 
-    if (!window.confirm("Are you sure you want to delete this shift?")) return;
+    const confirmResult = await Alert.confirm("Are you sure you want to delete this shift?");
+    if (!confirmResult.isConfirmed) return;
     
     try {
       show();
       await shiftService.deleteShift(selectedShiftId);
-      alert("Shift deleted successfully!");
+      Alert.success("Shift deleted successfully!");
       handleCloseModal();
       fetchData();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete shift");
+      Alert.error(err.response?.data?.message || "Failed to delete shift");
     } finally {
       hide();
     }

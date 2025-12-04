@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { reportService } from "../../api/services/admin/reportService";
 import { useLoading } from "../../contexts/LoaderContext";
 import apiClient from "../../api/apiClient";
@@ -7,7 +7,6 @@ import {
   BarChart2, Clock, Filter, X, ChevronLeft, ChevronRight, Check
 } from "lucide-react";
 
-// استيراد المودال
 import ReportDetailsModal from "../superadmin/ReportDetailsModal"; 
 
 export default function Reports() {
@@ -16,7 +15,6 @@ export default function Reports() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   
-  // State لمودال المشاركة
   const [reportToShare, setReportToShare] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -77,7 +75,6 @@ export default function Reports() {
     }
   };
 
-  // دالة لعرض إحصائيات سريعة على الكارت
   const renderQuickStats = (report) => {
     const data = report.data || {};
     if (report.type === 'attendance') {
@@ -157,7 +154,7 @@ export default function Reports() {
                     <button onClick={() => setSelectedReport(report)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600" title="View">
                         <Eye size={16}/>
                     </button>
-                    {/* زر المشاركة */}
+
                     <button onClick={() => setReportToShare(report)} className="p-1.5 hover:bg-green-50 rounded-lg text-slate-400 hover:text-green-600" title="Share">
                         <Share2 size={16}/>
                     </button>
@@ -210,7 +207,6 @@ export default function Reports() {
         <ReportDetailsModal report={selectedReport} onClose={() => setSelectedReport(null)} />
       )}
 
-      {/* مودال المشاركة */}
       {reportToShare && (
         <ShareReportModal 
             report={reportToShare} 
