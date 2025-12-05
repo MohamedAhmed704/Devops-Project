@@ -6,7 +6,7 @@ const companySchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true // ✅ هذا السطر كافٍ لعمل Index
+      unique: true
     },
     
     description: {
@@ -119,7 +119,6 @@ const companySchema = new mongoose.Schema(
 );
 
 // Index for better performance
-// ❌ تم حذف companySchema.index({ name: 1 }); لمنع التكرار
 companySchema.index({ isActive: 1 });
 companySchema.index({ "subscription.status": 1 });
 
