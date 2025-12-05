@@ -69,12 +69,18 @@ export default function Navbar({ role }) {
       <div className="w-full flex items-center justify-between px-4 md:px-10 py-3 border-b border-gray-200 dark:border-slate-700">
         <div className="flex items-center gap-2">
           <button
-            className="md:hidden p-2"
+            className="md:hidden p-2 dark:text-white"
             onClick={() => setOpenMobileMenu(!openMobileMenu)}
           >
             {openMobileMenu ? <X size={22} /> : <Menu size={22} />}
           </button>
-          <img src="/logo.png" alt="Logo" className="lg:w-30 w-20" />
+          {
+            theme === "light" ? (
+          <img src="/icons/lightLogo.png" alt="Logo" className="lg:w-30 w-20" />
+            ) : (
+          <img src="/icons/darkLogo.png" alt="Logo" className="lg:w-30 w-20" />
+            )
+          }
         </div>
 
         {/* Right Side Icons */}
@@ -236,7 +242,7 @@ export default function Navbar({ role }) {
 
       {/* Mobile Navigation */}
       {openMobileMenu && (
-        <div className="md:hidden bg-[#1d2931] dark:bg-slate-950 text-white px-6 py-3">
+        <div className="md:hidden bg-[#1d2931] dark:bg-slate-900 text-white px-6 py-3">
           <ul className="flex flex-col gap-4">
             {items.map((item) => {
               const Icon = item.icon;

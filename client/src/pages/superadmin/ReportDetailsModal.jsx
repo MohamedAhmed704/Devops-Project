@@ -407,10 +407,10 @@ export default function ReportDetailsModal({ report, onClose }) {
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-fadeIn flex flex-col">
         {/* Header */}
-        <div className="bg-white p-6 border-b border-gray-100 flex justify-between items-center">
+        <div className="bg-white dark:bg-slate-800 p-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{report.title}</h2>
-            <p className="text-sm text-slate-500 flex items-center gap-2 mt-1">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{report.title}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
               <Calendar size={14} />
               {new Date(report.start_date).toLocaleDateString()} -{" "}
               {new Date(report.end_date).toLocaleDateString()}

@@ -84,7 +84,7 @@ export default function TimeOff() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-slate-950 min-h-screen dark:text-slate-100">
+    <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen dark:text-slate-100">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 gap-4">
