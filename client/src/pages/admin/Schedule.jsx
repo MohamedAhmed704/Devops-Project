@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -6,8 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { useLoading } from "../../contexts/LoaderContext";
 import shiftService from "../../api/services/admin/shiftService";
 import apiClient from "../../api/apiClient";
-import { Plus, X, Clock, MapPin, FileText, Users, Trash2, Save, AlertCircle, Lock } from "lucide-react";
-import { Alert } from "../../utils/alertService.js";
+import { Plus, X, Clock, MapPin, FileText, Users, Trash2, Save, AlertCircle, Lock, CheckSquare, Square, Info } from "lucide-react";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
@@ -17,7 +16,8 @@ export default function Schedule() {
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShiftId, setSelectedShiftId] = useState(null);
-  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [isReadOnly, setIsReadOnly] = useState(false); // ✅ حالة لمنع التعديل على الماضي
+
   const [formData, setFormData] = useState({
     employee_ids: [], 
     title: "",
@@ -28,11 +28,12 @@ export default function Schedule() {
     notes: ""
   });
 
-  // Fetch Shifts & Employees
+  // 1. Fetch Shifts & Employees
   const fetchData = async () => {
     try {
       show();
       const [shiftsRes, employeesRes] = await Promise.all([
+        // ✅ طلب 1000 شيفت لتجاوز الـ Pagination الافتراضي (50)
         shiftService.getBranchShifts({ limit: 1000 }), 
         apiClient.get("/api/admin/employees")
       ]);
@@ -53,9 +54,10 @@ export default function Schedule() {
     fetchData();
   }, []);
 
-  // Helper: Map DB shift to Calendar Event with AUTOMATIC STATUS COLORING
+  // ✅ Helper: Map DB shift to Calendar Event with AUTOMATIC STATUS COLORING
   const mapShiftToEvent = (s) => {
     const now = new Date();
+    // ✅ تحويل النصوص إلى كائنات Date لضمان العرض الصحيح في Week/Day View
     const start = new Date(s.start_date_time);
     const end = new Date(s.end_date_time);
     const isPast = end < now;
@@ -64,7 +66,7 @@ export default function Schedule() {
     let color = getShiftColor(s.shift_type); 
     let borderColor = color;
 
-    // Override color based on Status & Time (The "Automatic" Logic)
+    // Override color based on Status & Time
     if (s.status === 'completed') {
       color = '#9ca3af'; // Gray (Archived/Done)
       borderColor = '#d1d5db';
@@ -79,18 +81,18 @@ export default function Schedule() {
     return {
       id: s._id,
       title: `${s.employee_id?.name || "Unknown"} - ${s.title}`,
-      start: start,
-      end: end,    
+      start: start, // ✅ تمرير كائن Date
+      end: end,     // ✅ تمرير كائن Date
       backgroundColor: color,
       borderColor: borderColor,
-      allDay: false, 
+      allDay: false, // ✅ إجبار الحدث ليكون بتوقيت محدد وليس طوال اليوم
       extendedProps: { 
         employeeId: s.employee_id?._id,
         rawTitle: s.title,
         type: s.shift_type,
         location: s.location,
         notes: s.notes,
-        status: s.status, 
+        status: s.status,
         isPast: isPast
       },
     };
@@ -115,11 +117,12 @@ export default function Schedule() {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  // Handle Event Click (Open Edit Mode)
+  // 2. Handle Event Click (Open Edit Mode)
   const handleEventClick = (info) => {
     const event = info.event;
     const props = event.extendedProps;
 
+    // ✅ منطق الحماية: لو الشيفت مكتمل، نخليه قراءة فقط
     const readOnly = props.status === 'completed';
     setIsReadOnly(readOnly);
 
@@ -137,7 +140,7 @@ export default function Schedule() {
     setIsModalOpen(true);
   };
 
-  // Reset Form & Modal
+  // 3. Reset Form & Modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedShiftId(null);
@@ -153,13 +156,41 @@ export default function Schedule() {
     });
   };
 
-  // Handle Submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ✅ Toggle Employee Selection Logic (Checkboxes)
+  const toggleEmployee = (empId) => {
     if (isReadOnly) return;
 
+    setFormData(prev => {
+        const currentIds = prev.employee_ids;
+        // Edit Mode: Allow only one selection (Radio behavior)
+        if (selectedShiftId) {
+            return { ...prev, employee_ids: [empId] }; 
+        }
+        // Create Mode: Toggle selection
+        if (currentIds.includes(empId)) {
+            return { ...prev, employee_ids: currentIds.filter(id => id !== empId) };
+        } else {
+            return { ...prev, employee_ids: [...currentIds, empId] };
+        }
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedShiftId || isReadOnly) return;
+    if (formData.employee_ids.length === employees.length) {
+        setFormData({ ...formData, employee_ids: [] });
+    } else {
+        setFormData({ ...formData, employee_ids: employees.map(e => e._id) });
+    }
+  };
+
+  // 4. Handle Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isReadOnly) return; // منع الإرسال لو قراءة فقط
+
     if (formData.employee_ids.length === 0 || !formData.start_date_time || !formData.end_date_time) {
-      return Alert.warning("Please select at least one employee and time range.");
+      return alert("Please select at least one employee and time range.");
     }
 
     try {
@@ -176,7 +207,7 @@ export default function Schedule() {
           location: formData.location,
           notes: formData.notes
         });
-        Alert.success("Shift updated successfully!");
+        alert("Shift updated successfully!");
       } else {
         // Create
         if (formData.employee_ids.length === 1) {
@@ -196,33 +227,32 @@ export default function Schedule() {
           }));
           await shiftService.createBulkShifts({ shifts: shiftsArray });
         }
-        Alert.success("Shift(s) created successfully!");
+        alert("Shift(s) created successfully!");
       }
 
       handleCloseModal();
-      fetchData(); 
+      fetchData(); // ✅ إعادة تحميل البيانات لتظهر التغييرات
     } catch (err) {
       console.error(err);
-      Alert.error(err.response?.data?.message || "Operation failed");
+      alert(err.response?.data?.message || "Operation failed");
     } finally {
       hide();
     }
   };
 
-  // Handle Delete
+  // 5. Handle Delete
   const handleDelete = async () => {
-    if (isReadOnly) return; 
-    const confirmResult = await Alert.confirm("Are you sure you want to delete this shift?");
-    if (!confirmResult.isConfirmed) return;
+    if (isReadOnly) return; // منع الحذف لو قراءة فقط
+    if (!window.confirm("Are you sure you want to delete this shift?")) return;
     
     try {
       show();
       await shiftService.deleteShift(selectedShiftId);
-      Alert.success("Shift deleted successfully!");
+      alert("Shift deleted successfully!");
       handleCloseModal();
       fetchData();
     } catch (err) {
-      Alert.error(err.response?.data?.message || "Failed to delete shift");
+      alert(err.response?.data?.message || "Failed to delete shift");
     } finally {
       hide();
     }
@@ -305,12 +335,20 @@ export default function Schedule() {
           <p className="text-slate-500 dark:text-slate-400 text-sm">Plan and manage employee shifts.</p>
         </div>
         
+<<<<<<< HEAD
+        <div className="hidden md:flex gap-3 text-xs">
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Scheduled</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400"></span> Completed</span>
+           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Missed</span>
+=======
         <div className="hidden md:flex gap-3 text-xs text-slate-600 dark:text-slate-400">
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Regular</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>Overtime</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#8b5cf6]"></span>Holiday</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ec4899]"></span>Weekend</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>Emergency</span>
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
         </div>
 
         <button 
@@ -333,10 +371,15 @@ export default function Schedule() {
           }}
           events={events}
           height="auto"
-          slotMinTime="00:00:00"
+          slotMinTime="00:00:00" // ✅ بداية اليوم من منتصف الليل
           slotMaxTime="24:00:00"
           allDaySlot={false}
           eventClick={handleEventClick}
+          slotLabelFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          }}
         />
       </div>
 
@@ -368,8 +411,46 @@ export default function Schedule() {
                   </div>
               )}
 
-              {/* Employees */}
+              {/* ✅ New Checkbox Employee Selection */}
               <div>
+<<<<<<< HEAD
+                <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs font-bold text-slate-500 uppercase">
+                      Assign To <span className="text-red-500">*</span>
+                    </label>
+                    {!selectedShiftId && !isReadOnly && (
+                        <button 
+                            type="button" 
+                            onClick={toggleSelectAll}
+                            className="text-xs text-blue-600 hover:underline font-medium"
+                        >
+                            {formData.employee_ids.length === employees.length ? "Deselect All" : "Select All"}
+                        </button>
+                    )}
+                </div>
+                
+                <div className={`border border-slate-200 rounded-xl overflow-hidden h-40 overflow-y-auto ${isReadOnly ? 'bg-gray-50' : 'bg-white'}`}>
+                    {employees.length > 0 ? employees.map(emp => {
+                        const isSelected = formData.employee_ids.includes(emp._id);
+                        return (
+                            <div 
+                                key={emp._id} 
+                                onClick={() => toggleEmployee(emp._id)}
+                                className={`flex items-center gap-3 p-2.5 border-b border-slate-50 cursor-pointer transition hover:bg-slate-50 ${isSelected ? 'bg-blue-50/50' : ''} ${isReadOnly ? 'pointer-events-none opacity-60' : ''}`}
+                            >
+                                <div className={`text-slate-400 ${isSelected ? 'text-blue-600' : ''}`}>
+                                    {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                                </div>
+                                <div>
+                                    <p className={`text-sm font-medium ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>{emp.name}</p>
+                                    <p className="text-xs text-slate-400">{emp.position || "Employee"}</p>
+                                </div>
+                            </div>
+                        );
+                    }) : (
+                        <p className="p-4 text-center text-sm text-slate-400">No employees found.</p>
+                    )}
+=======
                 <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                   Assign To <span className="text-red-500">*</span>
                   {!selectedShiftId && !isReadOnly && (
@@ -398,7 +479,11 @@ export default function Schedule() {
                       </option>
                     ))}
                   </select>
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
                 </div>
+                <p className="text-xs text-slate-400 mt-1.5 text-right">
+                    {formData.employee_ids.length} employee(s) selected
+                </p>
               </div>
 
               {/* Title & Type */}
@@ -428,6 +513,15 @@ export default function Schedule() {
                     <option value="weekend">Weekend</option>
                     <option value="emergency">Emergency</option>
                   </select>
+                  
+                  {/* ✅ UI Hint: التعديل للتوافق مع منطق الباك إند */}
+                  {['overtime', 'holiday', 'weekend', 'emergency'].includes(formData.shift_type) && !isReadOnly && (
+                     <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-amber-600 font-medium bg-amber-50 p-1.5 rounded-lg">
+                        <Info size={12} />
+                        All hours in this shift will be counted as Overtime.
+                     </div>
+                  )}
+
                 </div>
               </div>
 
@@ -497,6 +591,7 @@ export default function Schedule() {
 
               {/* Footer Buttons */}
               <div className="flex gap-3 pt-2">
+                {/* زر الحذف يختفي لو الشيفت مكتمل */}
                 {selectedShiftId && !isReadOnly && (
                   <button 
                     type="button" 
@@ -512,6 +607,7 @@ export default function Schedule() {
                   {isReadOnly ? "Close" : "Cancel"}
                 </button>
                 
+                {/* زر الحفظ يختفي لو الشيفت مكتمل */}
                 {!isReadOnly && (
                   <button type="submit" className="flex-1 py-2.5 bg-[#112D4E] dark:bg-[#1e3a5f] text-white rounded-xl hover:bg-[#274b74] dark:hover:bg-[#2d5080] font-medium transition shadow-md flex items-center justify-center gap-2">
                     {selectedShiftId ? <><Save size={18} /> Update Shift</> : "Create Shift"}

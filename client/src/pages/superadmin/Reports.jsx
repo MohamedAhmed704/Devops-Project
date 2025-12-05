@@ -6,7 +6,6 @@ import {
   ChevronLeft, ChevronRight 
 } from "lucide-react";
 
-// تأكد من المسار الصحيح للمودال
 import ReportDetailsModal from "./ReportDetailsModal"; 
 
 export default function SystemReports() {
@@ -14,7 +13,6 @@ export default function SystemReports() {
   const [filterType, setFilterType] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   
-  // ✅ إضافة States للـ Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 6; 
@@ -24,7 +22,6 @@ export default function SystemReports() {
   const fetchReports = async () => {
     try {
       show();
-      // ✅ إرسال page و limit مع الفلاتر
       const params = { 
         page, 
         limit,
@@ -35,7 +32,6 @@ export default function SystemReports() {
       
       setReports(res.data.data || []);
       
-      // ✅ تحديث إجمالي الصفحات من رد السيرفر
       if (res.data.pagination) {
         setTotalPages(res.data.pagination.total_pages);
       }
@@ -46,12 +42,10 @@ export default function SystemReports() {
     }
   };
 
-  // ✅ إعادة الجلب عند تغيير الصفحة أو نوع الفلتر
   useEffect(() => {
     fetchReports();
   }, [page, filterType]);
 
-  // ✅ تصفير الصفحة عند تغيير الفلتر
   useEffect(() => {
     setPage(1);
   }, [filterType]);
@@ -132,7 +126,6 @@ export default function SystemReports() {
           >
             <option value="">All Report Types</option>
             <option value="attendance">Attendance</option>
-            <option value="performance">Performance</option>
             <option value="shift">Shift Analysis</option>
           </select>
         </div>

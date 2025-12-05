@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { reportService } from "../../api/services/admin/reportService";
 import { useLoading } from "../../contexts/LoaderContext";
 import apiClient from "../../api/apiClient";
 import { 
   FileText, Calendar, Plus, Trash2, Eye, Share2, 
-  BarChart2, Clock, Filter, X, ChevronLeft, ChevronRight, Check
+  Clock, Filter, X, ChevronLeft, ChevronRight, Check
 } from "lucide-react";
 
+// استيراد المودال
 import ReportDetailsModal from "../superadmin/ReportDetailsModal"; 
 
 export default function Reports() {
@@ -15,6 +16,7 @@ export default function Reports() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   
+  // State لمودال المشاركة
   const [reportToShare, setReportToShare] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -69,14 +71,15 @@ export default function Reports() {
   const getReportStyle = (type) => {
     switch (type) {
       case 'attendance': return { icon: Clock, bg: 'bg-blue-50', text: 'text-blue-600' };
-      case 'performance': return { icon: BarChart2, bg: 'bg-purple-50', text: 'text-purple-600' };
       case 'shift': return { icon: Calendar, bg: 'bg-orange-50', text: 'text-orange-600' };
       default: return { icon: FileText, bg: 'bg-slate-50', text: 'text-slate-600' };
     }
   };
 
+  // دالة لعرض إحصائيات سريعة على الكارت
   const renderQuickStats = (report) => {
     const data = report.data || {};
+    
     if (report.type === 'attendance') {
       return (
         <div className="flex justify-between text-center mt-4 pt-4 border-t border-slate-50">
@@ -86,14 +89,7 @@ export default function Reports() {
         </div>
       );
     }
-    if (report.type === 'performance') {
-      return (
-        <div className="flex justify-between text-center mt-4 pt-4 border-t border-slate-50">
-          <div><p className="text-[10px] text-slate-400 uppercase font-bold">Avg Score</p><p className="text-sm font-bold text-purple-600">{data.averages?.avg_performance || 0}%</p></div>
-          <div><p className="text-[10px] text-slate-400 uppercase font-bold">Employees</p><p className="text-sm font-bold text-slate-700">{data.employees?.length || 0}</p></div>
-        </div>
-      );
-    }
+
     if (report.type === 'shift') {
       return (
         <div className="flex justify-between text-center mt-4 pt-4 border-t border-slate-50">
@@ -102,6 +98,7 @@ export default function Reports() {
         </div>
       );
     }
+
     return null;
   };
 
@@ -124,8 +121,7 @@ export default function Reports() {
             >
               <option value="">All Reports</option>
               <option value="attendance">Attendance</option>
-              <option value="shift">Shift</option>
-              <option value="performance">Performance</option>
+              <option value="shift">Shift Analysis</option>
             </select>
           </div>
           <button 
@@ -138,6 +134,40 @@ export default function Reports() {
       </div>
 
       {reports.length > 0 ? (
+<<<<<<< HEAD
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {reports.map((report) => {
+              const style = getReportStyle(report.type);
+              const Icon = style.icon;
+              
+              return (
+                <div key={report.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 flex flex-col h-full group">
+                  
+                  <div className="flex justify-between items-start mb-3">
+                    <div className={`p-2.5 rounded-xl ${style.bg} ${style.text}`}>
+                      <Icon size={20} />
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => setSelectedReport(report)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600" title="View">
+                          <Eye size={16}/>
+                      </button>
+                      {/* زر المشاركة */}
+                      <button onClick={() => setReportToShare(report)} className="p-1.5 hover:bg-green-50 rounded-lg text-slate-400 hover:text-green-600" title="Share">
+                          <Share2 size={16}/>
+                      </button>
+                      <button onClick={() => handleDelete(report.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600" title="Delete">
+                          <Trash2 size={16}/>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h3 className="font-bold text-slate-800 mb-1 line-clamp-1" title={report.title}>{report.title}</h3>
+                  
+                  <div className="text-xs text-slate-500 flex items-center gap-2 mb-auto">
+                    <Calendar size={12} />
+                    {new Date(report.start_date).toLocaleDateString()} - {new Date(report.end_date).toLocaleDateString()}
+=======
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {reports.map((report) => {
             const style = getReportStyle(report.type);
@@ -161,16 +191,58 @@ export default function Reports() {
                     <button onClick={() => handleDelete(report.id)} className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400" title="Delete">
                         <Trash2 size={16}/>
                     </button>
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
                   </div>
-                </div>
 
+<<<<<<< HEAD
+                  {renderQuickStats(report)}
+                  
+                  <div className="mt-3 pt-3 border-t border-slate-50 flex justify-between items-center text-xs text-slate-400">
+                     <span>Created: {new Date(report.created_at).toLocaleDateString()}</span>
+                     <span className="capitalize bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{report.type}</span>
+                  </div>
+=======
                 <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1 line-clamp-1" title={report.title}>{report.title}</h3>
                 
                 <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mb-auto">
                   <Calendar size={12} />
                   {new Date(report.start_date).toLocaleDateString()} - {new Date(report.end_date).toLocaleDateString()}
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
                 </div>
+              );
+            })}
+          </div>
 
+<<<<<<< HEAD
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-8 pb-4">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              
+              <span className="text-sm font-medium text-slate-600">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200 text-slate-500">
+          No reports found matching your filters.
+=======
                 {renderQuickStats(report)}
                 
                 <div className="mt-3 pt-3 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center text-xs text-slate-400 dark:text-slate-500">
@@ -192,7 +264,22 @@ export default function Reports() {
             <button disabled={page === 1} onClick={() => setPage(p => Math.max(1, p-1))} className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"><ChevronLeft size={20}/></button>
             <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">{page} of {totalPages}</span>
             <button disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p+1))} className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"><ChevronRight size={20}/></button>
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
         </div>
+      )}
+
+      {/* Modal View */}
+      {selectedReport && (
+        <ReportDetailsModal report={selectedReport} onClose={() => setSelectedReport(null)} />
+      )}
+
+      {/* مودال المشاركة */}
+      {reportToShare && (
+        <ShareReportModal 
+            report={reportToShare} 
+            onClose={() => setReportToShare(null)} 
+            loadingUtils={{ show, hide }}
+        />
       )}
 
       {isGenerateModalOpen && (
@@ -203,23 +290,11 @@ export default function Reports() {
         />
       )}
 
-      {selectedReport && (
-        <ReportDetailsModal report={selectedReport} onClose={() => setSelectedReport(null)} />
-      )}
-
-      {reportToShare && (
-        <ShareReportModal 
-            report={reportToShare} 
-            onClose={() => setReportToShare(null)} 
-            loadingUtils={{ show, hide }}
-        />
-      )}
-
     </div>
   );
 }
 
-// --- Generate Report Modal ---
+// --- Generate Report Modal (Updated: Removed Performance) ---
 function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
     const [type, setType] = useState("attendance");
     const [startDate, setStartDate] = useState("");
@@ -238,7 +313,8 @@ function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
             const payload = { start_date: startDate, end_date: endDate, employee_id: employeeId || null };
             if (type === "attendance") await reportService.generateAttendance(payload);
             else if (type === "shift") await reportService.generateShift(payload);
-            else if (type === "performance") await reportService.generatePerformance(payload);
+            // تم إزالة خيار performance من هنا
+            
             alert("Report generated!");
             onSuccess();
         } catch (err) { alert(err.response?.data?.message || "Failed"); } 
@@ -250,8 +326,15 @@ function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
             <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md p-6 dark:text-slate-100">
                 <div className="flex justify-between mb-4"><h3 className="font-bold dark:text-slate-100">Generate Report</h3><button onClick={onClose}><X size={20}/></button></div>
                 <form onSubmit={handleSubmit} className="space-y-4">
+<<<<<<< HEAD
+                    <select className="w-full border p-2 rounded" value={type} onChange={e => setType(e.target.value)}>
+                        <option value="attendance">Attendance</option>
+                        <option value="shift">Shift</option>
+                        {/* Performance removed */}
+=======
                     <select className="w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded" value={type} onChange={e => setType(e.target.value)}>
                         <option value="attendance">Attendance</option><option value="shift">Shift</option><option value="performance">Performance</option>
+>>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
                     </select>
                     <div className="grid grid-cols-2 gap-2">
                         <input type="date" required className="border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 p-2 rounded" value={startDate} onChange={e => setStartDate(e.target.value)} />
