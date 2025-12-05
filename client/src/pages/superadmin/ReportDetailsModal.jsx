@@ -115,11 +115,11 @@ export default function ReportDetailsModal({ report, onClose }) {
       {data.by_employee && (
         <TableContainer title="Employee Breakdown" headers={["Employee", "Hours", "Overtime", "Lateness"]}>
           {data.by_employee.map((emp, idx) => (
-            <tr key={idx} className="hover:bg-gray-50">
-              <td className="p-3 font-medium text-gray-900">{emp.employee?.name || "N/A"}</td>
-              <td className="p-3">{emp.total_worked_hours}h</td>
-              <td className="p-3 text-green-600">{emp.overtime_hours}h</td>
-              <td className="p-3 text-red-500">{emp.late_count}</td>
+            <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-slate-700">
+              <td className="p-3 font-medium text-gray-900 dark:text-slate-100">{emp.employee?.name || "N/A"}</td>
+              <td className="p-3 text-gray-700 dark:text-slate-300">{emp.total_worked_hours}h</td>
+              <td className="p-3 text-green-600 dark:text-green-400">{emp.overtime_hours}h</td>
+              <td className="p-3 text-red-500 dark:text-red-400">{emp.late_count}</td>
             </tr>
           ))}
         </TableContainer>
@@ -146,11 +146,11 @@ export default function ReportDetailsModal({ report, onClose }) {
       {data.employees && (
         <TableContainer title="Performance Ranking" headers={["Employee", "Score", "Attendance", "Tasks"]}>
           {data.employees.map((emp, idx) => (
-            <tr key={idx} className="hover:bg-gray-50">
-              <td className="p-3 font-medium text-gray-900">{emp.employee?.name || "N/A"}</td>
-              <td className="p-3"><span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded font-bold text-xs">{emp.performance_score}%</span></td>
-              <td className="p-3 text-slate-600">{emp.attendance?.rate}%</td>
-              <td className="p-3 text-slate-600">{emp.shifts?.completion_rate}%</td>
+            <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-slate-700">
+              <td className="p-3 font-medium text-gray-900 dark:text-slate-100">{emp.employee?.name || "N/A"}</td>
+              <td className="p-3"><span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded font-bold text-xs">{emp.performance_score}%</span></td>
+              <td className="p-3 text-slate-600 dark:text-slate-300">{emp.attendance?.rate}%</td>
+              <td className="p-3 text-slate-600 dark:text-slate-300">{emp.shifts?.completion_rate}%</td>
             </tr>
           ))}
         </TableContainer>
@@ -160,49 +160,49 @@ export default function ReportDetailsModal({ report, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-fadeIn flex flex-col">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl animate-fadeIn flex flex-col">
         
         {/* Header */}
-        <div className="bg-white p-6 border-b border-gray-100 flex justify-between items-center">
+        <div className="bg-white dark:bg-slate-800 p-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{report.title}</h2>
-            <p className="text-sm text-slate-500 flex items-center gap-2 mt-1">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{report.title}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
               <Calendar size={14} />
               {new Date(report.start_date).toLocaleDateString()} - {new Date(report.end_date).toLocaleDateString()}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition">
-            <X size={20} className="text-slate-500" />
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition">
+            <X size={20} className="text-slate-500 dark:text-slate-400" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1 bg-white dark:bg-slate-800">
           {type === 'attendance' && renderAttendanceDetails()}
           {type === 'shift' && renderShiftDetails()}
           {type === 'performance' && renderPerformanceDetails()}
         </div>
 
         {/* Footer with Actions */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+        <div className="p-4 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-700 flex justify-between items-center">
           
           {/* Export Buttons */}
           <div className="flex gap-3">
             <button 
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition text-sm font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition text-sm font-medium"
             >
                 <FileText size={16} /> PDF
             </button>
             <button 
                 onClick={handleExportExcel}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition text-sm font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition text-sm font-medium"
             >
                 <FileSpreadsheet size={16} /> Excel
             </button>
           </div>
 
-          <button onClick={onClose} className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition">
+          <button onClick={onClose} className="px-6 py-2 bg-slate-900 dark:bg-slate-600 text-white rounded-lg hover:bg-slate-800 dark:hover:bg-slate-500 transition">
             Close
           </button>
         </div>
@@ -213,12 +213,12 @@ export default function ReportDetailsModal({ report, onClose }) {
 
 function StatCard({ label, value, color }) {
     const colors = {
-        blue: "bg-blue-50 text-blue-600 text-blue-900",
-        emerald: "bg-emerald-50 text-emerald-600 text-emerald-900",
-        amber: "bg-amber-50 text-amber-600 text-amber-900",
-        purple: "bg-purple-50 text-purple-600 text-purple-900",
-        slate: "bg-slate-50 text-slate-500 text-slate-800",
-        green: "bg-green-50 text-green-600 text-green-800"
+        blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-blue-900 dark:text-blue-400",
+        emerald: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-emerald-900 dark:text-emerald-400",
+        amber: "bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-amber-900 dark:text-amber-400",
+        purple: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-purple-900 dark:text-purple-400",
+        slate: "bg-slate-50 dark:bg-slate-700/50 text-slate-500 dark:text-slate-400 text-slate-800 dark:text-slate-300",
+        green: "bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-green-800 dark:text-green-400"
     };
     
     // Fallback if color doesn't match
@@ -235,16 +235,16 @@ function StatCard({ label, value, color }) {
 
 function TableContainer({ title, headers, children }) {
     return (
-        <div className="border rounded-xl overflow-hidden mt-4">
-            <div className="bg-gray-50 px-4 py-2 border-b font-semibold text-gray-700 text-sm">{title}</div>
+        <div className="border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden mt-4">
+            <div className="bg-gray-50 dark:bg-slate-700 px-4 py-2 border-b border-slate-100 dark:border-slate-600 font-semibold text-gray-700 dark:text-slate-100 text-sm">{title}</div>
             <div className="max-h-60 overflow-y-auto">
                 <table className="w-full text-sm text-left">
-                    <thead className="bg-white text-gray-500 font-medium sticky top-0 shadow-sm">
+                    <thead className="bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 font-medium sticky top-0 shadow-sm">
                         <tr>
                             {headers.map((h, i) => <th key={i} className="p-3">{h}</th>)}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
                         {children}
                     </tbody>
                 </table>

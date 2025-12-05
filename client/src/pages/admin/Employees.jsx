@@ -360,7 +360,7 @@ const Employees = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-4 lg:p-6 font-sans dark:text-slate-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 lg:p-6 font-sans dark:text-slate-100">
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">

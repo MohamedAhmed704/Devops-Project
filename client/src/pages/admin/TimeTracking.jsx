@@ -113,7 +113,7 @@ export default function TimeTracking() {
     <>
       <Toaster position="top-center" />
 
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-6 dark:text-slate-100">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6 dark:text-slate-100">
         
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
