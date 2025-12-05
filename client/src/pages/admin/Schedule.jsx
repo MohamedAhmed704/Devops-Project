@@ -335,20 +335,11 @@ export default function Schedule() {
           <p className="text-slate-500 dark:text-slate-400 text-sm">Plan and manage employee shifts.</p>
         </div>
         
-<<<<<<< HEAD
         <div className="hidden md:flex gap-3 text-xs">
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> Scheduled</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400"></span> Completed</span>
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Missed</span>
-=======
-        <div className="hidden md:flex gap-3 text-xs text-slate-600 dark:text-slate-400">
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Regular</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>Overtime</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#8b5cf6]"></span>Holiday</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ec4899]"></span>Weekend</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>Emergency</span>
->>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
         </div>
 
         <button 
@@ -413,7 +404,6 @@ export default function Schedule() {
 
               {/* ✅ New Checkbox Employee Selection */}
               <div>
-<<<<<<< HEAD
                 <div className="flex justify-between items-center mb-2">
                     <label className="block text-xs font-bold text-slate-500 uppercase">
                       Assign To <span className="text-red-500">*</span>
@@ -450,36 +440,6 @@ export default function Schedule() {
                     }) : (
                         <p className="p-4 text-center text-sm text-slate-400">No employees found.</p>
                     )}
-=======
-                <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
-                  Assign To <span className="text-red-500">*</span>
-                  {!selectedShiftId && !isReadOnly && (
-                    <span className="ml-2 text-[10px] normal-case font-normal text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">
-                      Hold Ctrl to select multiple
-                    </span>
-                  )}
-                </label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" size={18} />
-                  <select 
-                    disabled={isReadOnly} 
-                    multiple={!selectedShiftId}
-                    required
-                    className={`w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 h-32 ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700 text-gray-500 dark:text-slate-400' : 'bg-white dark:bg-slate-700 dark:text-slate-100'}`}
-                    value={formData.employee_ids}
-                    onChange={(e) => {
-                      const options = Array.from(e.target.selectedOptions, option => option.value);
-                      if (selectedShiftId && options.length > 1) return;
-                      setFormData({ ...formData, employee_ids: options });
-                    }}
-                  >
-                    {employees.map(emp => (
-                      <option key={emp._id} value={emp._id}>
-                        {emp.name} ({emp.position})
-                      </option>
-                    ))}
-                  </select>
->>>>>>> b9cc8b18b6bb84563fa0c124e53340d22380e455
                 </div>
                 <p className="text-xs text-slate-400 mt-1.5 text-right">
                     {formData.employee_ids.length} employee(s) selected
