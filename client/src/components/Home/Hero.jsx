@@ -5,19 +5,19 @@ import { PlayCircle } from "lucide-react";
 
 const Hero = () => {
   return (
-    <div className="flex flex-col md:flex-row items-center w-full bg-linear-to-r from-sky-200 to-sky-50 px-6 md:px-12 py-10 md:py-20">
+    <div className="flex flex-col md:flex-row items-center w-full bg-linear-to-r from-sky-200 dark:from-slate-900 to-sky-50 dark:to-slate-800 px-6 md:px-12 py-10 md:py-20">
 
       {/* TEXT SECTION */}
       <div className="flex-1 mb-10 md:mb-0 md:pr-10">
-        <h3 className="font-bold text-4xl md:text-5xl leading-tight text-gray-900">
+        <h3 className="font-bold text-4xl md:text-5xl leading-tight text-gray-900 dark:text-white">
           Smart Workforce <br />
           Management &{" "}
-          <span className="text-sky-700">
+          <span className="text-sky-700 dark:text-sky-400">
             AI <br /> Scheduling System
           </span>
         </h3>
 
-        <p className="mt-5 text-gray-600 text-lg leading-relaxed">
+        <p className="mt-5 text-gray-600 dark:text-slate-300 text-lg leading-relaxed">
           Revolutionize your Area operations with intelligent scheduling,
           automated time tracking, and AI-powered insights that boost
           productivity.
@@ -29,7 +29,7 @@ const Hero = () => {
           {/* Primary CTA */}
           <Link
             to="/register"
-            className="px-6 py-3 rounded-xl font-medium bg-[#112D4E] text-white"
+            className="px-6 py-3 rounded-xl font-medium bg-[#112D4E] dark:bg-sky-700 text-white hover:bg-[#0c2237] dark:hover:bg-sky-600 transition"
           >
             Get Started Free
           </Link>
@@ -37,7 +37,7 @@ const Hero = () => {
           {/* Outline CTA */}
           <Link
             to="#"
-            className="px-6 py-3 rounded-xl font-medium border border-[#112D4E] text-[#112D4E] flex items-center gap-2"
+            className="px-6 py-3 rounded-xl font-medium border border-[#112D4E] dark:border-sky-400 text-[#112D4E] dark:text-sky-400 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
           >
             <PlayCircle className="w-5 h-5" />
             Watch Demo

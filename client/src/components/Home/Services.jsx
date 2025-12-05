@@ -25,14 +25,14 @@ const servicesData = [
 
 const Services = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white dark:bg-slate-900">
       
       {/* HEADER */}
       <div className="text-center max-w-2xl mx-auto px-6">
-        <h1 className="font-bold text-3xl md:text-4xl leading-tight text-[#112D4E]">
+        <h1 className="font-bold text-3xl md:text-4xl leading-tight text-[#112D4E] dark:text-sky-100">
           Everything You Need for Modern Workforce Management
         </h1>
-        <p className="mt-4 text-gray-600 text-lg">
+        <p className="mt-4 text-gray-600 dark:text-slate-300 text-lg">
           Streamline operations, boost productivity, and make data-driven
           decisions with our comprehensive platform.
         </p>
@@ -45,20 +45,20 @@ const Services = () => {
           return (
             <div
               key={index}
-              className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300"
+              className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300"
             >
               {/* ICON */}
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-sky-700 to-sky-800 flex items-center justify-center shadow-md">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-r from-sky-700 to-sky-800 dark:from-sky-600 dark:to-sky-700 flex items-center justify-center shadow-md">
                 <Icon className="text-white" size={28} />
               </div>
 
               {/* TITLE */}
-              <h1 className="mt-5 font-semibold text-xl text-[#112D4E]">
+              <h1 className="mt-5 font-semibold text-xl text-[#112D4E] dark:text-sky-100">
                 {item.title}
               </h1>
 
               {/* DESC */}
-              <p className="mt-2 text-gray-600 leading-relaxed">
+              <p className="mt-2 text-gray-600 dark:text-slate-300 leading-relaxed">
                 {item.desc}
               </p>
             </div>
