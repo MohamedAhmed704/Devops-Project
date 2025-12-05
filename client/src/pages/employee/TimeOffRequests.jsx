@@ -544,7 +544,7 @@ const TimeOffRequests = () => {
                   <Button
                     type="submit"
                     variant="primary"
-                    className="flex-1"
+                    className="flex items-center justify-center gap-4"
                     disabled={loading}
                   >
                     <Send size={16} />
