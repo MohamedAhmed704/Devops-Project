@@ -259,7 +259,7 @@ export default function Schedule() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 dark:bg-slate-950 min-h-screen dark:text-slate-100">
+    <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen dark:text-slate-100">
       <style>{`
         .dark .fc {
           --fc-bg-event-opacity: 1;
