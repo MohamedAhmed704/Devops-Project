@@ -9,7 +9,18 @@ export default function TimeTracking() {
 
   const [isLive, setIsLive] = useState(true);
   const [records, setRecords] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // ✅ FIX: Use local date instead of UTC to avoid timezone issues
+  const getLocalDate = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const [selectedDate, setSelectedDate] = useState(getLocalDate());
+  
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   
@@ -21,7 +32,9 @@ export default function TimeTracking() {
   const fetchData = async () => {
     try {
       show();
+      console.log("Fetching for date:", selectedDate); // Debugging
       const res = await attendanceService.getBranchAttendance(selectedDate);
+      console.log("Records found:", res.data.records.length); // Debugging
       setRecords(res.data.records || []);
     } catch (err) {
       console.error(err);
@@ -39,11 +52,14 @@ export default function TimeTracking() {
     if (filterStatus !== "all" && record.status !== filterStatus) return false;
     
     if (isLive) {
+      // Check active employees (Have Check-In AND No Check-Out)
       return record.check_in && !record.check_out;
     }
     return true;
   });
 
+  // ... (باقي الكود كما هو بدون تغيير) ...
+  
   // Helper Functions
   const formatTime = (dateStr) => {
     if (!dateStr) return "--:--";

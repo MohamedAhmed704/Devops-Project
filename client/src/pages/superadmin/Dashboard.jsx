@@ -35,6 +35,11 @@ export default function Dashboard() {
 
   const { overview, recent_branches } = stats;
 
+  // ✅ Calculate System Health dynamically
+  const healthPercentage = overview?.total_branches > 0
+    ? Math.round((overview.active_branches / overview.total_branches) * 100)
+    : 100;
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 lg:p-10 font-sans text-slate-800">
       
@@ -56,7 +61,7 @@ export default function Dashboard() {
             <div className="flex gap-4 mt-6">
                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-sm">
                   <TrendingUp size={16} className="text-emerald-400" />
-                  <span>System Health: 98%</span>
+                  <span>System Health: {healthPercentage}%</span>
                </div>
                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 text-sm">
                   <Zap size={16} className="text-yellow-400" />

@@ -1,9 +1,132 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, MapPin, User, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, ChevronLeft, ChevronRight, Plus, X, FileText, Briefcase, Info } from 'lucide-react';
 import Button from '../../utils/Button';
 import apiClient from '../../api/apiClient';
 import { useLoading } from '../../contexts/LoaderContext';
 import CalendarModal from '../../components/CalendarModal';
+
+// --- مكون المودال الجديد لتفاصيل الشيفت ---
+const ShiftDetailsModal = ({ shift, onClose, formatTime, getStatusColor }) => {
+  if (!shift) return null;
+
+  // تحويل التاريخ لصيغة مقروءة
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all scale-100">
+        
+        {/* Header */}
+        <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+          <div>
+            <h3 className="font-bold text-slate-800 text-lg">{shift.title || "Shift Details"}</h3>
+            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+              <Calendar size={12} /> {formatDate(shift.start_date_time)}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition">
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-5">
+          
+          {/* Status Badge */}
+          <div className="flex justify-center">
+            <span className={`px-4 py-1.5 rounded-full text-sm font-bold capitalize shadow-sm border ${getStatusColor(shift.status).replace('bg-', 'border-').replace('text-', 'text-')}`}>
+              {shift.status.replace('_', ' ')}
+            </span>
+          </div>
+
+          {/* Time */}
+          <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-4">
+            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+              <Clock size={24} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-blue-400 uppercase">Time</p>
+              <p className="text-lg font-bold text-blue-900">
+                {formatTime(shift.start_date_time)} - {formatTime(shift.end_date_time)}
+              </p>
+            </div>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Location */}
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <MapPin size={16} />
+                <span className="text-xs font-bold uppercase">Location</span>
+              </div>
+              <p className="text-sm font-semibold text-slate-800 truncate">
+                {shift.location || "Not specified"}
+              </p>
+            </div>
+
+            {/* Type */}
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <Briefcase size={16} />
+                <span className="text-xs font-bold uppercase">Type</span>
+              </div>
+              <p className="text-sm font-semibold text-slate-800 capitalize">
+                {shift.shift_type || "Regular"}
+              </p>
+            </div>
+          </div>
+
+          {/* Notes / Description */}
+          {shift.description && (
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-2 text-slate-500 mb-2">
+                <FileText size={16} />
+                <span className="text-xs font-bold uppercase">Description</span>
+              </div>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {shift.description}
+              </p>
+            </div>
+          )}
+
+           {/* Admin Notes */}
+           {shift.notes && (
+            <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+              <div className="flex items-center gap-2 text-yellow-600 mb-2">
+                <Info size={16} />
+                <span className="text-xs font-bold uppercase">Notes</span>
+              </div>
+              <p className="text-sm text-yellow-800 leading-relaxed italic">
+                "{shift.notes}"
+              </p>
+            </div>
+          )}
+
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+          <button 
+            onClick={onClose}
+            className="px-6 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition font-medium shadow-md"
+          >
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
 
 const MySchedule = () => {
   const [shifts, setShifts] = useState([]);
@@ -11,6 +134,10 @@ const MySchedule = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [showCalendarView, setShowCalendarView] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  
+  // ✅ State for Modal
+  const [selectedShift, setSelectedShift] = useState(null);
+  
   const { show: showGlobalLoading, hide: hideGlobalLoading } = useLoading();
 
   // Fetch shifts for current week
@@ -106,11 +233,11 @@ const MySchedule = () => {
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'scheduled': return 'bg-blue-100 text-blue-800';
-      case 'in_progress': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'scheduled': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'in_progress': return 'bg-green-100 text-green-800 border-green-200';
+      case 'completed': return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -227,7 +354,8 @@ const MySchedule = () => {
                   dayShifts.map((shift) => (
                     <div 
                       key={shift._id}
-                      className="bg-gray-50 rounded-lg p-2 border border-gray-200 hover:shadow-md transition-shadow"
+                      onClick={() => setSelectedShift(shift)} // ✅ Add Click Handler
+                      className="bg-gray-50 rounded-lg p-2 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer hover:border-sky-300 hover:bg-sky-50"
                     >
                       <div className="flex items-start justify-between mb-1">
                         <span className={`text-xs px-2 py-1 rounded-full font-medium ${getStatusColor(shift.status)}`}>
@@ -354,6 +482,16 @@ const MySchedule = () => {
         formatTime={formatTime}
         getStatusColor={getStatusColor}
       />
+
+      {/* ✅ Render Details Modal */}
+      {selectedShift && (
+        <ShiftDetailsModal 
+          shift={selectedShift} 
+          onClose={() => setSelectedShift(null)} 
+          formatTime={formatTime}
+          getStatusColor={getStatusColor}
+        />
+      )}
 </>
   );
 }
