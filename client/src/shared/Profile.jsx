@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { authService } from "../api/services/authService";
 import { useLoading } from "../contexts/LoaderContext";
 import {
@@ -11,6 +11,7 @@ import {
   Camera,
   Save,
 } from "lucide-react";
+import { Alert } from "../utils/alertService.js";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -46,10 +47,12 @@ export default function Profile() {
       show();
       await authService.updateProfile(formData);
       setProfile({ ...profile, ...formData });
-      alert("Profile updated successfully!");
-      // eslint-disable-next-line no-unused-vars
+      window.dispatchEvent(
+        new CustomEvent("auth-update", { detail: { ...profile, ...formData } })
+      );
+      Alert.success("Profile updated successfully!");
     } catch (err) {
-      alert("Failed to update profile");
+      Alert.error("Failed to update profile");
     } finally {
       hide();
     }
@@ -70,10 +73,8 @@ export default function Profile() {
         await authService.updateProfile({ ...formData, avatar: base64Image });
 
         setProfile({ ...profile, avatar: base64Image });
-
-        // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        alert("Failed to upload image. Try a smaller file.");
+        Alert.error("Failed to upload image. Try a smaller file.");
       } finally {
         hide();
       }
