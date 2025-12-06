@@ -1,0 +1,421 @@
+{
+  "welcome": "مرحبًا بعودتك",
+  "login": "تسجيل الدخول",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "ready to transform your workforce management": "هل أنت مستعد لتحويل إدارة القوى العاملة لديك",
+  "Join companies already using our platform to automate scheduling andimprove productivity": "انضم إلى الشركات التي تستخدم منصتنا بالفعل لأتمتة الجدولة وتحسين الإنتاجية",
+  "startFreeTrial": "ابدأ تجربة مجانية",
+  "scheduleDemo": "جدولة عرض توضيحي",
+  "noCreditCardRequired": "لا يلزم بطاقة ائتمان • إلغاء في أي وقت",
+  "whyChooseTadbir": "لماذا تختار تدبير؟",
+
+  "footer": {
+    "product": "المنتج",
+    "features": "المميزات",
+    "pricing": "التسعير",
+    "demo": "العرض التجريبي",
+    "company": "الشركة",
+    "about": "عن الشركة",
+    "contact": "اتصل بنا",
+    "careers": "الوظائف",
+    "legal": "القوانين",
+    "terms": "الشروط",
+    "privacy": "الخصوصية",
+    "security": "الأمان",
+    "description": "إدارة القوى العاملة الذكية وجدولة بالذكاء الاصطناعي للأعمال الحديثة.",
+    "copyright": "© {{year}} تدبير — كل الحقوق محفوظة."
+  },
+  "hero": {
+    "title": {
+      "line1": "إدارة القوى العاملة الذكية و",
+      "highlight": "نظام الجدولة بالذكاء الاصطناعي"
+    },
+    "description": "حدث ثورة في عمليات منطقتك بجدولة ذكية، وتتبع زمني آلي، ورؤى مدعومة بالذكاء الاصطناعي تعزز الإنتاجية.",
+    "buttons": {
+      "getStarted": "ابدأ مجانًا",
+      "watchDemo": "شاهد العرض التوضيحي"
+    },
+    "imageAlt": "نظام إدارة القوى العاملة"
+  },
+  "nav": {
+    "logoAlt": "شعار تدبير",
+    "login": "تسجيل الدخول",
+    "getStarted": "ابدأ الآن"
+  },
+  "services": {
+    "title": "كل ما تحتاجه لإدارة القوى العاملة الحديثة",
+    "subtitle": "بسط العمليات، وعزز الإنتاجية، واتخذ قرارات مدعومة بالبيانات مع منصتنا الشاملة.",
+    "items": {
+      "smartScheduling": {
+        "title": "جدولة ذكية",
+        "description": "جدولة مدعومة بالذكاء الاصطناعي تعمل على تحسين الورديات تلقائياً بناءً على التوافر والمهارات واحتياجات العمل."
+      },
+      "timeTracking": {
+        "title": "تتبع الوقت",
+        "description": "تتبع زمني دقيق مع تسجيل الدخول/الخروج، وإدارة الاستراحات، وحسابات العمل الإضافي التلقائية."
+      },
+      "leaveManagement": {
+        "title": "إدارة الإجازات",
+        "description": "طلبات إجازات مبسطة، وسير عمل للموافقة، وتتبع تلقائي للرصيد لجميع أنواع الإجازات."
+      },
+      "reportsAiInsights": {
+        "title": "تقارير ورؤى بالذكاء الاصطناعي",
+        "description": "تحليلات شاملة ورؤى مولدة بالذكاء الاصطناعي تعمل على تحسين أداء القوى العاملة وتقليل التكاليف."
+      }
+    }
+  },
+  "chooseUs": {
+    "title": "لماذا تختار تدبير؟",
+    "imageAlt": "فريق يعمل معاً",
+    "items": {
+      "reduceOverhead": {
+        "title": "تقليل العبء الإداري",
+        "description": "أتمتة مهام الموارد البشرية المتكررة والتركيز على المبادرات الاستراتيجية"
+      },
+      "improveProductivity": {
+        "title": "تحسين إنتاجية الموظفين",
+        "description": "أدوات ورؤى لمساعدة فريقك على التركيز على ما هو مهم"
+      },
+      "optimizeScheduling": {
+        "title": "تحسين جدولة الورديات",
+        "description": "مطابقة الورديات تلقائياً مع التوافر والمهارات واحتياجات العمل"
+      }
+    }
+  },
+
+  "announcementModal": {
+    "title": "رسالة بث",
+    "infoText": "سيتم إرسال هذه الرسالة كإشعار إلى جميع أعضاء فريقك النشطين على الفور.",
+    "form": {
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "مثال: اجتماع مهم",
+      "messageLabel": "الرسالة",
+      "messagePlaceholder": "اكتب إعلانك..."
+    },
+    "buttons": {
+      "send": "إرسال للجميع",
+      "close": "إغلاق النافذة"
+    },
+    "errors": {
+      "failedToSend": "فشل في إرسال الإعلان"
+    }
+  },
+  "calendarModal": {
+    "title": "عرض التقويم",
+    "close": "إغلاق التقويم",
+    "previous": "السابق",
+    "next": "التالي",
+    "today": "اليوم",
+    "shift": "وردية",
+    "at": "في",
+    "more": "المزيد",
+    "legend": {
+      "scheduled": "مجدول",
+      "inProgress": "قيد التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغي"
+    }
+  },
+  "dashboard": {
+    "branch": "الفرع",
+    "welcome": "مرحباً بعودتك",
+    "admin": "المشرف",
+    "hero": {
+      "description": "إدارة نشاط فرعك. لديك",
+      "employees": "موظف",
+      "active": "نشط",
+      "inBranch": "في فرعك",
+      "attendanceRate": "معدل الحضور",
+      "todaysShifts": "ورديات اليوم"
+    },
+    "buttons": {
+      "refresh": "تحديث البيانات",
+      "viewAll": "عرض الكل",
+      "generateReport": "إنشاء تقرير"
+    },
+    "stats": {
+      "totalEmployees": "إجمالي الموظفين",
+      "active": "نشط",
+      "presentToday": "حاضر اليوم",
+      "absentToday": "غائب اليوم",
+      "attendanceRate": "معدل الحضور",
+      "todaysShifts": "ورديات اليوم",
+      "pendingShifts": "الورديات المعلقة"
+    },
+    "weekly": {
+      "title": "ملخص هذا الأسبوع",
+      "label": "أسبوعي",
+      "totalHours": "إجمالي الساعات",
+      "overtimeHours": "ساعات العمل الإضافي",
+      "avgHoursPerDay": "متوسط الساعات/يوم"
+    },
+    "recentEmployees": {
+      "title": "الموظفون الجدد",
+      "defaultPosition": "موظف",
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "reports": {
+      "title": "التقارير",
+      "subtitle": "تم إنشاؤها هذا الشهر"
+    },
+    "todaysSummary": {
+      "title": "ملخص اليوم",
+      "attendance": "الحضور",
+      "pendingShifts": "الورديات المعلقة",
+      "activeEmployees": "الموظفون النشطون"
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "addEmployee": "إضافة موظف جديد",
+      "manageShifts": "إدارة الورديات",
+      "viewReports": "عرض التقارير"
+    },
+    "live": "مباشر",
+    "units": {
+      "hours": "ساعة"
+    }
+  },
+  "superDashboard": {
+    "welcome": "مرحباً بعودتك",
+    "superAdmin": "المشرف العام",
+    "hero": {
+      "description": "إليك ما يحدث في فروعك اليوم. لديك",
+      "activeBranches": "فروع نشطة",
+      "runningSmoothly": "تعمل بسلاسة.",
+      "systemHealth": "صحة النظام",
+      "allServicesOnline": "جميع الخدمات تعمل"
+    },
+    "buttons": {
+      "refresh": "تحديث البيانات",
+      "viewAllBranches": "عرض جميع الفروع"
+    },
+    "stats": {
+      "totalBranches": "إجمالي الفروع",
+      "activeBranches": "الفروع النشطة",
+      "totalEmployees": "إجمالي الموظفين",
+      "totalShifts": "إجمالي الورديات",
+      "today": "اليوم"
+    },
+    "recentBranches": {
+      "title": "الفروع المنضمة حديثاً"
+    },
+    "table": {
+      "branchName": "اسم الفرع",
+      "admin": "المشرف",
+      "joinedDate": "تاريخ الانضمام",
+      "status": "الحالة",
+      "statusActive": "نشط",
+      "statusInactive": "غير نشط",
+      "notAvailable": "غير متوفر",
+      "noBranchesFound": "لم يتم العثور على فروع."
+    },
+    "quickActions": {
+      "title": "إجراءات سريعة",
+      "addBranch": "إضافة فرع جديد",
+      "onboardAdmin": "إضافة مشرف جديد",
+      "systemReports": "تقارير النظام",
+      "viewAnalytics": "عرض التحليلات"
+    },
+    "proTip": {
+      "title": "نصيحة احترافية",
+      "description": "يمكنك نقل الموظفين بين الفروع بسهولة من صفحة \"نقل الموظفين\"."
+    }
+  },
+  "employees": {
+    "title": "إدارة الموظفين",
+    "subtitle": "تحكم كامل في الموظفين عبر جميع الفروع.",
+    "buttons": {
+      "addEmployee": "إضافة موظف",
+      "saveChanges": "حفظ التغييرات",
+      "createAccount": "إنشاء حساب"
+    },
+    "selectBranch": {
+      "placeholder": "اختر الفرع...",
+      "title": "اختر فرعاً",
+      "description": "يرجى اختيار فرع لإدارة الموظفين."
+    },
+    "search": {
+      "placeholder": "ابحث عن الموظفين..."
+    },
+    "card": {
+      "defaultPosition": "موظف",
+      "notAvailable": "غير متوفر"
+    },
+    "unknownBranch": "فرع غير معروف",
+    "noEmployeesFound": "لم يتم العثور على موظفين في هذا الفرع.",
+    "actions": {
+      "menu": "قائمة الإجراءات",
+      "edit": "تعديل",
+      "transfer": "نقل",
+      "delete": "حذف"
+    },
+    "modal": {
+      "editTitle": "تعديل الموظف",
+      "createTitle": "إضافة موظف جديد",
+      "close": "إغلاق النافذة"
+    },
+    "form": {
+      "name": "الاسم",
+      "position": "المنصب",
+      "email": "البريد الإلكتروني",
+      "assignToBranch": "تعيين للفرع",
+      "selectBranch": "اختر الفرع...",
+      "phone": "الهاتف",
+      "password": "كلمة المرور",
+      "newPasswordOptional": "كلمة مرور جديدة (اختياري)"
+    },
+    "transferModal": {
+      "title": "نقل الموظف",
+      "description": "نقل",
+      "selectTargetBranch": "اختر الفرع الهدف...",
+      "confirmTransfer": "تأكيد النقل"
+    },
+    "alerts": {
+      "confirmDelete": "هل أنت متأكد؟ سيؤدي هذا إلى حذف الموظف نهائياً.",
+      "deleteSuccess": "تم حذف الموظف بنجاح",
+      "deleteFailed": "فشل في حذف الموظف",
+      "updateSuccess": "تم تحديث الموظف بنجاح!",
+      "createSuccess": "تم إنشاء الموظف بنجاح!",
+      "selectBranchWarning": "يرجى اختيار فرع",
+      "operationFailed": "فشلت العملية",
+      "transferSuccess": "تم نقل الموظف بنجاح!",
+      "transferFailed": "فشل النقل"
+    }
+  },
+  "systemReports": {
+    "title": "تقارير النظام",
+    "subtitle": "تحليلات تفصيلية من جميع الفروع.",
+    "filters": {
+      "allTypes": "جميع أنواع التقارير"
+    },
+    "types": {
+      "attendance": "تقرير الحضور",
+      "performance": "تقرير الأداء",
+      "shift": "تحليل الورديات",
+      "other": "تقرير آخر"
+    },
+    "stats": {
+      "attendanceRate": "الحضور",
+      "present": "حاضر",
+      "late": "متأخر",
+      "totalShifts": "إجمالي الورديات",
+      "completed": "مكتمل",
+      "avgScore": "متوسط النقاط"
+    },
+    "buttons": {
+      "viewDetails": "عرض التفاصيل"
+    },
+    "generatedOn": "تم إنشاؤه في",
+    "unknownBranch": "فرع غير معروف",
+    "noReportsFound": "لم يتم العثور على تقارير تطابق عوامل التصفية الخاصة بك.",
+    "pagination": {
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "page": "صفحة",
+      "of": "من"
+    },
+    "errors": {
+      "fetchFailed": "فشل في جلب التقارير"
+    }
+  },
+  "teams": {
+    "title": "إدارة الفروع",
+    "subtitle": "إنشاء وتعديل وإدارة مشرفي الفروع.",
+    "buttons": {
+      "addBranch": "إضافة فرع",
+      "cancel": "إلغاء",
+      "saveChanges": "حفظ التغييرات",
+      "createBranch": "إنشاء فرع"
+    },
+    "actions": {
+      "menu": "قائمة الإجراءات",
+      "edit": "تعديل",
+      "deactivate": "تعطيل",
+      "activate": "تفعيل",
+      "delete": "حذف"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "card": {
+      "notAvailable": "غير متوفر",
+      "joined": "انضم في",
+      "employees": "موظف"
+    },
+    "noBranchesFound": "لم يتم العثور على فروع.",
+    "pagination": {
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "page": "صفحة",
+      "of": "من"
+    },
+    "modal": {
+      "editTitle": "تعديل تفاصيل الفرع",
+      "createTitle": "إنشاء فرع جديد",
+      "close": "إغلاق النافذة"
+    },
+    "form": {
+      "branchName": "اسم الفرع",
+      "adminName": "اسم المشرف",
+      "phone": "الهاتف",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور"
+    },
+    "alerts": {
+      "confirmDelete": "هل أنت متأكد؟ سيؤدي هذا إلى حذف المشرف وقد يؤثر على بيانات الفرع",
+      "updateSuccess": "تم تحديث الفرع بنجاح!",
+      "createSuccess": "تم إنشاء الفرع بنجاح!",
+      "deleteSuccess": "تم حذف الفرع بنجاح",
+      "deleteFailed": "فشل في حذف الفرع",
+      "deactivateSuccess": "تم تعطيل الفرع بنجاح",
+      "activateSuccess": "تم تفعيل الفرع بنجاح",
+      "statusUpdateFailed": "فشل في تحديث الحالة",
+      "operationFailed": "فشلت العملية"
+    }
+  },
+  "timeOffRequests": {
+    "title": "طلبات الإجازة للمشرفين",
+    "subtitle": "مراجعة وإدارة طلبات الإجازة من مشرفي الفروع.",
+    "status": {
+      "pending": "قيد الانتظار",
+      "approved": "مقبول",
+      "rejected": "مرفوض"
+    },
+    "unknownBranch": "فرع غير معروف",
+    "details": {
+      "duration": "المدة",
+      "days": "يوم",
+      "halfDay": "نصف يوم",
+      "reasonType": "السبب والنوع"
+    },
+    "adminNote": "ملاحظة المشرف",
+    "noRequests": "لم يتم العثور على طلبات {status}.",
+    "buttons": {
+      "approve": "قبول",
+      "reject": "رفض"
+    },
+    "pagination": {
+      "previous": "الصفحة السابقة",
+      "next": "الصفحة التالية",
+      "page": "صفحة",
+      "of": "من"
+    },
+    "alerts": {
+      "approvalTitle": "ملاحظة القبول",
+      "approvalLabel": "إضافة ملاحظة قبول (اختياري):",
+      "rejectionTitle": "ملاحظة الرفض",
+      "rejectionLabel": "سبب الرفض (اختياري):",
+      "notePlaceholder": "اكتب هنا...",
+      "approvedSuccess": "تم قبول الطلب بنجاح!",
+      "rejectedSuccess": "تم رفض الطلب بنجاح!",
+      "actionFailed": "فشل الإجراء",
+      "fetchFailed": "فشل في جلب الطلبات"
+    },
+    "errors": {
+      "fetchFailed": "فشل في جلب الطلبات"
+    }
+  }
+}

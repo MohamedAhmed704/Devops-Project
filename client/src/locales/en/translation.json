@@ -1,0 +1,420 @@
+{
+  "welcome": "Welcome Back",
+  "login": "Log In",
+  "email": "Email Address",
+  "password": "Password",
+  "ready to transform your workforce management": "Ready to transform your workforce management",
+  "Join companies already using our platform to automate scheduling andimprove productivity": "Join companies already using our platform to automate scheduling and improve productivity",
+  "startFreeTrial": "Start Free Trial",
+  "scheduleDemo": "Schedule Demo",
+  "noCreditCardRequired": "No credit card required • Cancel anytime",
+  "whyChooseTadbir": "Why choose Tadbir?",
+
+  "footer": {
+    "product": "Product",
+    "features": "Features",
+    "pricing": "Pricing",
+    "demo": "Demo",
+    "company": "Company",
+    "about": "About",
+    "contact": "Contact",
+    "careers": "Careers",
+    "legal": "Legal",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "security": "Security",
+    "description": "Smart workforce management and AI scheduling for modern businesses.",
+    "copyright": "© {{year}} Tadbir — All rights reserved."
+  },
+  "hero": {
+    "title": {
+      "line1": "Smart Workforce Management &",
+      "highlight": "AI Scheduling System"
+    },
+    "description": "Revolutionize your Area operations with intelligent scheduling, automated time tracking, and AI-powered insights that boost productivity.",
+    "buttons": {
+      "getStarted": "Get Started Free",
+      "watchDemo": "Watch Demo"
+    },
+    "imageAlt": "Workforce system"
+  },
+  "nav": {
+    "logoAlt": "Tadbir Logo",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "services": {
+    "title": "Everything You Need for Modern Workforce Management",
+    "subtitle": "Streamline operations, boost productivity, and make data-driven decisions with our comprehensive platform.",
+    "items": {
+      "smartScheduling": {
+        "title": "Smart Scheduling",
+        "description": "AI-powered scheduling that automatically optimizes shifts based on availability, skills, and business needs."
+      },
+      "timeTracking": {
+        "title": "Time Tracking",
+        "description": "Accurate time tracking with clock-in/out, break management, and automated overtime calculations."
+      },
+      "leaveManagement": {
+        "title": "Leave Management",
+        "description": "Streamlined leave requests, approval workflows, and automatic balance tracking for all leave types."
+      },
+      "reportsAiInsights": {
+        "title": "Reports & AI Insights",
+        "description": "Comprehensive analytics and AI-generated insights that optimize workforce performance and reduce costs."
+      }
+    }
+  },
+  "chooseUs": {
+    "title": "Why Choose Tadbir?",
+    "imageAlt": "Team working together",
+    "items": {
+      "reduceOverhead": {
+        "title": "Reduce Administrative Overhead",
+        "description": "Automate repetitive HR tasks and focus on strategic initiatives"
+      },
+      "improveProductivity": {
+        "title": "Improve Employee Productivity",
+        "description": "Tools and insights to help your team focus on what matters most"
+      },
+      "optimizeScheduling": {
+        "title": "Optimize Shift Scheduling",
+        "description": "Automatically match shifts to availability, skills, and business needs"
+      }
+    }
+  },
+  "announcementModal": {
+    "title": "Broadcast Message",
+    "infoText": "This message will be sent as a notification to all your active team members instantly.",
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g., Important Meeting",
+      "messageLabel": "Message",
+      "messagePlaceholder": "Type your announcement..."
+    },
+    "buttons": {
+      "send": "Send to Everyone",
+      "close": "Close modal"
+    },
+    "errors": {
+      "failedToSend": "Failed to send announcement"
+    }
+  },
+  "calendarModal": {
+    "title": "Calendar View",
+    "close": "Close calendar",
+    "previous": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "shift": "Shift",
+    "at": "at",
+    "more": "more",
+    "legend": {
+      "scheduled": "Scheduled",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "dashboard": {
+    "branch": "Branch",
+    "welcome": "Welcome backssssssssssssssssssssssssssssssssssss",
+    "admin": "Admin",
+    "hero": {
+      "description": "Manage your branch activity. You have",
+      "employees": "employees",
+      "active": "active",
+      "inBranch": "in your branch",
+      "attendanceRate": "Attendance Rate",
+      "todaysShifts": "Today's Shifts"
+    },
+    "buttons": {
+      "refresh": "Refresh Data",
+      "viewAll": "View All",
+      "generateReport": "Generate Report"
+    },
+    "stats": {
+      "totalEmployees": "Total Employees",
+      "active": "active",
+      "presentToday": "Present Today",
+      "absentToday": "Absent Today",
+      "attendanceRate": "Attendance Rate",
+      "todaysShifts": "Today's Shifts",
+      "pendingShifts": "Pending Shifts"
+    },
+    "weekly": {
+      "title": "This Week Summary",
+      "label": "Weekly",
+      "totalHours": "Total Hours",
+      "overtimeHours": "Overtime Hours",
+      "avgHoursPerDay": "Avg Hours/Day"
+    },
+    "recentEmployees": {
+      "title": "Recent Employees",
+      "defaultPosition": "Employee",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "reports": {
+      "title": "Reports",
+      "subtitle": "Monthly Generated"
+    },
+    "todaysSummary": {
+      "title": "Today's Summary",
+      "attendance": "Attendance",
+      "pendingShifts": "Pending Shifts",
+      "activeEmployees": "Active Employees"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "addEmployee": "Add New Employee",
+      "manageShifts": "Manage Shifts",
+      "viewReports": "View Reports"
+    },
+    "live": "Live",
+    "units": {
+      "hours": "hrs"
+    }
+  },
+  "superDashboard": {
+    "welcome": "Welcome back",
+    "superAdmin": "Super Admin",
+    "hero": {
+      "description": "Here's what's happening with your branches today. You have",
+      "activeBranches": "active branches",
+      "runningSmoothly": "running smoothly.",
+      "systemHealth": "System Health",
+      "allServicesOnline": "All Services Online"
+    },
+    "buttons": {
+      "refresh": "Refresh Data",
+      "viewAllBranches": "View All Branches"
+    },
+    "stats": {
+      "totalBranches": "Total Branches",
+      "activeBranches": "Active Branches",
+      "totalEmployees": "Total Employees",
+      "totalShifts": "Total Shifts",
+      "today": "Today"
+    },
+    "recentBranches": {
+      "title": "Recent Branches Joined"
+    },
+    "table": {
+      "branchName": "Branch Name",
+      "admin": "Admin",
+      "joinedDate": "Joined Date",
+      "status": "Status",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "notAvailable": "N/A",
+      "noBranchesFound": "No branches found."
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "addBranch": "Add New Branch",
+      "onboardAdmin": "Onboard a new admin",
+      "systemReports": "System Reports",
+      "viewAnalytics": "View analytics"
+    },
+    "proTip": {
+      "title": "Pro Tip",
+      "description": "You can transfer employees between branches easily from the \"Transfer Employees\" page."
+    }
+  },
+  "employees": {
+    "title": "Employee Management",
+    "subtitle": "Full control over employees across all branches.",
+    "buttons": {
+      "addEmployee": "Add Employee",
+      "saveChanges": "Save Changes",
+      "createAccount": "Create Account"
+    },
+    "selectBranch": {
+      "placeholder": "Select Branch...",
+      "title": "Select a Branch",
+      "description": "Please select a branch to manage employees."
+    },
+    "search": {
+      "placeholder": "Search employees..."
+    },
+    "card": {
+      "defaultPosition": "Employee",
+      "notAvailable": "N/A"
+    },
+    "unknownBranch": "Unknown Branch",
+    "noEmployeesFound": "No employees found in this branch.",
+    "actions": {
+      "menu": "Actions menu",
+      "edit": "Edit",
+      "transfer": "Transfer",
+      "delete": "Delete"
+    },
+    "modal": {
+      "editTitle": "Edit Employee",
+      "createTitle": "Add New Employee",
+      "close": "Close modal"
+    },
+    "form": {
+      "name": "Name",
+      "position": "Position",
+      "email": "Email",
+      "assignToBranch": "Assign to Branch",
+      "selectBranch": "Select Branch...",
+      "phone": "Phone",
+      "password": "Password",
+      "newPasswordOptional": "New Password (Opt)"
+    },
+    "transferModal": {
+      "title": "Transfer Employee",
+      "description": "Move",
+      "selectTargetBranch": "Select Target Branch...",
+      "confirmTransfer": "Confirm Transfer"
+    },
+    "alerts": {
+      "confirmDelete": "Are you sure? This will permanently delete the employee.",
+      "deleteSuccess": "Employee deleted successfully",
+      "deleteFailed": "Failed to delete employee",
+      "updateSuccess": "Employee updated successfully!",
+      "createSuccess": "Employee created successfully!",
+      "selectBranchWarning": "Please select a branch",
+      "operationFailed": "Operation failed",
+      "transferSuccess": "Employee transferred successfully!",
+      "transferFailed": "Transfer failed"
+    }
+  },
+  "systemReports": {
+    "title": "System Reports",
+    "subtitle": "Detailed analytics from all branches.",
+    "filters": {
+      "allTypes": "All Report Types"
+    },
+    "types": {
+      "attendance": "Attendance Report",
+      "performance": "Performance Report",
+      "shift": "Shift Analysis",
+      "other": "Other Report"
+    },
+    "stats": {
+      "attendanceRate": "Attendance",
+      "present": "Present",
+      "late": "Late",
+      "totalShifts": "Total Shifts",
+      "completed": "Completed",
+      "avgScore": "Avg Score"
+    },
+    "buttons": {
+      "viewDetails": "View Details"
+    },
+    "generatedOn": "Generated on",
+    "unknownBranch": "Unknown Branch",
+    "noReportsFound": "No reports found matching your filters.",
+    "pagination": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page",
+      "of": "of"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch reports"
+    }
+  },
+  "teams": {
+    "title": "Branch Management",
+    "subtitle": "Create, edit, and manage branch admins.",
+    "buttons": {
+      "addBranch": "Add Branch",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "createBranch": "Create Branch"
+    },
+    "actions": {
+      "menu": "Actions menu",
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "card": {
+      "notAvailable": "N/A",
+      "joined": "Joined",
+      "employees": "Employees"
+    },
+    "noBranchesFound": "No branches found.",
+    "pagination": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page",
+      "of": "of"
+    },
+    "modal": {
+      "editTitle": "Edit Branch Details",
+      "createTitle": "Create New Branch",
+      "close": "Close modal"
+    },
+    "form": {
+      "branchName": "Branch Name",
+      "adminName": "Admin Name",
+      "phone": "Phone",
+      "email": "Email",
+      "password": "Password"
+    },
+    "alerts": {
+      "confirmDelete": "Are you sure? This will delete the admin and might affect branch data",
+      "updateSuccess": "Branch updated successfully!",
+      "createSuccess": "Branch created successfully!",
+      "deleteSuccess": "Branch deleted successfully",
+      "deleteFailed": "Failed to delete branch",
+      "deactivateSuccess": "Branch deactivated successfully",
+      "activateSuccess": "Branch activated successfully",
+      "statusUpdateFailed": "Failed to update status",
+      "operationFailed": "Operation failed"
+    }
+  },
+  "timeOffRequests": {
+    "title": "Admin Leave Requests",
+    "subtitle": "Review and manage time-off requests from Branch Admins.",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    },
+    "unknownBranch": "Unknown Branch",
+    "details": {
+      "duration": "Duration",
+      "days": "Days",
+      "halfDay": "Half Day",
+      "reasonType": "Reason & Type"
+    },
+    "adminNote": "Admin Note",
+    "noRequests": "No {status} requests found.",
+    "buttons": {
+      "approve": "Approve",
+      "reject": "Reject"
+    },
+    "pagination": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page",
+      "of": "of"
+    },
+    "alerts": {
+      "approvalTitle": "Approval Note",
+      "approvalLabel": "Add approval note (optional):",
+      "rejectionTitle": "Rejection Note",
+      "rejectionLabel": "Reason for rejection (optional):",
+      "notePlaceholder": "Write here...",
+      "approvedSuccess": "Request approved successfully!",
+      "rejectedSuccess": "Request rejected successfully!",
+      "actionFailed": "Action failed",
+      "fetchFailed": "Failed to fetch requests"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch requests"
+    }
+  }
+}

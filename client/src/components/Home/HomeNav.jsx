@@ -2,10 +2,12 @@ import { Link } from "react-router";
 import { Menu, LogIn, UserPlus, Moon, Sun } from "lucide-react";
 import { useContext, useState } from "react";
 import { ThemeContext } from "../../contexts/ThemeContext";
+import { useTranslation } from "react-i18next";
 
 const HomeNav = () => {
   const [open, setOpen] = useState(false);
   const { theme, toggleTheme } = useContext(ThemeContext);
+  const { t } = useTranslation();
 
   return (
     <nav className="w-full bg-white dark:bg-slate-900 shadow-sm">
@@ -15,13 +17,13 @@ const HomeNav = () => {
           {theme === "light" ? (
             <img
               src="/icons/lightLogo.png"
-              alt="Logo"
+              alt={t("nav.logoAlt")}
               className="lg:w-30 w-20"
             />
           ) : (
             <img
               src="/icons/darkLogo.png"
-              alt="Logo"
+              alt={t("nav.logoAlt")}
               className="lg:w-30 w-20"
             />
           )}
@@ -38,7 +40,6 @@ const HomeNav = () => {
           )}
         </button>
 
-
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
           <Link
@@ -46,7 +47,7 @@ const HomeNav = () => {
             className="flex items-center gap-1 text-[#112D4E] dark:text-sky-400 font-medium hover:text-[#0b1c2c] dark:hover:text-sky-300 transition"
           >
             <LogIn className="w-4 h-4" />
-            Login
+            {t("nav.login")}
           </Link>
 
           <Link
@@ -54,9 +55,8 @@ const HomeNav = () => {
             className="flex items-center gap-2 bg-[#112D4E] dark:bg-sky-700 text-white px-5 py-2 rounded-xl hover:bg-[#0c2237] dark:hover:bg-sky-600 transition font-medium shadow-sm"
           >
             <UserPlus className="w-4 h-4" />
-            Get Started
+            {t("nav.getStarted")}
           </Link>
-          
         </div>
 
         {/* Mobile menu button */}
@@ -74,7 +74,7 @@ const HomeNav = () => {
             onClick={() => setOpen(false)}
           >
             <LogIn className="w-4 h-4" />
-            Login
+            {t("nav.login")}
           </Link>
 
           <Link
@@ -83,9 +83,8 @@ const HomeNav = () => {
             onClick={() => setOpen(false)}
           >
             <UserPlus className="w-4 h-4" />
-            Get Started
+            {t("nav.getStarted")}
           </Link>
-          
         </div>
       )}
     </nav>
