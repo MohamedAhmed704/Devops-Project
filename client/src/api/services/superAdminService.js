@@ -12,9 +12,10 @@ export const superAdminService = {
 
   // Employee Management (Transfer & CRUD)
   transferEmployee: (data) => apiClient.post("/api/super-admin/employees/transfer", data),
-  getBranchEmployees: (branchAdminId) => 
+  getBranchEmployees: (branchAdminId) =>
     apiClient.get(`/api/users/branch/employees`, { params: { branch_admin_id: branchAdminId } }),
-  
+
+  // ✅ الإضافات الجديدة لإدارة الموظفين (إضافة، تعديل، حذف)
   createEmployee: (data) => apiClient.post("/api/users/employees", data),
   updateEmployee: (id, data) => apiClient.put(`/api/users/${id}`, data),
   deleteEmployee: (id) => apiClient.delete(`/api/users/${id}`),
@@ -22,13 +23,13 @@ export const superAdminService = {
   // Reports
   getSystemReports: (params) => apiClient.get("/api/super-admin/reports/system", { params }),
 
-  // Leave Management (Time Off)
-  getLeaveRequests: (status, page = 1, limit = 10) => 
+  // 5. Leave Management (Time Off)
+  getLeaveRequests: (status, page = 1, limit = 10) =>
     apiClient.get("/api/super-admin/leave-requests", { params: { status, page, limit } }),
-  
-  updateLeaveStatus: (requestId, status, adminNotes) => 
-    apiClient.patch(`/api/super-admin/leave-requests/${requestId}/status`, { 
-      status, 
-      admin_notes: adminNotes 
+
+  updateLeaveStatus: (requestId, status, adminNotes) =>
+    apiClient.patch(`/api/super-admin/leave-requests/${requestId}/status`, {
+      status,
+      admin_notes: adminNotes
     }),
 };
