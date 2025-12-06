@@ -185,7 +185,7 @@ export function AuthProvider({ children }) {
   const linkGoogleAccount = async (idToken) => {
     try {
       const { data } = await googleAuthService.linkGoogleAccount(idToken);
-      
+
       // Update user data with Google info
       setUser(prevUser => ({
         ...prevUser,
@@ -207,7 +207,7 @@ export function AuthProvider({ children }) {
   const unlinkGoogleAccount = async () => {
     try {
       const { data } = await googleAuthService.unlinkGoogleAccount();
-      
+
       // Update user data
       setUser(prevUser => ({
         ...prevUser,
@@ -229,7 +229,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('accessToken', token);
     setAccessToken(token);
     apiClient.defaults.headers.Authorization = `Bearer ${token}`;
-    
+
     // Fetch user profile to update state
     apiClient
       .get("/api/auth/profile")
@@ -257,6 +257,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Refresh user data from server (useful after payment or subscription changes)
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return { success: false, error: "No token" };
+
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const { data } = await apiClient.get("/api/auth/profile");
+      setUser(data);
+      return { success: true, user: data };
+    } catch (err) {
+      console.error("refreshUser error:", err);
+      return { success: false, error: err.message };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setAccessToken(null);
@@ -280,6 +296,7 @@ export function AuthProvider({ children }) {
         unlinkGoogleAccount,
         getGoogleStatus,
         setTokenFromCallback,
+        refreshUser,
         logout,
         loading,
         isAuthenticated: status === "authenticated",
