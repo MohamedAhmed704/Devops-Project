@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useSearchParams } from 'react-router';
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { validateRegister } from "../../utils/validation.js";
 
@@ -19,6 +19,8 @@ export default function Register() {
 
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const planSlug = searchParams.get("plan");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,7 +53,12 @@ export default function Register() {
 
     if (result.success) {
       setSuccess(result.message || "Registration successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 1500);
+
+      if (planSlug) {
+        localStorage.setItem("selectedPlan", planSlug);
+      }
+
+      setTimeout(() => navigate("/verify-otp"), 1500);
     } else {
       setGlobalError(result.error);
     }
