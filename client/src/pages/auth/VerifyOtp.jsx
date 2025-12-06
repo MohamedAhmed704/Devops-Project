@@ -35,7 +35,14 @@ export default function VerifyOtp() {
     if (result.success) {
       setSuccess(result.message);
       localStorage.removeItem("pendingEmail");
-      setTimeout(() => navigate("/dashboard"), 800);
+
+      const selectedPlan = localStorage.getItem("selectedPlan");
+      if (selectedPlan) {
+        localStorage.removeItem("selectedPlan"); // Clear it
+        setTimeout(() => navigate(`/dashboard/subscription?plan=${selectedPlan}`), 800);
+      } else {
+        setTimeout(() => navigate("/dashboard"), 800);
+      }
     } else {
       setError(result.error);
     }
