@@ -653,5 +653,74 @@
       "fetchSummaryStats": "Error fetching summary stats",
       "loadData": "Error loading initial data"
     }
+  },
+  "paymentForm": {
+    "title": "Payment Information",
+    "subtitle": "Complete your secure payment",
+    "cardNumber": "Card Number",
+    "cardNumberPlaceholder": "•••• •••• •••• ••••",
+    "cardHolder": "Card Holder",
+    "cardHolderPlaceholder": "Enter Name",
+    "validThru": "Valid Thru",
+    "expiryPlaceholder": "MM/YY",
+    "paymentMethods": {
+      "mastercard": "Mastercard",
+      "visa": "Visa",
+      "meeza": "MEEZA"
+    },
+    "form": {
+      "cardNumber": "Card Number",
+      "cardNumberPlaceholder": "1234 5678 9012 3456",
+      "cardHolder": "Card Holder Name",
+      "cardHolderPlaceholder": "JOHN DOE",
+      "expiryDate": "Expiry Date",
+      "expiryPlaceholder": "MM/YY",
+      "cvv": "CVV",
+      "cvvPlaceholder": "123",
+      "saveCard": "Save card for future payments"
+    },
+    "buttons": {
+      "completePayment": "Complete Payment",
+      "processing": "Processing..."
+    },
+    "securityBadge": "Secured by Paymob",
+    "footer": "Your payment information is encrypted and secure",
+    "alerts": {
+      "fillAllFields": "Please fill in all fields",
+      "paymentSuccess": "Payment processed successfully! (Demo)"
+    }
+  },
+  "profile": {
+    "avatarAlt": "Profile picture",
+    "roles": {
+      "superAdmin": "Super Admin",
+      "branchAdmin": "Branch Admin",
+      "employee": "Employee"
+    },
+    "status": {
+      "active": "Active"
+    },
+    "accountDetails": "Account Details",
+    "editProfile": "Edit Profile",
+    "fields": {
+      "email": "Email",
+      "joined": "Joined",
+      "lastLogin": "Last Login",
+      "notAvailable": "N/A",
+      "never": "Never"
+    },
+    "form": {
+      "fullName": "Full Name",
+      "phoneNumber": "Phone Number"
+    },
+    "buttons": {
+      "saveChanges": "Save Changes",
+      "uploadImage": "Upload profile image"
+    },
+    "alerts": {
+      "updateSuccess": "Profile updated successfully!",
+      "updateFailed": "Failed to update profile",
+      "imageUploadFailed": "Failed to upload image. Try a smaller file."
+    }
   }
 }

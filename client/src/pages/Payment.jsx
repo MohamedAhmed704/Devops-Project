@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CreditCard, Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const PaymentForm = () => {
   const [cardNumber, setCardNumber] = useState("");
@@ -8,6 +9,8 @@ const PaymentForm = () => {
   const [cvv, setCvv] = useState("");
   const [saveCard, setSaveCard] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { t } = useTranslation();
 
   // Format card number with spaces
   const formatCardNumber = (value) => {
@@ -59,7 +62,7 @@ const PaymentForm = () => {
 
   const handleSubmit = () => {
     if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
-      alert("Please fill in all fields");
+      alert(t("paymentForm.alerts.fillAllFields"));
       return;
     }
 
@@ -74,11 +77,10 @@ const PaymentForm = () => {
       saveCard,
     });
 
-
     // Simulate processing
     setTimeout(() => {
       setIsProcessing(false);
-      alert("Payment processed successfully! (Demo)");
+      alert(t("paymentForm.alerts.paymentSuccess"));
     }, 2000);
   };
 
@@ -91,15 +93,22 @@ const PaymentForm = () => {
     return null;
   };
 
+  const getCardTypeLabel = (type) => {
+    if (type === "visa") return "Visa";
+    if (type === "mastercard") return "Mastercard";
+    if (type === "meeza") return "Meeza";
+    return "";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
-            Payment Information
+            {t("paymentForm.title")}
           </h1>
-          <p className="text-slate-400">Complete your secure payment</p>
+          <p className="text-slate-400">{t("paymentForm.subtitle")}</p>
         </div>
 
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-700/50 p-8">
@@ -116,28 +125,28 @@ const PaymentForm = () => {
 
                   <div className="mb-6">
                     <div className="text-white/60 text-xs mb-1 uppercase tracking-wider">
-                      Card Number
+                      {t("paymentForm.cardNumber")}
                     </div>
                     <div className="text-white text-xl font-mono tracking-wider">
-                      {cardNumber || "•••• •••• •••• ••••"}
+                      {cardNumber || t("paymentForm.cardNumberPlaceholder")}
                     </div>
                   </div>
 
                   <div className="flex justify-between items-end">
                     <div>
                       <div className="text-white/60 text-xs mb-1 uppercase tracking-wider">
-                        Card Holder
+                        {t("paymentForm.cardHolder")}
                       </div>
                       <div className="text-white text-sm font-medium uppercase">
-                        {cardHolder || "Enter Name"}
+                        {cardHolder || t("paymentForm.cardHolderPlaceholder")}
                       </div>
                     </div>
                     <div>
                       <div className="text-white/60 text-xs mb-1 uppercase tracking-wider">
-                        Valid Thru
+                        {t("paymentForm.validThru")}
                       </div>
                       <div className="text-white text-sm font-mono">
-                        {expiryDate || "MM/YY"}
+                        {expiryDate || t("paymentForm.expiryPlaceholder")}
                       </div>
                     </div>
                   </div>
@@ -145,22 +154,24 @@ const PaymentForm = () => {
 
                 {/* Payment Methods */}
                 <div className="mt-6 flex justify-center gap-4">
-                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600">
+                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600 flex items-center justify-center">
                     <img
                       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%231434CB' d='M0 0h48v32H0z'/%3E%3Cpath fill='%23F79E1B' d='M19 8h10v16H19z'/%3E%3Cpath fill='%23EB001B' d='M20 16c0-3.3 1.5-6.2 3.8-8C21.7 6.3 19 5.5 16 5.5 10.2 5.5 5.5 10.2 5.5 16s4.7 10.5 10.5 10.5c3 0 5.7-.8 7.8-2.5-2.3-1.8-3.8-4.7-3.8-8z'/%3E%3Cpath fill='%23F79E1B' d='M42.5 16c0 5.8-4.7 10.5-10.5 10.5-3 0-5.7-.8-7.8-2.5 2.3-1.8 3.8-4.7 3.8-8s-1.5-6.2-3.8-8C26.3 6.3 29 5.5 32 5.5c5.8 0 10.5 4.7 10.5 10.5z'/%3E%3C/svg%3E"
-                      alt="Mastercard"
+                      alt={t("paymentForm.paymentMethods.mastercard")}
                       className="h-6"
                     />
                   </div>
-                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600">
+                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600 flex items-center justify-center">
                     <img
                       src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%231A1F71' d='M0 0h48v32H0z'/%3E%3Cpath fill='%23F79E1B' d='M18.5 8.5l-4 15h-3l4-15h3zm13.5 9.7l1.5-4.2 1 4.2h-2.5zm3.5 5.3h2.5l-2.2-15h-2.5c-.6 0-1 .3-1.2.8l-4.3 14.2h3l.6-1.7h3.7l.4 1.7zm-8.7-4.9c0-4-5.5-4.2-5.5-6 0-.5.5-1.1 1.7-1.2.5 0 2 .1 3.5 1l.5-2.5c-.9-.3-2-.6-3.5-.6-3.3 0-5.6 1.8-5.6 4.3 0 1.9 1.7 2.9 3 3.5 1.3.7 1.8 1.1 1.8 1.7 0 .9-1.1 1.3-2.1 1.3-1.8 0-2.7-.5-3.5-.8l-.6 2.7c.8.4 2.3.7 3.8.7 3.5.1 5.5-1.7 5.5-4.1zm-13.3-10.1l-5 10.3-.5-2.7c-.9-3-3.8-6.3-7-7.9l2.7 12.8h3.3l4.9-12.5h-3.4z'/%3E%3Cpath fill='%23F79E1B' d='M9.5 8.5H3.7L3.6 9c4 1 6.6 3.4 7.7 6.3l-1.1-5.7c-.2-.5-.6-.8-1.2-1.1z'/%3E%3C/svg%3E"
-                      alt="Visa"
+                      alt={t("paymentForm.paymentMethods.visa")}
                       className="h-6"
                     />
                   </div>
-                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600">
-                    <span className="text-white font-bold text-sm">MEEZA</span>
+                  <div className="bg-slate-700/50 rounded-lg px-4 py-2 border border-slate-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">
+                      {t("paymentForm.paymentMethods.meeza")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -172,37 +183,21 @@ const PaymentForm = () => {
                 {/* Card Number */}
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Card Number
+                    {t("paymentForm.form.cardNumber")}
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       value={cardNumber}
                       onChange={handleCardNumberChange}
-                      placeholder="1234 5678 9012 3456"
+                      placeholder={t("paymentForm.form.cardNumberPlaceholder")}
                       className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                     {getCardType() && (
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
-                        {getCardType() === "visa" && (
-                          <img
-                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%231A1F71' d='M0 0h48v32H0z'/%3E%3Cpath fill='%23F79E1B' d='M18.5 8.5l-4 15h-3l4-15h3zm13.5 9.7l1.5-4.2 1 4.2h-2.5zm3.5 5.3h2.5l-2.2-15h-2.5c-.6 0-1 .3-1.2.8l-4.3 14.2h3l.6-1.7h3.7l.4 1.7zm-8.7-4.9c0-4-5.5-4.2-5.5-6 0-.5.5-1.1 1.7-1.2.5 0 2 .1 3.5 1l.5-2.5c-.9-.3-2-.6-3.5-.6-3.3 0-5.6 1.8-5.6 4.3 0 1.9 1.7 2.9 3 3.5 1.3.7 1.8 1.1 1.8 1.7 0 .9-1.1 1.3-2.1 1.3-1.8 0-2.7-.5-3.5-.8l-.6 2.7c.8.4 2.3.7 3.8.7 3.5.1 5.5-1.7 5.5-4.1zm-13.3-10.1l-5 10.3-.5-2.7c-.9-3-3.8-6.3-7-7.9l2.7 12.8h3.3l4.9-12.5h-3.4z'/%3E%3Cpath fill='%23F79E1B' d='M9.5 8.5H3.7L3.6 9c4 1 6.6 3.4 7.7 6.3l-1.1-5.7c-.2-.5-.6-.8-1.2-1.1z'/%3E%3C/svg%3E"
-                            alt="Visa"
-                            className="h-6"
-                          />
-                        )}
-                        {getCardType() === "mastercard" && (
-                          <img
-                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 32'%3E%3Cpath fill='%231434CB' d='M0 0h48v32H0z'/%3E%3Cpath fill='%23F79E1B' d='M19 8h10v16H19z'/%3E%3Cpath fill='%23EB001B' d='M20 16c0-3.3 1.5-6.2 3.8-8C21.7 6.3 19 5.5 16 5.5 10.2 5.5 5.5 10.2 5.5 16s4.7 10.5 10.5 10.5c3 0 5.7-.8 7.8-2.5-2.3-1.8-3.8-4.7-3.8-8z'/%3E%3Cpath fill='%23F79E1B' d='M42.5 16c0 5.8-4.7 10.5-10.5 10.5-3 0-5.7-.8-7.8-2.5 2.3-1.8 3.8-4.7 3.8-8s-1.5-6.2-3.8-8C26.3 6.3 29 5.5 32 5.5c5.8 0 10.5 4.7 10.5 10.5z'/%3E%3C/svg%3E"
-                            alt="Mastercard"
-                            className="h-6"
-                          />
-                        )}
-                        {getCardType() === "meeza" && (
-                          <span className="text-blue-400 font-bold text-xs">
-                            MEEZA
-                          </span>
-                        )}
+                        <span className="text-xs text-slate-400">
+                          {getCardTypeLabel(getCardType())}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -211,7 +206,7 @@ const PaymentForm = () => {
                 {/* Card Holder Name */}
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Card Holder Name
+                    {t("paymentForm.form.cardHolder")}
                   </label>
                   <input
                     type="text"
@@ -219,7 +214,7 @@ const PaymentForm = () => {
                     onChange={(e) =>
                       setCardHolder(e.target.value.toUpperCase())
                     }
-                    placeholder="JOHN DOE"
+                    placeholder={t("paymentForm.form.cardHolderPlaceholder")}
                     className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all uppercase"
                   />
                 </div>
@@ -228,25 +223,25 @@ const PaymentForm = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      Expiry Date
+                      {t("paymentForm.form.expiryDate")}
                     </label>
                     <input
                       type="text"
                       value={expiryDate}
                       onChange={handleExpiryChange}
-                      placeholder="MM/YY"
+                      placeholder={t("paymentForm.form.expiryPlaceholder")}
                       className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">
-                      CVV
+                      {t("paymentForm.form.cvv")}
                     </label>
                     <input
                       type="text"
                       value={cvv}
                       onChange={handleCvvChange}
-                      placeholder="123"
+                      placeholder={t("paymentForm.form.cvvPlaceholder")}
                       className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
@@ -265,7 +260,7 @@ const PaymentForm = () => {
                     htmlFor="saveCard"
                     className="ml-2 text-sm text-slate-300 cursor-pointer"
                   >
-                    Save card for future payments
+                    {t("paymentForm.form.saveCard")}
                   </label>
                 </div>
 
@@ -274,16 +269,17 @@ const PaymentForm = () => {
                   onClick={handleSubmit}
                   disabled={isProcessing}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold py-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  aria-label={t("paymentForm.buttons.completePayment")}
                 >
                   {isProcessing ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Processing...
+                      {t("paymentForm.buttons.processing")}
                     </>
                   ) : (
                     <>
                       <Lock size={20} />
-                      Complete Payment
+                      {t("paymentForm.buttons.completePayment")}
                     </>
                   )}
                 </button>
@@ -291,7 +287,7 @@ const PaymentForm = () => {
                 {/* Security Badge */}
                 <div className="flex items-center justify-center gap-2 text-slate-400 text-sm">
                   <Lock size={16} />
-                  <span>Secured by Paymob</span>
+                  <span>{t("paymentForm.securityBadge")}</span>
                 </div>
               </div>
             </div>
@@ -300,7 +296,7 @@ const PaymentForm = () => {
 
         {/* Footer */}
         <div className="text-center mt-6 text-slate-500 text-sm">
-          <p>Your payment information is encrypted and secure</p>
+          <p>{t("paymentForm.footer")}</p>
         </div>
       </div>
     </div>

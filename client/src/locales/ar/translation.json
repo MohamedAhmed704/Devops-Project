@@ -655,5 +655,74 @@
       "fetchSummaryStats": "خطأ في جلب الإحصائيات",
       "loadData": "خطأ في تحميل البيانات الأولية"
     }
+  },
+  "paymentForm": {
+    "title": "معلومات الدفع",
+    "subtitle": "أكمل عملية الدفع الآمنة",
+    "cardNumber": "رقم البطاقة",
+    "cardNumberPlaceholder": "•••• •••• •••• ••••",
+    "cardHolder": "حامل البطاقة",
+    "cardHolderPlaceholder": "أدخل الاسم",
+    "validThru": "صالحة حتى",
+    "expiryPlaceholder": "شهر/سنة",
+    "paymentMethods": {
+      "mastercard": "ماستر كارد",
+      "visa": "فيزا",
+      "meeza": "ميزة"
+    },
+    "form": {
+      "cardNumber": "رقم البطاقة",
+      "cardNumberPlaceholder": "1234 5678 9012 3456",
+      "cardHolder": "اسم حامل البطاقة",
+      "cardHolderPlaceholder": "جون دو",
+      "expiryDate": "تاريخ الانتهاء",
+      "expiryPlaceholder": "شهر/سنة",
+      "cvv": "الرمز السري",
+      "cvvPlaceholder": "123",
+      "saveCard": "حفظ البطاقة للمدفوعات المستقبلية"
+    },
+    "buttons": {
+      "completePayment": "إكمال الدفع",
+      "processing": "جاري المعالجة..."
+    },
+    "securityBadge": "مؤمن بواسطة Paymob",
+    "footer": "معلومات الدفع الخاصة بك مشفرة وآمنة",
+    "alerts": {
+      "fillAllFields": "يرجى ملء جميع الحقول",
+      "paymentSuccess": "تمت معالجة الدفع بنجاح! (عرض تجريبي)"
+    }
+  },
+  "profile": {
+    "avatarAlt": "صورة الملف الشخصي",
+    "roles": {
+      "superAdmin": "مشرف عام",
+      "branchAdmin": "مشرف فرع",
+      "employee": "موظف"
+    },
+    "status": {
+      "active": "نشط"
+    },
+    "accountDetails": "تفاصيل الحساب",
+    "editProfile": "تعديل الملف الشخصي",
+    "fields": {
+      "email": "البريد الإلكتروني",
+      "joined": "انضم في",
+      "lastLogin": "آخر تسجيل دخول",
+      "notAvailable": "غير متوفر",
+      "never": "أبداً"
+    },
+    "form": {
+      "fullName": "الاسم الكامل",
+      "phoneNumber": "رقم الهاتف"
+    },
+    "buttons": {
+      "saveChanges": "حفظ التغييرات",
+      "uploadImage": "رفع صورة الملف الشخصي"
+    },
+    "alerts": {
+      "updateSuccess": "تم تحديث الملف الشخصي بنجاح!",
+      "updateFailed": "فشل في تحديث الملف الشخصي",
+      "imageUploadFailed": "فشل في رفع الصورة. جرب ملفاً أصغر حجماً."
+    }
   }
 }
