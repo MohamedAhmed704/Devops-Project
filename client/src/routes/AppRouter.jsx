@@ -44,7 +44,7 @@ function RoutesWrapper() {
   const { isAuthenticated, userRole, status } = useAuth(); 
 
   // 2. Handle temporary state: Token exists (isAuthenticated=true) but userRole is still null/undefined during hydration/refresh.
-  if (isAuthenticated && !userRole) {
+  if (isAuthenticated && userRole===null) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div>Loading user...</div>
