@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { employeeService } from "../../api/services/employeeService";
 import { useLoading } from "../../contexts/LoaderContext";
-import { Alert } from "../../utils/alertService"; // ✅ 1. Import Alert Service
+import { Alert } from "../../utils/alertService"; 
 import { 
   ArrowRightLeft, CheckCircle, XCircle, Clock, 
-  Calendar, User, AlertCircle 
+  Calendar, User, AlertCircle, AlertTriangle 
 } from "lucide-react";
 import Button from "../../utils/Button";
 
@@ -14,7 +14,6 @@ export default function SwapRequests() {
   const [outgoingRequests, setOutgoingRequests] = useState([]);
   
   const { show, hide } = useLoading();
-  // تم إزالة useToast لأننا هنستخدم Alert
 
   const fetchRequests = async () => {
     try {
@@ -34,7 +33,6 @@ export default function SwapRequests() {
   }, []);
 
   const handleAction = async (id, action) => {
-    // ✅ 2. تأكيد قبل الرفض
     if (action === "reject") {
         const confirmResult = await Alert.confirm("Are you sure you want to reject this request?");
         if (!confirmResult.isConfirmed) return;
@@ -44,17 +42,13 @@ export default function SwapRequests() {
       show();
       if (action === "accept") {
         await employeeService.acceptSwapRequest(id);
-        // ✅ 3. رسالة نجاح عند القبول
         Alert.success("Request accepted! Waiting for manager approval.");
       } else {
         await employeeService.rejectSwapRequest(id);
-        // ✅ 4. رسالة نجاح عند الرفض
         Alert.success("Request rejected.");
       }
-      fetchRequests(); // تحديث البيانات
+      fetchRequests(); 
     } catch (err) {
-      // ❌ 5. عرض رسالة الخطأ (بما فيها رسالة تعارض الورديات اللي جاية من الباك إند)
-      // لو السيرفر رجع 400 بسبب وجود شيفت، الرسالة هتظهر هنا في الـ Alert
       Alert.error(err.response?.data?.message || "Action failed");
     } finally {
       hide();
@@ -109,7 +103,7 @@ export default function SwapRequests() {
 
       {/* Content */}
       <div className="space-y-4">
-        {(activeTab === "incoming" ? incomingRequests : outgoingRequests).length ===0 ? (
+        {(activeTab === "incoming" ? incomingRequests : outgoingRequests).length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">
             <ArrowRightLeft className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600 mb-3" />
             <p className="text-gray-500 dark:text-slate-400">No {activeTab} requests found.</p>
@@ -133,11 +127,23 @@ export default function SwapRequests() {
                       <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
                     </div>
                     <div>
+                      {/* ✅ FIX 1: Optional Chaining for requester name */}
                       <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-                        {req.requester_id.name || "Colleague"} wants to swap
+                        {req.requester_id?.name || "Colleague"} wants to swap
                       </h3>
+                      
                       <div className="text-sm text-gray-600 dark:text-slate-300 mt-1 space-y-1">
-                        <p><strong>Shift:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})</p>
+                        {/* ✅ FIX 2: Check if shift_id exists before accessing start_date_time */}
+                        {req.shift_id ? (
+                          <p>
+                            <strong>Shift:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})
+                          </p>
+                        ) : (
+                          <p className="text-red-500 flex items-center gap-1 italic">
+                            <AlertTriangle size={14} /> Original Shift Deleted
+                          </p>
+                        )}
+                        
                         {req.reason && <p className="italic">"{req.reason}"</p>}
                       </div>
                     </div>
@@ -147,9 +153,11 @@ export default function SwapRequests() {
                 {/* Actions (Only for Incoming Pending) */}
                 {activeTab === "incoming" && req.status === "pending" && (
                   <div className="flex flex-row md:flex-col gap-2 justify-center min-w-[120px]">
+                    {/* Disable Accept if shift is deleted */}
                     <Button 
                       onClick={() => handleAction(req._id, "accept")}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2"
+                      disabled={!req.shift_id} 
+                      className={`bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 ${!req.shift_id ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <CheckCircle size={18} /> Accept
                     </Button>
