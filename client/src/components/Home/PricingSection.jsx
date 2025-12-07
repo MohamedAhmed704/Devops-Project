@@ -6,7 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
 const PricingSection = () => {
-    const [plans, setPlans] = useState([]);
+    const [plans, setPlans] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
