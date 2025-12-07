@@ -21,7 +21,7 @@ export default function Navbar({ role }) {
   const { theme, toggleTheme } = useContext(ThemeContext);
   const items = routes[role] || [];
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
 
   const changeLanguage = (lang) => {
@@ -108,7 +108,7 @@ export default function Navbar({ role }) {
           <button
             onClick={() => navigate("/")}
             className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:text-[#112D4E] dark:hover:text-slate-200 transition relative group"
-            title="Go to Home Page"
+            title={t("navbar.homeTitle")}
           >
             <Home className="w-6 h-6" />
           </button>
@@ -128,7 +128,7 @@ export default function Navbar({ role }) {
             <button
               onClick={() => setShowAnnouncementModal(true)}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:text-[#112D4E] dark:hover:text-slate-200 transition relative group"
-              title="Broadcast Message"
+              title={t("navbar.broadcastTitle")}
             >
               <Megaphone size={22} />
             </button>
@@ -156,14 +156,14 @@ export default function Navbar({ role }) {
               <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn">
                 <div className="p-3 border-b border-gray-50 dark:border-slate-700 flex justify-between items-center bg-gray-50/50 dark:bg-slate-700/50">
                   <h3 className="font-semibold text-gray-700 dark:text-slate-200 text-sm">
-                    Notifications
+                    {t("navbar.notifications")}
                   </h3>
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
                       className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1"
                     >
-                      <Check size={12} /> Mark all read
+                      <Check size={12} /> {t("navbar.markAllRead")}
                     </button>
                   )}
                 </div>
@@ -204,7 +204,7 @@ export default function Navbar({ role }) {
                   ) : (
                     <div className="p-8 text-center text-gray-400 dark:text-slate-500">
                       <Bell size={32} className="mx-auto mb-2 opacity-20" />
-                      <p className="text-sm">No notifications yet</p>
+                      <p className="text-sm">{t("navbar.noNotifications")}</p>
                     </div>
                   )}
                 </div>
@@ -225,7 +225,7 @@ export default function Navbar({ role }) {
                 <div className="flex items-center gap-2">
                   <User size={22} />
                   <span className="hidden md:inline text-sm font-medium">
-                    {user?.name || "Profile"}
+                    {user?.name || t("navbar.profile")}
                   </span>
                 </div>
                 {/* Show Badge only for Super Admin */}
@@ -243,7 +243,7 @@ export default function Navbar({ role }) {
                     {userRole}
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer text-red-600 dark:text-red-400">
-                    <button onClick={logout}>Logout</button>
+                    <button onClick={logout}>{t("navbar.logout")}</button>
                   </li>
                 </ul>
               </div>
@@ -266,7 +266,7 @@ export default function Navbar({ role }) {
                     }`
                   }
                 >
-                  <Icon size={18} /> {item.label}
+                  <Icon size={18} /> {t(item.translationKey || item.label)}
                 </NavLink>
               </li>
             );
@@ -300,7 +300,7 @@ export default function Navbar({ role }) {
                     }
                   >
                     <Icon size={20} />
-                    <span>{item.label}</span>
+                    <span>{t(item.translationKey || item.label)}</span>
                   </NavLink>
                 </li>
               );
