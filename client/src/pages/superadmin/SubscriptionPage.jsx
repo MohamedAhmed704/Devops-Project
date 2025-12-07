@@ -112,12 +112,12 @@ const SubscriptionPage = () => {
                                 </h3>
                                 <div className="flex items-baseline justify-center mt-2">
                                     <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                                        ${plan.price}
+                                        {plan.price} <span className="text-lg">EGP</span>
                                     </span>
                                     <span className="text-gray-500 dark:text-gray-400 ml-1 text-sm">
-                                        /{plan.billing_cycle === 'month' ? t("pricing.perMonth") : 
-                                          plan.billing_cycle === 'year' ? t("pricing.perYear") : 
-                                          plan.billing_cycle}
+                                        /{plan.billing_cycle === 'month' ? t("pricing.perMonth") :
+                                            plan.billing_cycle === 'year' ? t("pricing.perYear") :
+                                                plan.billing_cycle}
                                     </span>
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-3 min-h-[40px]">
