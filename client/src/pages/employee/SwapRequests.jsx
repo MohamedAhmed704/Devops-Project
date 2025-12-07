@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { employeeService } from "../../api/services/employeeService";
 import { useLoading } from "../../contexts/LoaderContext";
-import { Alert } from "../../utils/alertService"; // ✅ 1. Import Alert Service
-import { useTranslation } from "react-i18next";
+import { Alert } from "../../utils/alertService"; 
 import { 
   ArrowRightLeft, CheckCircle, XCircle, Clock, 
-  Calendar, User, AlertCircle 
+  Calendar, User, AlertCircle, AlertTriangle, Eye // ✅ 1. Import Eye Icon
 } from "lucide-react";
 import Button from "../../utils/Button";
+import ShiftDetailsModal from "../../components/employee/ShiftDetailsModal"; // ✅ 2. Import Modal
 
 export default function SwapRequests() {
   const [activeTab, setActiveTab] = useState("incoming"); // incoming | outgoing
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [outgoingRequests, setOutgoingRequests] = useState([]);
   
+  // ✅ 3. State for Modal
+  const [selectedShiftForDetails, setSelectedShiftForDetails] = useState(null);
+
   const { show, hide } = useLoading();
-  const { t } = useTranslation();
 
   const fetchRequests = async () => {
     try {
@@ -35,9 +37,8 @@ export default function SwapRequests() {
   }, []);
 
   const handleAction = async (id, action) => {
-    // ✅ 2. تأكيد قبل الرفض
     if (action === "reject") {
-        const confirmResult = await Alert.confirm(t("swapRequests.confirmReject"));
+        const confirmResult = await Alert.confirm("Are you sure you want to reject this request?");
         if (!confirmResult.isConfirmed) return;
     }
 
@@ -45,17 +46,14 @@ export default function SwapRequests() {
       show();
       if (action === "accept") {
         await employeeService.acceptSwapRequest(id);
-        // ✅ 3. رسالة نجاح عند القبول
-        Alert.success(t("swapRequests.acceptSuccess"));
+        Alert.success("Request accepted! Waiting for manager approval.");
       } else {
         await employeeService.rejectSwapRequest(id);
-        // ✅ 4. رسالة نجاح عند الرفض
-        Alert.success(t("swapRequests.rejectSuccess"));
+        Alert.success("Request rejected.");
       }
-      fetchRequests(); // تحديث البيانات
+      fetchRequests(); 
     } catch (err) {
-      // ❌ 5. عرض رسالة الخطأ (بما فيها رسالة تعارض الورديات اللي جاية من الباك إند)
-      Alert.error(err.response?.data?.message || t("swapRequests.actionFailed"));
+      Alert.error(err.response?.data?.message || "Action failed");
     } finally {
       hide();
     }
@@ -66,34 +64,22 @@ export default function SwapRequests() {
 
   const getStatusBadge = (status) => {
     const styles = {
-      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-      accepted: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      approved: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-      rejected: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-      cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+      pending: "bg-yellow-100 text-yellow-800",
+      accepted: "bg-blue-100 text-blue-800",
+      approved: "bg-green-100 text-green-800",
+      rejected: "bg-red-100 text-red-800",
+      cancelled: "bg-gray-100 text-gray-800"
     };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${styles[status] || "bg-gray-100 dark:bg-gray-900/30"}`}>
-        {t(`swapRequests.status.${status}`)}
+      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${styles[status] || "bg-gray-100"}`}>
+        {status}
       </span>
     );
   };
 
-  const getStatusMessage = (status) => {
-    switch (status) {
-      case 'pending': return t("swapRequests.statusMessages.pending");
-      case 'accepted': return t("swapRequests.statusMessages.accepted");
-      case 'approved': return t("swapRequests.statusMessages.approved");
-      case 'rejected': return t("swapRequests.statusMessages.rejected");
-      default: return "";
-    }
-  };
-
   return (
     <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        {t("swapRequests.title")}
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Shift Swaps</h1>
 
       {/* Tabs */}
       <div className="flex space-x-4 mb-6 border-b border-gray-200 dark:border-slate-700">
@@ -105,7 +91,7 @@ export default function SwapRequests() {
               : "text-gray-500 hover:text-gray-700 dark:text-slate-400"
           }`}
         >
-          {t("swapRequests.incomingTab", { count: incomingRequests.length })}
+          Incoming Requests ({incomingRequests.length})
         </button>
         <button
           onClick={() => setActiveTab("outgoing")}
@@ -115,7 +101,7 @@ export default function SwapRequests() {
               : "text-gray-500 hover:text-gray-700 dark:text-slate-400"
           }`}
         >
-          {t("swapRequests.outgoingTab", { count: outgoingRequests.length })}
+          My Requests ({outgoingRequests.length})
         </button>
       </div>
 
@@ -124,9 +110,7 @@ export default function SwapRequests() {
         {(activeTab === "incoming" ? incomingRequests : outgoingRequests).length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">
             <ArrowRightLeft className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600 mb-3" />
-            <p className="text-gray-500 dark:text-slate-400">
-              {t("swapRequests.noRequests", { type: t(`swapRequests.${activeTab}`) })}
-            </p>
+            <p className="text-gray-500 dark:text-slate-400">No {activeTab} requests found.</p>
           </div>
         ) : (
           (activeTab === "incoming" ? incomingRequests : outgoingRequests).map((req) => (
@@ -138,7 +122,7 @@ export default function SwapRequests() {
                   <div className="flex items-center gap-3 mb-2">
                     {getStatusBadge(req.status)}
                     <span className="text-sm text-gray-500 dark:text-slate-400 flex items-center gap-1">
-                      <Clock size={14} /> {t("swapRequests.requestedOn")} {formatDate(req.createdAt)}
+                      <Clock size={14} /> Requested on {formatDate(req.createdAt)}
                     </span>
                   </div>
 
@@ -148,13 +132,31 @@ export default function SwapRequests() {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 dark:text-white text-lg">
-                        {t("swapRequests.requestTitle", { name: req.requester_id.name || t("swapRequests.colleague") })}
+                        {req.requester_id?.name || "Colleague"} wants to swap
                       </h3>
+                      
                       <div className="text-sm text-gray-600 dark:text-slate-300 mt-1 space-y-1">
-                        <p>
-                          <strong>{t("swapRequests.shift")}:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})
-                        </p>
-                        {req.reason && <p className="italic">"{req.reason}"</p>}
+                        {req.shift_id ? (
+                            <div className="flex items-center gap-2">
+                                <p>
+                                    <strong>Shift:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})
+                                </p>
+                                {/* ✅ 4. View Details Button */}
+                                <button 
+                                    onClick={() => setSelectedShiftForDetails(req.shift_id)}
+                                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                    title="View Full Details"
+                                >
+                                    <Eye size={16} />
+                                </button>
+                            </div>
+                        ) : (
+                          <p className="text-red-500 flex items-center gap-1 italic">
+                            <AlertTriangle size={14} /> Original Shift Deleted
+                          </p>
+                        )}
+                        
+                        {req.reason && <p className="italic bg-gray-50 dark:bg-slate-700/50 p-1 px-2 rounded inline-block">"{req.reason}"</p>}
                       </div>
                     </div>
                   </div>
@@ -165,16 +167,17 @@ export default function SwapRequests() {
                   <div className="flex flex-row md:flex-col gap-2 justify-center min-w-[120px]">
                     <Button 
                       onClick={() => handleAction(req._id, "accept")}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2"
+                      disabled={!req.shift_id} 
+                      className={`bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 ${!req.shift_id ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      <CheckCircle size={18} /> {t("swapRequests.acceptButton")}
+                      <CheckCircle size={18} /> Accept
                     </Button>
                     <Button 
                       onClick={() => handleAction(req._id, "reject")}
                       variant="outline"
                       className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center gap-2"
                     >
-                      <XCircle size={18} /> {t("swapRequests.rejectButton")}
+                      <XCircle size={18} /> Reject
                     </Button>
                   </div>
                 )}
@@ -184,13 +187,27 @@ export default function SwapRequests() {
               {activeTab === "outgoing" && (
                  <div className="mt-4 pt-3 border-t border-gray-100 dark:border-slate-700 flex items-center gap-2 text-sm text-gray-500 dark:text-slate-400">
                     <InfoIcon status={req.status} />
-                    <span>{getStatusMessage(req.status)}</span>
+                    <span>
+                      {req.status === 'pending' && "Waiting for a colleague to accept..."}
+                      {req.status === 'accepted' && "Colleague accepted. Waiting for manager approval."}
+                      {req.status === 'approved' && "Swap approved! Schedule updated."}
+                      {req.status === 'rejected' && "Request was rejected."}
+                    </span>
                  </div>
               )}
             </div>
           ))
         )}
       </div>
+
+      {/* ✅ 5. Render Modal */}
+      {selectedShiftForDetails && (
+        <ShiftDetailsModal 
+            shift={selectedShiftForDetails} 
+            onClose={() => setSelectedShiftForDetails(null)} 
+        />
+      )}
+
     </div>
   );
 }
