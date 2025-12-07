@@ -349,7 +349,7 @@ const TimeTracking = () => {
                     />
                     <Button 
                       variant="secondary" 
-                      className="w-full py-3 text-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600" 
+                      className="w-full py-3 text-lg bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 flex items-center justify-center gap-4" 
                       onClick={handleClockOut} 
                       disabled={loading || isOnBreak}
                     >
@@ -405,7 +405,7 @@ const TimeTracking = () => {
                       
                       <Button 
                         variant="primary" 
-                        className="w-full bg-yellow-600 dark:bg-yellow-700 hover:bg-yellow-700 dark:hover:bg-yellow-600 border-transparent" 
+                        className="w-full bg-yellow-600 dark:bg-yellow-700 hover:bg-yellow-700 dark:hover:bg-yellow-600 border-transparent flex items-center justify-center gap-2" 
                         onClick={handleEndBreak} 
                         disabled={loading}
                       >
@@ -415,7 +415,7 @@ const TimeTracking = () => {
                   )}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
+                <div className="md:h-full flex flex-col items-center justify-center text-center p-6 bg-gray-50 dark:bg-slate-800 rounded-lg border border-gray-100 dark:border-slate-700">
                   <Coffee size={48} className="text-gray-300 dark:text-slate-600 mb-3" />
                   <p className="text-gray-400 dark:text-slate-500">{t('timeTracking.clockInFirst')}</p>
                 </div>
@@ -459,43 +459,129 @@ const TimeTracking = () => {
             <p className="text-gray-500 dark:text-slate-400">{t('timeTracking.noAttendanceRecords')}</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-slate-700">
-                <tr>
-                  <th className="py-3 px-4 font-medium">{t('timeTracking.table.date')}</th>
-                  <th className="py-3 px-4 font-medium">{t('timeTracking.table.checkIn')}</th>
-                  <th className="py-3 px-4 font-medium">{t('timeTracking.table.checkOut')}</th>
-                  <th className="py-3 px-4 font-medium">{t('timeTracking.table.hours')}</th>
-                  <th className="py-3 px-4 font-medium">{t('timeTracking.table.status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                {attendanceHistory.map((record) => (
-                  <tr key={record._id} className="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
-                    <td className="py-3 px-4 text-gray-700 dark:text-slate-300">
-                      {new Date(record.date).toLocaleDateString(i18n.language, { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
-                    </td>
-                    <td className="py-3 px-4 font-mono text-gray-600 dark:text-slate-400">{formatTime(record.check_in)}</td>
-                    <td className="py-3 px-4 font-mono text-gray-600 dark:text-slate-400">{formatTime(record.check_out)}</td>
-                    <td className="py-3 px-4 font-bold text-slate-700 dark:text-slate-300">{record.total_hours ? `${record.total_hours}h` : '-'}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${
-                        record.status === 'present' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                        record.status === 'late' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400'
-                      }`}>
-                        {getStatusTranslation(record.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="w-full overflow-x-auto">
+  <div className="min-w-max w-full lg:min-w-0">
+    {/* Mobile Card View */}
+    <div className="lg:hidden space-y-3">
+      {attendanceHistory.map((record) => (
+        <div
+          key={record._id}
+          className="bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow"
+        >
+          {/* Header Row */}
+          <div className="flex justify-between items-start mb-3">
+            <div>
+              <span className="text-gray-700 dark:text-slate-300 font-medium">
+                {new Date(record.date).toLocaleDateString(i18n.language, {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            })}
+              </span>
+            </div>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${
+                record.status === 'present'
+                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                  : record.status === 'late'
+                  ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400'
+              }`}
+            >
+              {getStatusTranslation(record.status)}
+            </span>
           </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
+                {t('timeTracking.table.checkIn')}
+              </div>
+              <div className="font-mono text-gray-600 dark:text-slate-400">
+                {formatTime(record.check_in)}
+              </div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
+                {t('timeTracking.table.checkOut')}
+              </div>
+              <div className="font-mono text-gray-600 dark:text-slate-400">
+                {formatTime(record.check_out)}
+              </div>
+            </div>
+            
+            <div className="col-span-2">
+              <div className="text-xs text-gray-500 dark:text-slate-400 mb-1">
+                {t('timeTracking.table.hours')}
+              </div>
+              <div className="font-bold text-slate-700 dark:text-slate-300">
+                {record.total_hours ? `${record.total_hours}h` : '-'}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Desktop Table View */}
+    <table className="hidden lg:table min-w-full text-sm text-left border-collapse">
+      <thead className="bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 border-b border-gray-200 dark:border-slate-700">
+        <tr>
+          <th className="py-3 px-4 font-medium whitespace-nowrap">{t('timeTracking.table.date')}</th>
+          <th className="py-3 px-4 font-medium whitespace-nowrap">{t('timeTracking.table.checkIn')}</th>
+          <th className="py-3 px-4 font-medium whitespace-nowrap">{t('timeTracking.table.checkOut')}</th>
+          <th className="py-3 px-4 font-medium whitespace-nowrap">{t('timeTracking.table.hours')}</th>
+          <th className="py-3 px-4 font-medium whitespace-nowrap">{t('timeTracking.table.status')}</th>
+        </tr>
+      </thead>
+
+      <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+        {attendanceHistory.map((record) => (
+          <tr
+            key={record._id}
+            className="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+          >
+            <td className="py-3 px-4 text-gray-700 dark:text-slate-300 whitespace-nowrap">
+              {new Date(record.date).toLocaleDateString(i18n.language, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </td>
+
+            <td className="py-3 px-4 font-mono text-gray-600 dark:text-slate-400 whitespace-nowrap">
+              {formatTime(record.check_in)}
+            </td>
+
+            <td className="py-3 px-4 font-mono text-gray-600 dark:text-slate-400 whitespace-nowrap">
+              {formatTime(record.check_out)}
+            </td>
+
+            <td className="py-3 px-4 font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">
+              {record.total_hours ? `${record.total_hours}h` : '-'}
+            </td>
+
+            <td className="py-3 px-4 whitespace-nowrap">
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${
+                  record.status === 'present'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                    : record.status === 'late'
+                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                    : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400'
+                }`}
+              >
+                {getStatusTranslation(record.status)}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
         )}
       </div>
     </div>
