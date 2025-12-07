@@ -20,6 +20,8 @@ const Button = ({
       "bg-slate-900 text-white hover:bg-slate-800 active:scale-95 shadow-md",
     outline:
       "border border-sky-700 text-sky-700 bg-white hover:bg-sky-50 active:scale-95",
+    error:
+      "border border-red-700 text-red-700 bg-white hover:bg-red-50 active:scale-95",
   };
 
   return (
