@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -6,8 +6,13 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { useLoading } from "../../contexts/LoaderContext";
 import shiftService from "../../api/services/admin/shiftService";
 import apiClient from "../../api/apiClient";
-import { Plus, X, Clock, MapPin, FileText, Trash2, Save, AlertCircle, Lock, CheckSquare, Square, Info } from "lucide-react";
-import {Alert} from "../../utils/alertService.js";
+import { 
+  Plus, X, Clock, MapPin, FileText, Trash2, Save, 
+  AlertCircle, Lock, CheckSquare, Square, Info, 
+  Sparkles, Loader2, RotateCcw, Mic, MicOff 
+} from "lucide-react";
+import { Alert } from "../../utils/alertService.js";
+import Button from "../../utils/Button"; 
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
@@ -18,6 +23,16 @@ export default function Schedule() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShiftId, setSelectedShiftId] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
+
+  // AI Modal States
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [aiCommand, setAiCommand] = useState("");
+  const [aiPreview, setAiPreview] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  // ✅ Voice Input State
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
 
   const [formData, setFormData] = useState({
     employee_ids: [], 
@@ -50,6 +65,13 @@ export default function Schedule() {
 
   useEffect(() => {
     fetchData();
+    
+    // Cleanup recognition on unmount
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
   const mapShiftToEvent = (s) => {
@@ -58,19 +80,17 @@ export default function Schedule() {
     const end = new Date(s.end_date_time);
     const isPast = end < now;
 
-    // Default color based on type
     let color = getShiftColor(s.shift_type); 
     let borderColor = color;
 
-    // Override color based on Status & Time
     if (s.status === 'completed') {
-      color = '#9ca3af'; // Gray (Archived/Done)
+      color = '#9ca3af'; 
       borderColor = '#d1d5db';
     } else if (s.status === 'in_progress') {
-      color = '#10b981'; // Emerald (Active Now)
+      color = '#10b981'; 
       borderColor = '#059669';
     } else if (isPast && s.status === 'scheduled') {
-      color = '#ef4444'; // Red (Missed / No Show)
+      color = '#ef4444'; 
       borderColor = '#b91c1c';
     }
 
@@ -96,16 +116,15 @@ export default function Schedule() {
 
   const getShiftColor = (type) => {
     switch (type) {
-      case "regular": return "#3b82f6"; // Blue
-      case "overtime": return "#f59e0b"; // Amber
-      case "holiday": return "#8b5cf6"; // Purple
-      case "weekend": return "#ec4899"; // Pink
-      case "emergency": return "#ef4444"; // Red
+      case "regular": return "#3b82f6"; 
+      case "overtime": return "#f59e0b"; 
+      case "holiday": return "#8b5cf6"; 
+      case "weekend": return "#ec4899"; 
+      case "emergency": return "#ef4444"; 
       default: return "#6b7280";
     }
   };
 
-  // Helper: Format Date for Input
   const formatDateForInput = (date) => {
     if (!date) return "";
     const d = new Date(date);
@@ -113,7 +132,6 @@ export default function Schedule() {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  // Handle Event Click (Open Edit Mode)
   const handleEventClick = (info) => {
     const event = info.event;
     const props = event.extendedProps;
@@ -134,11 +152,10 @@ export default function Schedule() {
     setIsModalOpen(true);
   };
 
-  // Reset Form & Modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedShiftId(null);
-    setIsReadOnly(false); // Reset readonly
+    setIsReadOnly(false); 
     setFormData({
       employee_ids: [], 
       title: "", 
@@ -150,17 +167,13 @@ export default function Schedule() {
     });
   };
 
-  // Toggle Employee Selection Logic (Checkboxes)
   const toggleEmployee = (empId) => {
     if (isReadOnly) return;
-
     setFormData(prev => {
         const currentIds = prev.employee_ids;
-        // Edit Mode: Allow only one selection (Radio behavior)
         if (selectedShiftId) {
             return { ...prev, employee_ids: [empId] }; 
         }
-        // Create Mode: Toggle selection
         if (currentIds.includes(empId)) {
             return { ...prev, employee_ids: currentIds.filter(id => id !== empId) };
         } else {
@@ -178,7 +191,6 @@ export default function Schedule() {
     }
   };
 
-  // Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isReadOnly) return; 
@@ -189,9 +201,7 @@ export default function Schedule() {
 
     try {
       show();
-      
       if (selectedShiftId) {
-        // Update
         await shiftService.updateShift(selectedShiftId, {
           employee_id: formData.employee_ids[0],
           title: formData.title,
@@ -203,7 +213,6 @@ export default function Schedule() {
         });
         Alert.success("Shift updated successfully!");
       } else {
-        // Create
         if (formData.employee_ids.length === 1) {
           await shiftService.createShift({
             ...formData,
@@ -223,7 +232,6 @@ export default function Schedule() {
         }
         Alert.success("Shift(s) created successfully!");
       }
-
       handleCloseModal();
       fetchData();
     } catch (err) {
@@ -234,12 +242,10 @@ export default function Schedule() {
     }
   };
 
-  // 5. Handle Delete
   const handleDelete = async () => {
     if (isReadOnly) return;
-    
-    const confirmResult =await Alert.confirm("Are you sure you want to delete this shift?");
-    if (! confirmResult.isConfirmed) return;
+    const confirmResult = await Alert.confirm("Are you sure you want to delete this shift?");
+    if (!confirmResult.isConfirmed) return;
     
     try {
       show();
@@ -254,73 +260,138 @@ export default function Schedule() {
     }
   };
 
+  // --- AI HANDLERS ---
+  
+  // ✅ Voice Input Logic
+  const toggleListening = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+        setIsListening(false);
+      }
+      return;
+    }
+
+    // Check browser support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      return Alert.error("Your browser does not support voice input. Please use Chrome or Edge.");
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ar-EG'; // Default to Arabic, handles English too usually
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      
+      // Update text area with new text (appending if needed)
+      if (finalTranscript) {
+          setAiCommand(prev => prev + (prev ? " " : "") + finalTranscript);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+      if (event.error === 'not-allowed') {
+          Alert.error("Microphone access blocked. Please allow microphone access.");
+      }
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
+
+  const handleAIGenerate = async (e) => {
+    e.preventDefault();
+    if(!aiCommand.trim()) return;
+    
+    try {
+      setIsGenerating(true); 
+      // Get user timezone to ensure AI understands "9 AM" correctly
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      const res = await apiClient.post("/api/shifts/ai-generate", { 
+        command: aiCommand,
+        timeZone: userTimeZone 
+      });
+      
+      setAiPreview(res.data.data); 
+    } catch (err) {
+      Alert.error("Failed to understand command. Try being more specific.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const confirmAI_Shifts = async () => {
+    if(!aiPreview || aiPreview.length === 0) return;
+    
+    try {
+      show();
+      await shiftService.createBulkShifts({ shifts: aiPreview });
+      Alert.success(`${aiPreview.length} shifts created successfully!`);
+      setShowAIModal(false);
+      setAiPreview(null);
+      setAiCommand("");
+      fetchData(); 
+    } catch (err) {
+      Alert.error("Failed to save shifts.");
+    } finally {
+      hide();
+    }
+  };
+
+  const groupShiftsByDate = (shifts) => {
+    if (!shifts) return {};
+    return shifts.reduce((acc, shift) => {
+      const date = new Date(shift.start_date_time).toLocaleDateString();
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(shift);
+      return acc;
+    }, {});
+  };
+
   return (
     <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen dark:text-slate-100">
       <style>{`
-        .dark .fc {
-          --fc-bg-event-opacity: 1;
-          --fc-text-muted: rgb(148, 163, 184);
-          --fc-border-color: rgb(51, 65, 85);
+        .dark .fc { --fc-bg-event-opacity: 1; --fc-text-muted: rgb(148, 163, 184); --fc-border-color: rgb(51, 65, 85); }
+        .dark .fc-button-primary { background-color: rgb(30, 58, 95); border-color: rgb(30, 58, 95); color: white; }
+        .dark .fc-button-primary:hover { background-color: rgb(45, 80, 128); }
+        .dark .fc-daygrid-day { background-color: rgb(30, 41, 59); }
+        .dark .fc-col-header-cell { background-color: rgb(30, 41, 59); color: rgb(226, 232, 240); border-color: rgb(51, 65, 85); }
+        .dark .fc-timegrid-slot { height: 3em; border-color: rgb(51, 65, 85); }
+        .dark .fc-timegrid-cell { border-color: rgb(51, 65, 85); background-color: rgb(30, 41, 59); }
+        .dark .fc-toolbar { color: rgb(226, 232, 240); }
+        
+        /* Voice Pulse Animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        .dark .fc-button-primary {
-          background-color: rgb(30, 58, 95);
-          border-color: rgb(30, 58, 95);
-          color: white;
-        }
-        .dark .fc-button-primary:hover {
-          background-color: rgb(45, 80, 128);
-        }
-        .dark .fc-button-primary.fc-button-active {
-          background-color: rgb(45, 80, 128);
-          border-color: rgb(45, 80, 128);
-        }
-        .dark .fc-button-primary:not(:disabled).fc-button-active:focus {
-          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-        }
-        .dark .fc-daygrid-day {
-          background-color: rgb(30, 41, 59);
-        }
-        .dark .fc-daygrid-day:hover {
-          background-color: rgb(51, 65, 85);
-        }
-        .dark .fc-daygrid-day.fc-other-month {
-          background-color: rgb(15, 23, 42);
-        }
-        .dark .fc-col-header-cell {
-          background-color: rgb(30, 41, 59);
-          color: rgb(226, 232, 240);
-          border-color: rgb(51, 65, 85);
-        }
-        .dark .fc-timegrid-slot {
-          height: 3em;
-          border-color: rgb(51, 65, 85);
-        }
-        .dark .fc-timegrid-slot:first-child {
-          border-color: rgb(51, 65, 85);
-        }
-        .dark .fc-timegrid-cell {
-          border-color: rgb(51, 65, 85);
-          background-color: rgb(30, 41, 59);
-        }
-        .dark .fc-timegrid-cell:hover {
-          background-color: rgb(45, 65, 95);
-        }
-        .dark .fc-daygrid-day-number {
-          color: rgb(226, 232, 240);
-        }
-        .dark .fc-daygrid-day-frame {
-          background-color: rgb(30, 41, 59);
-        }
-        .dark .fc-button-group {
-          gap: 0.2rem;
-        }
-        .dark .fc-toolbar {
-          color: rgb(226, 232, 240);
-        }
-        .dark .fc-toolbar-title {
-          font-size: 1.5rem;
-          color: rgb(226, 232, 240);
-          font-weight: 600;
+        .animate-pulse-ring {
+            animation: pulse-ring 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
         }
       `}</style>
       
@@ -338,12 +409,22 @@ export default function Schedule() {
            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Missed</span>
         </div>
 
-        <button 
-          onClick={() => { handleCloseModal(); setIsModalOpen(true); }}
-          className="bg-[#112D4E] hover:bg-[#274b74] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
-        >
-          <Plus size={18} /> Add Shift
-        </button>
+        <div className="flex gap-2">
+            {/* ✅ AI Assistant Button */}
+            <button 
+                onClick={() => setShowAIModal(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
+            >
+                <Sparkles size={18} /> AI Assist
+            </button>
+
+            <button 
+            onClick={() => { handleCloseModal(); setIsModalOpen(true); }}
+            className="bg-[#112D4E] hover:bg-[#274b74] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
+            >
+            <Plus size={18} /> Add Shift
+            </button>
+        </div>
       </div>
 
       {/* Calendar */}
@@ -572,6 +653,135 @@ export default function Schedule() {
           </div>
         </div>
       )}
+
+      {/* ✅ AI Assistant Modal (Enhanced UX + Voice) */}
+      {showAIModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-fadeIn">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+            
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 flex justify-between items-center text-white">
+              <div className="flex items-center gap-3">
+                <Sparkles size={24} className="text-yellow-300" />
+                <div>
+                    <h3 className="font-bold text-xl">AI Smart Scheduler</h3>
+                    <p className="text-purple-200 text-xs">Powered by Gemini AI</p>
+                </div>
+              </div>
+              <button onClick={() => setShowAIModal(false)} className="p-1 hover:bg-white/20 rounded-full"><X size={20}/></button>
+            </div>
+
+            <div className="p-6 flex-1 overflow-y-auto">
+              {!aiPreview ? (
+                <div className="space-y-4">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
+                      <p className="text-sm text-purple-800 dark:text-purple-300 font-medium mb-1">How it works:</p>
+                      <p className="text-xs text-purple-600 dark:text-purple-400">Describe your schedule needs in plain English or Arabic. Mention names, days, times, and shift types.</p>
+                      <p className="text-xs text-slate-500 mt-2 italic">Example: "Ahmed morning shift next week from 9am to 5pm, and Sarah night shift on Friday."</p>
+                  </div>
+                  
+                  <div className="relative">
+                      <textarea
+                        className="w-full p-4 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 dark:text-white resize-none text-base pr-12"
+                        rows={4}
+                        placeholder="Type your command or use the microphone..."
+                        value={aiCommand}
+                        onChange={(e) => setAiCommand(e.target.value)}
+                        disabled={isGenerating}
+                      ></textarea>
+                      
+                      {/* ✅ Microphone Button */}
+                      <button 
+                        onClick={toggleListening}
+                        className={`absolute bottom-3 right-3 p-2 rounded-full transition-all duration-300 shadow-md ${
+                            isListening 
+                            ? "bg-red-500 text-white animate-pulse-ring" 
+                            : "bg-gray-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 hover:bg-purple-100 hover:text-purple-600"
+                        }`}
+                        title={isListening ? "Stop listening" : "Start voice input"}
+                      >
+                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                      </button>
+                  </div>
+
+                  <Button 
+                    onClick={handleAIGenerate} 
+                    disabled={!aiCommand.trim() || isGenerating}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 flex justify-center items-center gap-2"
+                  >
+                    {isGenerating ? (
+                        <>
+                            <Loader2 size={20} className="animate-spin" />
+                            Analyzing Request...
+                        </>
+                    ) : (
+                        <>
+                            <Sparkles size={18} /> Generate Plan
+                        </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700">
+                    <h4 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <CheckSquare className="text-emerald-500" size={18}/>
+                        Preview ({aiPreview.length} Shifts)
+                    </h4>
+                  </div>
+                  
+                  <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 max-h-80 overflow-y-auto space-y-4 custom-scrollbar">
+                    {Object.entries(groupShiftsByDate(aiPreview)).map(([date, shifts]) => (
+                        <div key={date}>
+                            <h5 className="text-xs font-bold text-slate-500 uppercase mb-2 sticky top-0 bg-slate-50 dark:bg-slate-900 py-1">{date}</h5>
+                            <div className="space-y-2">
+                                {shifts.map((s, idx) => {
+                                    const empName = employees.find(e => e._id === s.employee_id)?.name || "Unknown";
+                                    return (
+                                        <div key={idx} className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-xs">
+                                                    {empName.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{empName}</p>
+                                                    <p className="text-xs text-slate-500">{s.shift_type}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                    <Clock size={12} className="text-slate-400"/>
+                                                    {new Date(s.start_date_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - 
+                                                    {new Date(s.end_date_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+                                                </div>
+                                                {s.notes && <p className="text-[10px] text-slate-400 italic max-w-[150px] truncate">{s.notes}</p>}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                     {/* ✅ Improved Discard Button */}
+                     <button 
+                        onClick={() => setAiPreview(null)} 
+                        className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 font-semibold flex items-center justify-center gap-2 transition"
+                     >
+                        <RotateCcw size={18} /> Discard & Try Again
+                     </button>
+                     <Button onClick={confirmAI_Shifts} className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-semibold">
+                        Confirm & Save
+                     </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
