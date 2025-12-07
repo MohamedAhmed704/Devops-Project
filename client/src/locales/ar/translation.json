@@ -9,7 +9,8 @@
   "scheduleDemo": "جدولة عرض توضيحي",
   "noCreditCardRequired": "لا يلزم بطاقة ائتمان • إلغاء في أي وقت",
   "whyChooseTadbir": "لماذا تختار تدبير؟",
-
+  "theme":"المظهر",
+  "navDashboard" :"لوحة التحكم",
   "footer": {
     "product": "المنتج",
     "features": "المميزات",
