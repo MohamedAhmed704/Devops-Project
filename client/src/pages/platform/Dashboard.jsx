@@ -81,18 +81,15 @@ export default function PlatformDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                 {/* Revenue Chart */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                    <h2 className="text-lg font-bold text-slate-800 mb-6">Revenue by Plan</h2>
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6">Revenue by Plan</h2>
                     <div className="h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
-                                <Tooltip
-                                    cursor={{ fill: '#f8fafc' }}
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                />
+                                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
                                 <Bar dataKey="revenue" radius={[6, 6, 0, 0]} barSize={50}>
                                     {chartData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -104,11 +101,12 @@ export default function PlatformDashboard() {
                 </div>
 
                 {/* Recent Companies */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-lg font-bold text-slate-800">Recent Signups</h2>
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Recent Signups</h2>
                         <button
                             onClick={() => navigate('/companies')}
+
                             className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
                         >
                             View All <ArrowRight size={16} />
@@ -117,21 +115,21 @@ export default function PlatformDashboard() {
 
                     <div className="space-y-4">
                         {recent_companies.map((company) => (
-                            <div key={company._id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition border border-transparent hover:border-slate-100">
+                            <div key={company._id} className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                                    <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">
                                         {company.name.charAt(0)}
                                     </div>
                                     <div>
-                                        <div className="font-semibold text-slate-800 text-sm">{company.name}</div>
-                                        <div className="text-xs text-slate-500">
+                                        <div className="font-semibold text-slate-800 dark:text-slate-200 text-sm">{company.name}</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
                                             {new Date(company.createdAt).toLocaleDateString()}
                                         </div>
                                     </div>
                                 </div>
                                 <span className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${company.isActive
-                                        ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                                        : "bg-red-50 text-red-700 border-red-100"
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                    : "bg-red-50 text-red-700 border-red-100"
                                     }`}>
                                     {company.isActive ? "Active" : "Inactive"}
                                 </span>
@@ -148,6 +146,25 @@ export default function PlatformDashboard() {
         </div>
     );
 }
+
+const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700">
+                <p className="font-bold text-slate-800 dark:text-slate-100 mb-1">{label}</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400">
+                    Revenue: <span className="font-semibold">EGP {payload[0].value.toLocaleString()}</span>
+                </p>
+                {payload[0].payload.count !== undefined && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Subscribers: {payload[0].payload.count}
+                    </p>
+                )}
+            </div>
+        );
+    }
+    return null;
+};
 
 function StatCard({ title, value, icon, color }) {
     const colors = {

@@ -6,7 +6,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
 const PricingSection = () => {
-    const [plans, setPlans] = useState([]); 
+    const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -100,12 +100,12 @@ const PricingSection = () => {
                                 </p>
                                 <div className="flex items-baseline justify-center mb-6">
                                     <span className="text-4xl font-bold text-gray-900 dark:text-white">
-                                        ${plan.price}
+                                        {plan.price} <span className="text-xl">EGP</span>
                                     </span>
                                     <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                        /{plan.billing_cycle === 'month' ? t("pricing.perMonth") : 
-                                          plan.billing_cycle === 'year' ? t("pricing.perYear") : 
-                                          plan.billing_cycle}
+                                        /{plan.billing_cycle === 'month' ? t("pricing.perMonth") :
+                                            plan.billing_cycle === 'year' ? t("pricing.perYear") :
+                                                plan.billing_cycle}
                                     </span>
                                 </div>
                             </div>
