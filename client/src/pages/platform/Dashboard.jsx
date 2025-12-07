@@ -43,11 +43,11 @@ export default function PlatformDashboard() {
     const COLORS = ['#0ea5e9', '#8b5cf6', '#f59e0b', '#10b981'];
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6 lg:p-10 font-sans text-slate-800">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6 lg:p-10 font-sans text-slate-800 dark:text-slate-200">
 
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-slate-900">Platform Overview</h1>
-                <p className="text-slate-500 mt-1">Monitor system performance, revenue, and company growth.</p>
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">Platform Overview</h1>
+                <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor system performance, revenue, and company growth.</p>
             </div>
 
             {/* Stats Grid */}
@@ -160,15 +160,15 @@ function StatCard({ title, value, icon, color }) {
     const selectedColor = colors[color] || colors.blue;
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-4">
                 <div className={`p-3 rounded-xl ring-4 ring-opacity-30 ${selectedColor}`}>
                     {React.cloneElement(icon, { size: 24 })}
                 </div>
             </div>
             <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-1">{value}</h3>
-                <p className="text-sm font-medium text-slate-400">{title}</p>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">{value}</h3>
+                <p className="text-sm font-medium text-slate-400 dark:text-slate-400">{title}</p>
             </div>
         </div>
     );
