@@ -3,7 +3,11 @@ import { X, Send, Megaphone } from "lucide-react";
 import { notificationService } from "../api/services/notificationService";
 import { useLoading } from "../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
+<<<<<<< HEAD
 import { Alert } from "../utils/alertService"; // ✅ 1. استيراد Alert
+=======
+import { Alert } from "../utils/alertService";
+>>>>>>> 643f8116565ef8cc2d7d01d13e86bc570323cbd2
 
 export default function AnnouncementModal({ onClose }) {
   const [title, setTitle] = useState("");
@@ -13,22 +17,33 @@ export default function AnnouncementModal({ onClose }) {
 
   const handleSend = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
     
     // ✅ 2. التحقق مع رسالة تحذير شيك
     if (!title.trim() || !message.trim()) {
         return Alert.warning("Please fill all fields"); // يمكنك إضافة مفتاح ترجمة هنا لاحقاً
+=======
+    if (!title.trim() || !message.trim()) {
+        return Alert.warning("Please fill all fields");
+>>>>>>> 643f8116565ef8cc2d7d01d13e86bc570323cbd2
     }
 
     try {
       show();
       const res = await notificationService.sendAnnouncement({ title, message });
       
+<<<<<<< HEAD
       // ✅ 3. رسالة نجاح SweetAlert
+=======
+>>>>>>> 643f8116565ef8cc2d7d01d13e86bc570323cbd2
       Alert.success(res.data.message);
       
       onClose();
     } catch (err) {
+<<<<<<< HEAD
       // ✅ 4. رسالة خطأ SweetAlert
+=======
+>>>>>>> 643f8116565ef8cc2d7d01d13e86bc570323cbd2
       Alert.error(err.response?.data?.message || t("announcementModal.errors.failedToSend"));
     } finally {
       hide();
