@@ -1152,5 +1152,66 @@
 
   "common": {
     "cancel": "Cancel"
+  },
+  "authError": {
+    "title": "Authentication Failed",
+    "defaultMessage": "Authentication failed",
+    "backToLogin": "Back to Login",
+    "tryAgain": "Try Google Sign-In Again",
+    "needHelp": "Need Help?",
+    "helpTips": {
+      "validAccount": "Make sure you're using a valid Google account",
+      "popups": "Check that your browser allows pop-ups from this site",
+      "clearCache": "Try clearing your browser cache and cookies",
+      "contactSupport": "Contact support if the problem persists"
+    }
+  },
+  "authSuccess": {
+    "loading": "Completing authentication...",
+    "errorTitle": "Authentication Failed",
+    "backToLogin": "Back to Login",
+    "errors": {
+      "noToken": "Authentication token not found",
+      "failed": "Authentication failed"
+    }
+  },
+  "forgetPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email and check your mail please ?",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "sendButton": "Send Reset Link",
+    "sending": "Sending...",
+    "successMessage": "A reset link has been sent to your email.",
+    "defaultError": "Something went wrong.",
+    "rememberPassword": "Remember your password?",
+    "signIn": "Sign in"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm your password",
+    "resetButton": "Reset Password",
+    "updating": "Updating...",
+    "successMessage": "Password reset successful! Redirecting to login...",
+    "defaultError": "Something went wrong.",
+    "backTo": "Back to",
+    "login": "Login"
+  },
+  "verifyOtp": {
+    "title": "Verify Your Account",
+    "subtitle": "Enter the OTP sent to",
+    "otpLabel": "OTP Code",
+    "otpPlaceholder": "Enter OTP",
+    "verifyButton": "Verify OTP",
+    "verifying": "Verifying...",
+    "noOtpReceived": "Didn't receive OTP?",
+    "resendOtp": "Resend OTP",
+    "errors": {
+      "noOtp": "Please enter the OTP",
+      "noEmail": "No email found. Please register again."
+    }
   }
 }
