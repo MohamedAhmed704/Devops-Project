@@ -3,12 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 dotenv.config();
 
-// التحقق من وجود المفتاح
 if (!process.env.GEMINI_API_KEY) {
   console.error("❌ GEMINI_API_KEY is missing in .env file");
 }
 
-// تهيئة العميل الجديد
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const generateReportSummary = async (reportData, reportType, language = 'ar') => {
@@ -18,7 +16,6 @@ export const generateReportSummary = async (reportData, reportType, language = '
     let prompt = "";
 
     if (language === 'ar') {
-        // البرومبت العربي (الموجود حالياً)
         prompt = `
           أنت محلل بيانات موارد بشرية خبير. قم بتحليل البيانات التالية للكشف عن رؤى عميقة.
           
@@ -33,7 +30,6 @@ export const generateReportSummary = async (reportData, reportType, language = '
           5. **اللغة: العربية الفصحى المهنية.**
         `;
     } else {
-        // البرومبت الإنجليزي
         prompt = `
           You are an expert HR Data Analyst. Analyze the following workforce data to uncover deep insights.
           
