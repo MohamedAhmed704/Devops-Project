@@ -4,15 +4,19 @@ import { useLoading } from "../../contexts/LoaderContext";
 import { Alert } from "../../utils/alertService"; 
 import { 
   ArrowRightLeft, CheckCircle, XCircle, Clock, 
-  Calendar, User, AlertCircle, AlertTriangle 
+  Calendar, User, AlertCircle, AlertTriangle, Eye // ✅ 1. Import Eye Icon
 } from "lucide-react";
 import Button from "../../utils/Button";
+import ShiftDetailsModal from "../../components/employee/ShiftDetailsModal"; // ✅ 2. Import Modal
 
 export default function SwapRequests() {
   const [activeTab, setActiveTab] = useState("incoming"); // incoming | outgoing
   const [incomingRequests, setIncomingRequests] = useState([]);
   const [outgoingRequests, setOutgoingRequests] = useState([]);
   
+  // ✅ 3. State for Modal
+  const [selectedShiftForDetails, setSelectedShiftForDetails] = useState(null);
+
   const { show, hide } = useLoading();
 
   const fetchRequests = async () => {
@@ -127,24 +131,32 @@ export default function SwapRequests() {
                       <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
                     </div>
                     <div>
-                      {/* ✅ FIX 1: Optional Chaining for requester name */}
                       <h3 className="font-bold text-gray-900 dark:text-white text-lg">
                         {req.requester_id?.name || "Colleague"} wants to swap
                       </h3>
                       
                       <div className="text-sm text-gray-600 dark:text-slate-300 mt-1 space-y-1">
-                        {/* ✅ FIX 2: Check if shift_id exists before accessing start_date_time */}
                         {req.shift_id ? (
-                          <p>
-                            <strong>Shift:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})
-                          </p>
+                            <div className="flex items-center gap-2">
+                                <p>
+                                    <strong>Shift:</strong> {formatDate(req.shift_id.start_date_time)} ({formatTime(req.shift_id.start_date_time)} - {formatTime(req.shift_id.end_date_time)})
+                                </p>
+                                {/* ✅ 4. View Details Button */}
+                                <button 
+                                    onClick={() => setSelectedShiftForDetails(req.shift_id)}
+                                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                    title="View Full Details"
+                                >
+                                    <Eye size={16} />
+                                </button>
+                            </div>
                         ) : (
                           <p className="text-red-500 flex items-center gap-1 italic">
                             <AlertTriangle size={14} /> Original Shift Deleted
                           </p>
                         )}
                         
-                        {req.reason && <p className="italic">"{req.reason}"</p>}
+                        {req.reason && <p className="italic bg-gray-50 dark:bg-slate-700/50 p-1 px-2 rounded inline-block">"{req.reason}"</p>}
                       </div>
                     </div>
                   </div>
@@ -153,7 +165,6 @@ export default function SwapRequests() {
                 {/* Actions (Only for Incoming Pending) */}
                 {activeTab === "incoming" && req.status === "pending" && (
                   <div className="flex flex-row md:flex-col gap-2 justify-center min-w-[120px]">
-                    {/* Disable Accept if shift is deleted */}
                     <Button 
                       onClick={() => handleAction(req._id, "accept")}
                       disabled={!req.shift_id} 
@@ -188,6 +199,15 @@ export default function SwapRequests() {
           ))
         )}
       </div>
+
+      {/* ✅ 5. Render Modal */}
+      {selectedShiftForDetails && (
+        <ShiftDetailsModal 
+            shift={selectedShiftForDetails} 
+            onClose={() => setSelectedShiftForDetails(null)} 
+        />
+      )}
+
     </div>
   );
 }
