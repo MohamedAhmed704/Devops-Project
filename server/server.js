@@ -18,7 +18,7 @@ import superAdminRoutes from "./routes/superAdminRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import platformRoutes from "./routes/platformRoutes.js";
-
+import swapRoutes from "./routes/swapRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -46,6 +46,7 @@ app.use("/api/platform", platformRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/swaps", swapRoutes);
 app.get("/", (req, res) => {
   res.send("ShiftMind API Running - Smart Workforce Management System");
 });

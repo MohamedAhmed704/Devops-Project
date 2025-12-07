@@ -181,6 +181,7 @@ const TimeTracking = () => {
     });
   };
 
+  // eslint-disable-next-line no-unused-vars
   const calculateDuration = (startTime) => {
     if (!startTime) return t('timeTracking.duration.default');
     const start = new Date(startTime);
