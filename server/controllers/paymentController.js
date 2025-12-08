@@ -69,27 +69,6 @@ export async function createPayment(req, res) {
       return res.status(400).json({ success: false, message: "Plan ID is required" });
     }
 
-    const plan = await Plan.findById(plan_id);
-    if (!plan) return res.status(404).json({ success: false, message: "Plan not found" });
-
-    // ...
-
-    const amount = plan.price;
-    console.log("👉 [Backend] Plan Amount:", amount);
-
-    const token = await getAuthToken();
-
-    // ... items creation
-
-    const items = [{
-      name: plan.name,
-      amount_cents: amount * 100,
-      description: `Subscription: ${plan.name} (${plan.billing_cycle})`,
-      quantity: 1
-    }];
-
-    console.log("👉 [Backend] Creating Paymob Order...");
-    const orderId = await createOrder(token, amount, items);
     console.log("👉 [Backend] Order Created ID:", orderId);
 
     // ... PaymentIntent creation
@@ -667,5 +646,43 @@ export async function createRevenueManual(req, res) {
   } catch (err) {
     console.error("❌ [createRevenueManual] Error:", err);
     res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+// Get billing history for the logged-in user
+export async function getBillingHistory(req, res) {
+  try {
+    const user = req.user;
+    const superAdminId = user.role === "super_admin" ? user._id : user.super_admin_id;
+
+    console.log("👉 [Backend] Fetching billing history for SA:", superAdminId);
+
+    // DEBUG: Check if any revenue exists at all for this user (ignoring status)
+    const allRevenue = await Revenue.find({ super_admin_id: superAdminId });
+    console.log(`🔍 [Debug] Total revenue records found for this user: ${allRevenue.length}`);
+    if (allRevenue.length > 0) {
+      console.log("🔍 [Debug] Sample record status:", allRevenue[0].status);
+    }
+
+    const history = await Revenue.find({
+      super_admin_id: superAdminId,
+      status: "completed" // Only show completed payments
+    })
+      .sort({ payment_date: -1 })
+      .select('payment_date amount currency plan billing_cycle payment_method transaction_id status');
+
+    console.log(`✅ [Backend] Returned ${history.length} completed records.`);
+
+    return res.json({
+      success: true,
+      data: history
+    });
+
+  } catch (err) {
+    console.error("❌ [Backend] getBillingHistory error:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
   }
 }
