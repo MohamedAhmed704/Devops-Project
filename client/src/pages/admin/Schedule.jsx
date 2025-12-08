@@ -14,6 +14,7 @@ import {
 import { Alert } from "../../utils/alertService.js";
 import Button from "../../utils/Button"; 
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
