@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Check, Loader2, CreditCard, RotateCw, History, FileText, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 import { planService } from "../../api/services/planService";
@@ -25,8 +25,7 @@ const BillingPage = () => {
     const status = user?.subscription?.status || "active";
     const expiresAt = user?.subscription?.expiresAt ? new Date(user.subscription.expiresAt).toLocaleDateString() : "Never";
 
-    useEffect(() => {
-        const fetchPlans = async () => {
+    const fetchPlans = useCallback(async () => {
             try {
                 const data = await planService.getPlans();
                 let plansList = Array.isArray(data) ? data : (data.success && Array.isArray(data.data) ? data.data : []);
@@ -37,9 +36,9 @@ const BillingPage = () => {
             } finally {
                 setLoadingPlans(false);
             }
-        };
+        }, [showToast]);
 
-        const fetchHistory = async () => {
+        const fetchHistory = useCallback(async () => {
             try {
                 const response = await paymentService.getBillingHistory();
                 if (response.success) {
@@ -50,11 +49,12 @@ const BillingPage = () => {
             } finally {
                 setLoadingHistory(false);
             }
-        };
+        }, []);
 
-        fetchPlans();
-        fetchHistory();
-    }, [user, showToast]);
+        useEffect(() => {
+            fetchPlans();
+            fetchHistory();
+        }, [fetchPlans, fetchHistory]);
 
     const handleSubscribe = async (plan) => {
         if (plan.price === 0) {
