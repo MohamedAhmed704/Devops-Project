@@ -1833,5 +1833,369 @@
         }
       }
     }
+  },
+  "admin": {
+    "common": {
+      "notAvailable": "غير متوفر",
+      "cancel": "إلغاء",
+      "close": "إغلاق"
+    },
+
+    "employees": {
+      "title": "إدارة الموظفين",
+      "subtitle": "إدارة ومتابعة القوى العاملة لديك",
+      "addEmployee": "إضافة موظف",
+      "searchPlaceholder": "بحث عن الموظفين...",
+      "resetFilters": "إعادة تعيين الفلاتر",
+      "notAvailable": "غير متوفر",
+      "invalidDate": "تاريخ غير صالح",
+      "notProvided": "غير مقدم",
+      "shifts": "ورديات",
+      "clockedIn": "تم التسجيل اليوم",
+      "notClockedIn": "لم يتم التسجيل",
+      "noEmployees": "لم يتم العثور على موظفين",
+      "tryAdjusting": "حاول تعديل البحث أو الفلاتر للعثور على ما تبحث عنه.",
+      "getStarted": "ابدأ بإضافة أول موظف لك إلى النظام.",
+      "pageOf": "صفحة {page} من {totalPages}",
+
+      "stats": {
+        "totalEmployees": "إجمالي الموظفين",
+        "presentToday": "الحاضرون اليوم",
+        "absentToday": "الغائبون اليوم",
+        "totalShifts": "إجمالي الورديات"
+      },
+
+      "filters": {
+        "allPositions": "جميع المناصب",
+        "allStatus": "جميع الحالات",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "presentToday": "حاضر اليوم",
+        "lateToday": "متأخر اليوم",
+        "absentToday": "غائب اليوم"
+      },
+
+      "status": {
+        "inactive": "غير نشط",
+        "present": "حاضر",
+        "late": "متأخر",
+        "absent": "غائب",
+        "active": "نشط"
+      },
+
+      "table": {
+        "employee": "الموظف",
+        "position": "المنصب",
+        "contact": "الاتصال",
+        "status": "الحالة",
+        "shifts": "الورديات",
+        "joined": "تاريخ الانضمام",
+        "actions": "الإجراءات"
+      },
+
+      "actions": {
+        "viewDetails": "عرض التفاصيل",
+        "viewAttendance": "عرض الحضور",
+        "edit": "تعديل",
+        "deactivate": "تعطيل",
+        "activate": "تفعيل",
+        "activated": "تم التفعيل",
+        "deactivated": "تم التعطيل",
+        "delete": "حذف"
+      },
+
+      "statusChange": {
+        "title": "تغيير الحالة",
+        "message": "هل أنت متأكد أنك تريد {action} {name}؟",
+        "confirmActivate": "نعم، قم بالتفعيل",
+        "confirmDeactivate": "نعم، قم بالتعطيل",
+        "success": "تم {action} {name} بنجاح."
+      },
+
+      "confirmDelete": "هل أنت متأكد أنك تريد حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+
+      "success": {
+        "created": "تم إنشاء الموظف بنجاح!",
+        "updated": "تم تحديث بيانات الموظف بنجاح!",
+        "deleted": "تم حذف {name} بنجاح!"
+      },
+
+      "errors": {
+        "fetchFailed": "فشل في جلب بيانات الموظفين",
+        "createFailed": "فشل في إنشاء الموظف",
+        "updateFailed": "فشل في تحديث بيانات الموظف",
+        "toggleFailed": "فشل في تغيير الحالة",
+        "deleteFailed": "فشل في حذف الموظف"
+      },
+
+      "form": {
+        "editTitle": "تعديل الموظف",
+        "addTitle": "إضافة موظف جديد",
+        "editSubtitle": "تحديث معلومات الموظف",
+        "addSubtitle": "إضافة عضو جديد للفريق",
+
+        "labels": {
+          "fullName": "الاسم الكامل",
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور",
+          "phone": "رقم الهاتف",
+          "position": "المنصب"
+        },
+
+        "placeholders": {
+          "name": "جون دو",
+          "email": "employee@example.com",
+          "password": "••••••••",
+          "phone": "+1 234 567 8900",
+          "position": "مثال: مدير، كاشير، مبيعات"
+        },
+
+        "buttons": {
+          "cancel": "إلغاء",
+          "update": "تحديث الموظف",
+          "add": "إضافة موظف"
+        },
+
+        "errors": {
+          "nameRequired": "الاسم مطلوب",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "البريد الإلكتروني غير صالح",
+          "passwordRequired": "كلمة المرور مطلوبة",
+          "passwordLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phoneInvalid": "أدخل رقم هاتف صالح",
+          "positionRequired": "المنصب مطلوب"
+        }
+      },
+
+      "deleteModal": {
+        "title": "حذف الموظف",
+        "cannotUndo": "لا يمكن التراجع عن هذا الإجراء",
+        "confirmationMessage": "هل أنت متأكد أنك تريد حذف {name}؟ سيتم إزالة جميع البيانات المرتبطة بما في ذلك سجلات الحضور والورديات بشكل دائم.",
+        "warningMessage": "لا يمكن التراجع عن هذا الإجراء. يرجى التأكيد بعناية.",
+        "cancel": "إلغاء",
+        "confirmDelete": "حذف الموظف"
+      }
+    },
+
+    "employeeAttendance": {
+      "modalTitle": "سجل الحضور",
+      "exitButton": "إغلاق",
+      "timeUnit": "ساعة",
+      "loadError": "فشل في جلب بيانات الحضور",
+
+      "metrics": {
+        "totalEntries": "إجمالي السجلات",
+        "workedHours": "إجمالي الساعات",
+        "extraTime": "ساعات إضافية"
+      },
+
+      "tableHeaders": {
+        "day": "التاريخ",
+        "startTime": "التسجيل الدخول",
+        "endTime": "التسجيل الخروج",
+        "duration": "الساعات",
+        "workStatus": "الحالة"
+      },
+
+      "statusTypes": {
+        "present": "في الوقت",
+        "lateArrival": "متأخر",
+        "notPresent": "غائب"
+      },
+
+      "emptyState": {
+        "title": "لا توجد سجلات حضور",
+        "description": "لم يتم العثور على سجلات حضور لـ {name}."
+      }
+    },
+
+    "employeeDetails": {
+      "never": "أبداً",
+      "notProvided": "غير مقدم",
+      "records": "سجل",
+      "closeButton": "إغلاق",
+
+      "errors": {
+        "fetchFailed": "فشل في جلب تفاصيل الموظف"
+      },
+
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+
+      "sections": {
+        "basicInfo": "المعلومات الأساسية",
+        "statistics": "الإحصائيات",
+        "accountInfo": "معلومات الحساب",
+        "recentAttendance": "الحضور الأخير"
+      },
+
+      "fields": {
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "position": "المنصب",
+        "branchId": "معرف الفرع"
+      },
+
+      "stats": {
+        "totalShifts": "إجمالي الورديات",
+        "upcomingShifts": "الورديات القادمة"
+      },
+
+      "account": {
+        "memberSince": "عضو منذ",
+        "lastLogin": "آخر تسجيل دخول"
+      },
+
+      "attendance": {
+        "present": "حاضر",
+        "absent": "غائب"
+      },
+
+      "table": {
+        "date": "التاريخ",
+        "status": "الحالة"
+      },
+
+      "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
+    },
+
+    "reports": {
+      "defaultTitle": "تفاصيل التقرير",
+      "sheetName": "تقرير",
+      "unknown": "غير معروف",
+      "close": "إغلاق",
+      "generatedDate": "تم الإنشاء في",
+
+      "aiSmartAnalysis": "التحليل الذكي",
+      "aiDescription": "انقر لإنشاء تحليل ذكي يحتوي على رؤى وتوجهات وتوصيات.",
+      "analyzing": "جارٍ التحليل...",
+      "regenerate": "إعادة التوليد",
+      "generateInsights": "توليد رؤى",
+
+      "languages": {
+        "arabic": "العربية",
+        "english": "الإنجليزية"
+      },
+
+      "aiSummary": {
+        "ar": "ملخص التحليل الذكي",
+        "en": "AI Smart Analysis"
+      },
+
+      "stats": {
+        "totalHours": "إجمالي الساعات",
+        "present": "حاضر",
+        "late": "متأخر",
+        "attendanceRate": "معدل الحضور",
+        "totalShifts": "إجمالي الورديات",
+        "completed": "مكتملة",
+        "scheduled": "مجدولة",
+        "inProgress": "جارية",
+        "avgPerformance": "متوسط الأداء",
+        "avgAttendance": "متوسط الحضور"
+      },
+
+      "metrics": {
+        "totalShifts": "إجمالي الورديات",
+        "completed": "مكتملة",
+        "scheduled": "مجدولة",
+        "inProgress": "جارية"
+      },
+
+      "tables": {
+        "employeeBreakdown": "تفصيل الموظفين",
+        "performanceRanking": "ترتيب الأداء"
+      },
+
+      "tableHeaders": {
+        "employee": "الموظف",
+        "email": "البريد الإلكتروني",
+        "totalHours": "إجمالي الساعات",
+        "overtime": "ساعات إضافية",
+        "lateCount": "عدد التأخيرات",
+        "lateness": "التأخير",
+        "attendanceRate": "معدل الحضور",
+        "score": "التقييم",
+        "tasksRate": "معدل المهام",
+        "hours": "الساعات",
+        "attendance": "الحضور",
+        "tasks": "المهام"
+      },
+
+      "attendanceTable": {
+        "en": {
+          "employee": "Employee",
+          "hours": "Hours",
+          "overtime": "Overtime",
+          "late": "Lateness",
+          "rate": "Rate"
+        },
+        "ar": {
+          "employee": "الموظف",
+          "hours": "ساعات العمل",
+          "overtime": "إضافي",
+          "late": "تأخير",
+          "rate": "معدل الحضور"
+        }
+      },
+
+      "performanceTable": {
+        "en": {
+          "employee": "Employee",
+          "score": "Score",
+          "attendance": "Attendance",
+          "tasks": "Tasks"
+        },
+        "ar": {
+          "employee": "الموظف",
+          "score": "التقييم",
+          "attendance": "الالتزام",
+          "tasks": "المهام المنجزة"
+        }
+      },
+
+      "shiftTable": {
+        "en": {
+          "metric": "Metric",
+          "value": "Value",
+          "totalShifts": "Total Shifts",
+          "completed": "Completed",
+          "scheduled": "Scheduled",
+          "inProgress": "In Progress"
+        },
+        "ar": {
+          "metric": "المقياس",
+          "value": "القيمة",
+          "totalShifts": "إجمالي الشفتات",
+          "completed": "مكتملة",
+          "scheduled": "مجدولة",
+          "inProgress": "جارية"
+        }
+      },
+
+      "export": {
+        "pdf": "PDF",
+        "excel": "Excel"
+      },
+
+      "errors": {
+        "aiAnalysisFailed": "فشل في توليد التحليل الذكي. حاول لاحقًا.",
+        "fontFailed": "فشل في جلب الخط",
+        "pdfFailed": "فشل في تصدير ملف PDF."
+      }
+    },
+   "auth": {
+    "validation": {
+      "companyNameRequired": "اسم الشركة مطلوب",
+      "nameRequired": "الاسم الكامل مطلوب",
+      "emailRequired": "البريد الإلكتروني مطلوب",
+      "emailInvalid": "صيغة البريد الإلكتروني غير صالحة",
+      "passwordMinLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
+      "passwordsNoMatch": "كلمات المرور غير متطابقة"
+    }
+  }
   }
 }
