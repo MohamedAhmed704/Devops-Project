@@ -366,7 +366,7 @@
       "password": "Password"
     },
     "alerts": {
-      "confirmDelete": "Are you sure? This will delete the admin and might affect branch data",
+      "confirmDelete": "This will delete the admin and might affect branch data",
       "updateSuccess": "Branch updated successfully!",
       "createSuccess": "Branch created successfully!",
       "deleteSuccess": "Branch deleted successfully",

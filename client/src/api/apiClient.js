@@ -13,8 +13,6 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log("sending request with token:", localStorage.getItem("accessToken"));
-
   return config;
 });
 
