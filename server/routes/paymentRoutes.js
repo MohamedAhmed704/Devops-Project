@@ -21,6 +21,6 @@ router.get("/forceFinalize/:orderId", forceFinalize);
 
 // Manual Revenue Creation (for orphaned orders when Paymob returns 404)
 router.get("/createRevenueManual/:orderId", createRevenueManual); // Manual revenue creation
-router.get("/history", protect, getBillingHistory); // New Billing History endpoint
+router.get("/payment/history", protect, getBillingHistory); // New Billing History endpoint
 
 export default router;
