@@ -12,7 +12,7 @@ import arTranslations from "../locales/ar/translation.json";
       translation: arTranslations,  
     },
   },
-  lng: "ar",
+  lng: "en",
   fallbackLng: "ar",
   interpolation: {
     escapeValue: false,
