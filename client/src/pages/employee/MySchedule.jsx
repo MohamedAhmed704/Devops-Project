@@ -313,7 +313,7 @@ const MySchedule = () => {
         
         {todayStatus && (
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="text-right">
+            <div className="md:text-right">
               <p className="text-sm text-gray-500 dark:text-slate-400">{t("mySchedule.todayStatus")}</p>
               <p className={`font-semibold ${
                 todayStatus.clocked_in ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-slate-400'

@@ -28,7 +28,7 @@ import SA_Teams from "../pages/superadmin/Teams";
 import SA_Employees from "../pages/superadmin/Employees";
 import SA_Reports from "../pages/superadmin/Reports";
 import SA_TimeOffRequests from "../pages/superadmin/TimeOffRequests";
-import SubscriptionPage from "../pages/superadmin/SubscriptionPage";
+import BillingPage from "../pages/superadmin/BillingPage"; // Updated Import
 
 // Admin Pages
 import A_Dashboard from "../pages/admin/Dashboard";
@@ -37,7 +37,7 @@ import A_Employees from "../pages/admin/Employees";
 import A_TimeTracking from "../pages/admin/TimeTracking";
 import A_TimeOff from "../pages/admin/TimeOff";
 import A_Reports from "../pages/admin/Reports";
-import SwapApprovals from "../pages/admin/SwapApprovals"; // ✅ Import Admin Page
+import SwapApprovals from "../pages/admin/SwapApprovals";
 
 // Employee Pages
 import E_Dashboard from "../pages/employee/Dashboard";
@@ -45,7 +45,7 @@ import E_Schedule from "../pages/employee/MySchedule";
 import E_TimeTracking from "../pages/employee/TimeTracking";
 import E_TimeOff from "../pages/employee/TimeOffRequests";
 import E_Reports from "../pages/employee/MyReports";
-import E_SwapRequests from "../pages/employee/SwapRequests"; // ✅ Import Employee Page
+import E_SwapRequests from "../pages/employee/SwapRequests";
 
 const routes = {
 
@@ -63,7 +63,7 @@ const routes = {
     { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
     { path: "/time-off", element: SA_TimeOffRequests, label: "Leave Requests", icon: Plane },
     { path: "/reports", element: SA_Reports, label: "Reports", icon: BarChart3 },
-    { path: "/subscription", element: SubscriptionPage, label: "Subscription", icon: CreditCard },
+    { path: "/billing", element: BillingPage, label: "Billing", icon: CreditCard }, // Updated Route
     { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
     { path: "/payment/callback", element: PaymentCallback, label: "Payment Verification", icon: CreditCard, hidden: true },
   ],

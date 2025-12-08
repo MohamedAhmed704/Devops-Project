@@ -3,25 +3,27 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import "../../styles/fullcalendar.css";
 import { useLoading } from "../../contexts/LoaderContext";
 import shiftService from "../../api/services/admin/shiftService";
 import apiClient from "../../api/apiClient";
-import { 
-  Plus, X, Clock, MapPin, FileText, Trash2, Save, 
-  AlertCircle, Lock, CheckSquare, Square, Info, 
-  Sparkles, Loader2, RotateCcw, Mic, MicOff 
+import {
+  Plus, X, Clock, MapPin, FileText, Trash2, Save,
+  AlertCircle, Lock, CheckSquare, Square, Info,
+  Sparkles, Loader2, RotateCcw, Mic, MicOff
 } from "lucide-react";
 import { Alert } from "../../utils/alertService.js";
-import Button from "../../utils/Button"; 
+import Button from "../../utils/Button";
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
   const [employees, setEmployees] = useState([]);
+
   const { show, hide } = useLoading();
   const { t } = useTranslation();
-  
+
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedShiftId, setSelectedShiftId] = useState(null);
@@ -32,13 +34,13 @@ export default function Schedule() {
   const [aiCommand, setAiCommand] = useState("");
   const [aiPreview, setAiPreview] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  
-  // ✅ Voice Input State
+
+  // Voice Input State
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    employee_ids: [], 
+    employee_ids: [],
     title: "",
     start_date_time: "",
     end_date_time: "",
@@ -52,7 +54,7 @@ export default function Schedule() {
     try {
       show();
       const [shiftsRes, employeesRes] = await Promise.all([
-        shiftService.getBranchShifts({ limit: 1000 }), 
+        shiftService.getBranchShifts({ limit: 1000 }),
         apiClient.get("/api/admin/employees")
       ]);
       const shifts = shiftsRes.data.data || [];
@@ -68,7 +70,7 @@ export default function Schedule() {
 
   useEffect(() => {
     fetchData();
-    
+
     // Cleanup recognition on unmount
     return () => {
       if (recognitionRef.current) {
@@ -83,29 +85,29 @@ export default function Schedule() {
     const end = new Date(s.end_date_time);
     const isPast = end < now;
 
-    let color = getShiftColor(s.shift_type); 
+    let color = getShiftColor(s.shift_type);
     let borderColor = color;
 
     if (s.status === 'completed') {
-      color = '#9ca3af'; 
+      color = '#9ca3af';
       borderColor = '#d1d5db';
     } else if (s.status === 'in_progress') {
-      color = '#10b981'; 
+      color = '#10b981';
       borderColor = '#059669';
     } else if (isPast && s.status === 'scheduled') {
-      color = '#ef4444'; 
+      color = '#ef4444';
       borderColor = '#b91c1c';
     }
 
     return {
       id: s._id,
       title: `${s.employee_id?.name || t("schedule.unknown")} - ${s.title}`,
-      start: start, 
+      start: start,
       end: end,
       backgroundColor: color,
       borderColor: borderColor,
       allDay: false,
-      extendedProps: { 
+      extendedProps: {
         employeeId: s.employee_id?._id,
         rawTitle: s.title,
         type: s.shift_type,
@@ -119,11 +121,11 @@ export default function Schedule() {
 
   const getShiftColor = (type) => {
     switch (type) {
-      case "regular": return "#3b82f6"; 
-      case "overtime": return "#f59e0b"; 
-      case "holiday": return "#8b5cf6"; 
-      case "weekend": return "#ec4899"; 
-      case "emergency": return "#ef4444"; 
+      case "regular": return "#3b82f6";
+      case "overtime": return "#f59e0b";
+      case "holiday": return "#8b5cf6";
+      case "weekend": return "#ec4899";
+      case "emergency": return "#ef4444";
       default: return "#6b7280";
     }
   };
@@ -132,7 +134,7 @@ export default function Schedule() {
     if (!date) return "";
     const d = new Date(date);
     const pad = (n) => n < 10 ? '0' + n : n;
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   const handleEventClick = (info) => {
@@ -158,45 +160,45 @@ export default function Schedule() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedShiftId(null);
-    setIsReadOnly(false); 
+    setIsReadOnly(false);
     setFormData({
-      employee_ids: [], 
-      title: "", 
-      start_date_time: "", 
-      end_date_time: "", 
-      shift_type: "regular", 
-      location: "", 
-      notes: "" 
+      employee_ids: [],
+      title: "",
+      start_date_time: "",
+      end_date_time: "",
+      shift_type: "regular",
+      location: "",
+      notes: ""
     });
   };
 
   const toggleEmployee = (empId) => {
     if (isReadOnly) return;
     setFormData(prev => {
-        const currentIds = prev.employee_ids;
-        if (selectedShiftId) {
-            return { ...prev, employee_ids: [empId] }; 
-        }
-        if (currentIds.includes(empId)) {
-            return { ...prev, employee_ids: currentIds.filter(id => id !== empId) };
-        } else {
-            return { ...prev, employee_ids: [...currentIds, empId] };
-        }
+      const currentIds = prev.employee_ids;
+      if (selectedShiftId) {
+        return { ...prev, employee_ids: [empId] };
+      }
+      if (currentIds.includes(empId)) {
+        return { ...prev, employee_ids: currentIds.filter(id => id !== empId) };
+      } else {
+        return { ...prev, employee_ids: [...currentIds, empId] };
+      }
     });
   };
 
   const toggleSelectAll = () => {
     if (selectedShiftId || isReadOnly) return;
     if (formData.employee_ids.length === employees.length) {
-        setFormData({ ...formData, employee_ids: [] });
+      setFormData({ ...formData, employee_ids: [] });
     } else {
-        setFormData({ ...formData, employee_ids: employees.map(e => e._id) });
+      setFormData({ ...formData, employee_ids: employees.map(e => e._id) });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isReadOnly) return; 
+    if (isReadOnly) return;
 
     if (formData.employee_ids.length === 0 || !formData.start_date_time || !formData.end_date_time) {
       return Alert.warning(t("schedule.validation.requiredFields"));
@@ -249,7 +251,7 @@ export default function Schedule() {
     if (isReadOnly) return;
     const confirmResult = await Alert.confirm(t("schedule.confirm.delete"));
     if (!confirmResult.isConfirmed) return;
-    
+
     try {
       show();
       await shiftService.deleteShift(selectedShiftId);
@@ -264,8 +266,8 @@ export default function Schedule() {
   };
 
   // --- AI HANDLERS ---
-  
-  // ✅ Voice Input Logic
+
+  // Voice Input Logic
   const toggleListening = () => {
     if (isListening) {
       if (recognitionRef.current) {
@@ -277,7 +279,7 @@ export default function Schedule() {
 
     // Check browser support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       return Alert.error(t("schedule.voice.browserNotSupported"));
     }
@@ -303,10 +305,10 @@ export default function Schedule() {
           interimTranscript += event.results[i][0].transcript;
         }
       }
-      
+
       // Update text area with new text (appending if needed)
       if (finalTranscript) {
-          setAiCommand(prev => prev + (prev ? " " : "") + finalTranscript);
+        setAiCommand(prev => prev + (prev ? " " : "") + finalTranscript);
       }
     };
 
@@ -314,7 +316,7 @@ export default function Schedule() {
       console.error("Speech recognition error", event.error);
       setIsListening(false);
       if (event.error === 'not-allowed') {
-          Alert.error(t("schedule.voice.microphoneBlocked"));
+        Alert.error(t("schedule.voice.microphoneBlocked"));
       }
     };
 
@@ -328,16 +330,16 @@ export default function Schedule() {
 
   const handleAIGenerate = async (e) => {
     e.preventDefault();
-    if(!aiCommand.trim()) return;
-    
+    if (!aiCommand.trim()) return;
+
     try {
-      setIsGenerating(true); 
+      setIsGenerating(true);
       // Get user timezone to ensure AI understands "9 AM" correctly
       const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      const res = await apiClient.post("/api/shifts/ai-generate", { 
+      const res = await apiClient.post("/api/shifts/ai-generate", {
         command: aiCommand,
-        timeZone: userTimeZone 
+        timeZone: userTimeZone
       });
       
       setAiPreview(res.data.data); 
@@ -350,8 +352,8 @@ export default function Schedule() {
   };
 
   const confirmAI_Shifts = async () => {
-    if(!aiPreview || aiPreview.length === 0) return;
-    
+    if (!aiPreview || aiPreview.length === 0) return;
+
     try {
       show();
       await shiftService.createBulkShifts({ shifts: aiPreview });
@@ -400,10 +402,19 @@ export default function Schedule() {
             animation: pulse-ring 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
         }
       `}</style>
-      
+
       {/* Header */}
-      <div className="flex justify-between items-center mb-6 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
-        <div>
+      <div className="
+  flex flex-col md:flex-row 
+  md:items-center md:justify-between
+  gap-4 md:gap-0 
+  mb-6 bg-white dark:bg-slate-800 
+  p-4 rounded-xl shadow-sm 
+  border border-slate-100 dark:border-slate-700
+">
+
+        {/* Left Title Section */}
+        <div className="w-full md:w-auto">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {t("schedule.title")}
           </h1>
@@ -411,31 +422,52 @@ export default function Schedule() {
             {t("schedule.subtitle")}
           </p>
         </div>
-        
-        <div className="hidden md:flex gap-3 text-xs">
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span> {t("schedule.legend.scheduled")}</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t("schedule.legend.active")}</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-400"></span> {t("schedule.legend.completed")}</span>
-           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> {t("schedule.legend.missed")}</span>
+
+        <div className="
+    flex flex-wrap gap-3 text-xs 
+    md:flex-nowrap md:gap-3
+  ">
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            {t("schedule.legend.scheduled")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            {t("schedule.legend.active")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-gray-400"></span>
+            {t("schedule.legend.completed")}
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+            {t("schedule.legend.missed")}
+          </span>
         </div>
 
-        <div className="flex gap-2">
-            {/* ✅ AI Assistant Button */}
-            <button 
-                onClick={() => setShowAIModal(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
-            >
-                <Sparkles size={18} /> {t("schedule.aiAssist")}
-            </button>
+        {/* Buttons */}
+        <div className="
+    flex flex-col sm:flex-row 
+    gap-2 w-full md:w-auto
+  ">
 
-            <button 
+          <button
+            onClick={() => setShowAIModal(true)}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
+          >
+            <Sparkles size={18} /> {t("schedule.aiAssist")}
+          </button>
+
+          <button
             onClick={() => { handleCloseModal(); setIsModalOpen(true); }}
             className="bg-[#112D4E] hover:bg-[#274b74] text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
-            >
+          >
             <Plus size={18} /> {t("schedule.addShift")}
-            </button>
+          </button>
+
         </div>
       </div>
+
 
       {/* Calendar */}
       <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
@@ -465,17 +497,17 @@ export default function Schedule() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl animate-fadeIn overflow-hidden flex flex-col max-h-[90vh] dark:text-slate-100">
-            
+
             {/* Modal Header */}
             <div className={`px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center ${isReadOnly ? 'bg-gray-100 dark:bg-slate-700' : 'bg-slate-50 dark:bg-slate-700'}`}>
               <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-slate-800 dark:text-slate-100">
-                    {selectedShiftId 
-                      ? (isReadOnly ? t("schedule.modal.viewCompleted") : t("schedule.modal.editShift")) 
-                      : t("schedule.modal.addShift")
-                    }
-                  </h3>
-                  {isReadOnly && <span className="bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><Lock size={10}/> {t("schedule.modal.readOnly")}</span>}
+                <h3 className="font-bold text-slate-800 dark:text-slate-100">
+                  {selectedShiftId
+                    ? (isReadOnly ? t("schedule.modal.viewCompleted") : t("schedule.modal.editShift"))
+                    : t("schedule.modal.addShift")
+                  }
+                </h3>
+                {isReadOnly && <span className="bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-slate-300 text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1"><Lock size={10} /> {t("schedule.modal.readOnly")}</span>}
               </div>
               <button onClick={handleCloseModal} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-slate-500 dark:text-slate-400 transition">
                 <X size={20} />
@@ -484,58 +516,58 @@ export default function Schedule() {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
-              
+
               {isReadOnly && (
-                  <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-300">
-                      <AlertCircle size={16} className="mt-0.5" />
-                      <p>{t("schedule.modal.readOnlyWarning")}</p>
-                  </div>
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3 flex items-start gap-2 text-sm text-yellow-800 dark:text-yellow-300">
+                  <AlertCircle size={16} className="mt-0.5" />
+                  <p>{t("schedule.modal.readOnlyWarning")}</p>
+                </div>
               )}
 
               {/* New Checkbox Employee Selection */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                    <label className="block text-xs font-bold text-slate-500 uppercase">
-                      {t("schedule.modal.assignTo")} <span className="text-red-500">*</span>
-                    </label>
-                    {!selectedShiftId && !isReadOnly && (
-                        <button 
-                            type="button" 
-                            onClick={toggleSelectAll}
-                            className="text-xs text-blue-600 hover:underline font-medium"
-                        >
-                            {formData.employee_ids.length === employees.length 
-                              ? t("schedule.modal.deselectAll") 
-                              : t("schedule.modal.selectAll")
-                            }
-                        </button>
-                    )}
+                  <label className="block text-xs font-bold text-slate-500 uppercase">
+                    {t("schedule.modal.assignTo")} <span className="text-red-500">*</span>
+                  </label>
+                  {!selectedShiftId && !isReadOnly && (
+                    <button
+                      type="button"
+                      onClick={toggleSelectAll}
+                      className="text-xs text-blue-600 hover:underline font-medium"
+                    >
+                      {formData.employee_ids.length === employees.length
+                        ? t("schedule.modal.deselectAll")
+                        : t("schedule.modal.selectAll")
+                      }
+                    </button>
+                  )}
                 </div>
-                
+
                 <div className={`border border-slate-200 rounded-xl overflow-hidden h-40 overflow-y-auto ${isReadOnly ? 'bg-gray-50' : 'bg-white'}`}>
-                    {employees.length > 0 ? employees.map(emp => {
-                        const isSelected = formData.employee_ids.includes(emp._id);
-                        return (
-                            <div 
-                                key={emp._id} 
-                                onClick={() => toggleEmployee(emp._id)}
-                                className={`flex items-center gap-3 p-2.5 border-b border-slate-50 cursor-pointer transition hover:bg-slate-50 ${isSelected ? 'bg-blue-50/50' : ''} ${isReadOnly ? 'pointer-events-none opacity-60' : ''}`}
-                            >
-                                <div className={`text-slate-400 ${isSelected ? 'text-blue-600' : ''}`}>
-                                    {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
-                                </div>
-                                <div>
-                                    <p className={`text-sm font-medium ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>{emp.name}</p>
-                                    <p className="text-xs text-slate-400">{emp.position || t("schedule.modal.defaultPosition")}</p>
-                                </div>
-                            </div>
-                        );
-                    }) : (
-                        <p className="p-4 text-center text-sm text-slate-400">{t("schedule.modal.noEmployees")}</p>
-                    )}
+                  {employees.length > 0 ? employees.map(emp => {
+                    const isSelected = formData.employee_ids.includes(emp._id);
+                    return (
+                      <div
+                        key={emp._id}
+                        onClick={() => toggleEmployee(emp._id)}
+                        className={`flex items-center gap-3 p-2.5 border-b border-slate-50 cursor-pointer transition hover:bg-slate-50 ${isSelected ? 'bg-blue-50/50' : ''} ${isReadOnly ? 'pointer-events-none opacity-60' : ''}`}
+                      >
+                        <div className={`text-slate-400 ${isSelected ? 'text-blue-600' : ''}`}>
+                          {isSelected ? <CheckSquare size={18} /> : <Square size={18} />}
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${isSelected ? 'text-blue-900' : 'text-slate-700'}`}>{emp.name}</p>
+                          <p className="text-xs text-slate-400">{emp.position || t("schedule.modal.defaultPosition")}</p>
+                        </div>
+                      </div>
+                    );
+                  }) : (
+                    <p className="p-4 text-center text-sm text-slate-400">{t("schedule.modal.noEmployees")}</p>
+                  )}
                 </div>
                 <p className="text-xs text-slate-400 mt-1.5 text-right">
-                    {t("schedule.modal.selectedCount", { count: formData.employee_ids.length })}
+                  {t("schedule.modal.selectedCount", { count: formData.employee_ids.length })}
                 </p>
               </div>
 
@@ -545,24 +577,24 @@ export default function Schedule() {
                   <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                     {t("schedule.modal.shiftTitle")}
                   </label>
-                  <input 
+                  <input
                     disabled={isReadOnly}
-                    type="text" 
+                    type="text"
                     placeholder={t("schedule.modal.titlePlaceholder")}
                     className={`w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'dark:bg-slate-700 dark:text-slate-100'}`}
                     value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">
                     {t("schedule.modal.type")}
                   </label>
-                  <select 
+                  <select
                     disabled={isReadOnly}
                     className={`w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'bg-white dark:bg-slate-700 dark:text-slate-100'}`}
                     value={formData.shift_type}
-                    onChange={(e) => setFormData({...formData, shift_type: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, shift_type: e.target.value })}
                   >
                     <option value="regular">{t("schedule.shiftTypes.regular")}</option>
                     <option value="overtime">{t("schedule.shiftTypes.overtime")}</option>
@@ -570,12 +602,12 @@ export default function Schedule() {
                     <option value="weekend">{t("schedule.shiftTypes.weekend")}</option>
                     <option value="emergency">{t("schedule.shiftTypes.emergency")}</option>
                   </select>
-                  
+
                   {['overtime', 'holiday', 'weekend', 'emergency'].includes(formData.shift_type) && !isReadOnly && (
-                     <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-amber-600 font-medium bg-amber-50 p-1.5 rounded-lg">
-                        <Info size={12} />
-                        {t("schedule.modal.overtimeWarning")}
-                     </div>
+                    <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-amber-600 font-medium bg-amber-50 p-1.5 rounded-lg">
+                      <Info size={12} />
+                      {t("schedule.modal.overtimeWarning")}
+                    </div>
                   )}
 
                 </div>
@@ -589,13 +621,13 @@ export default function Schedule() {
                   </label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" size={18} />
-                    <input 
+                    <input
                       disabled={isReadOnly}
                       required
                       type="datetime-local"
                       className={`w-full pl-10 pr-2 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'dark:bg-slate-700 dark:text-slate-100'}`}
                       value={formData.start_date_time}
-                      onChange={(e) => setFormData({...formData, start_date_time: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, start_date_time: e.target.value })}
                     />
                   </div>
                 </div>
@@ -605,13 +637,13 @@ export default function Schedule() {
                   </label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" size={18} />
-                    <input 
+                    <input
                       disabled={isReadOnly}
                       required
                       type="datetime-local"
                       className={`w-full pl-10 pr-2 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'dark:bg-slate-700 dark:text-slate-100'}`}
                       value={formData.end_date_time}
-                      onChange={(e) => setFormData({...formData, end_date_time: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, end_date_time: e.target.value })}
                     />
                   </div>
                 </div>
@@ -624,13 +656,13 @@ export default function Schedule() {
                 </label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" size={18} />
-                  <input 
+                  <input
                     disabled={isReadOnly}
-                    type="text" 
+                    type="text"
                     placeholder={t("schedule.modal.locationPlaceholder")}
                     className={`w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'dark:bg-slate-700 dark:text-slate-100'}`}
                     value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   />
                 </div>
               </div>
@@ -642,13 +674,13 @@ export default function Schedule() {
                 </label>
                 <div className="relative">
                   <FileText className="absolute left-3 top-3 text-slate-400 dark:text-slate-500" size={18} />
-                  <textarea 
+                  <textarea
                     disabled={isReadOnly}
                     rows="2"
                     placeholder={t("schedule.modal.notesPlaceholder")}
                     className={`w-full pl-10 pr-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 resize-none ${isReadOnly ? 'bg-gray-50 dark:bg-slate-700' : 'dark:bg-slate-700 dark:text-slate-100'}`}
                     value={formData.notes}
-                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   ></textarea>
                 </div>
               </div>
@@ -656,8 +688,8 @@ export default function Schedule() {
               {/* Footer Buttons */}
               <div className="flex gap-3 pt-2">
                 {selectedShiftId && !isReadOnly && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleDelete}
                     className="px-4 py-2.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-700 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 font-medium transition flex items-center justify-center"
                     title={t("schedule.modal.deleteShift")}
@@ -665,11 +697,11 @@ export default function Schedule() {
                     <Trash2 size={20} />
                   </button>
                 )}
-                
+
                 <button type="button" onClick={handleCloseModal} className="flex-1 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition">
                   {isReadOnly ? t("schedule.modal.close") : t("schedule.modal.cancel")}
                 </button>
-                
+
                 {!isReadOnly && (
                   <button type="submit" className="flex-1 py-2.5 bg-[#112D4E] dark:bg-[#1e3a5f] text-white rounded-xl hover:bg-[#274b74] dark:hover:bg-[#2d5080] font-medium transition shadow-md flex items-center justify-center gap-2">
                     {selectedShiftId ? (
@@ -690,71 +722,70 @@ export default function Schedule() {
       {showAIModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-fadeIn">
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            
+
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 flex justify-between items-center text-white">
               <div className="flex items-center gap-3">
                 <Sparkles size={24} className="text-yellow-300" />
                 <div>
-                    <h3 className="font-bold text-xl">{t("schedule.ai.modalTitle")}</h3>
-                    <p className="text-purple-200 text-xs">{t("schedule.ai.poweredBy")}</p>
+                  <h3 className="font-bold text-xl">{t("schedule.ai.modalTitle")}</h3>
+                  <p className="text-purple-200 text-xs">{t("schedule.ai.poweredBy")}</p>
                 </div>
               </div>
-              <button onClick={() => setShowAIModal(false)} className="p-1 hover:bg-white/20 rounded-full"><X size={20}/></button>
+              <button onClick={() => setShowAIModal(false)} className="p-1 hover:bg-white/20 rounded-full"><X size={20} /></button>
             </div>
 
             <div className="p-6 flex-1 overflow-y-auto">
               {!aiPreview ? (
                 <div className="space-y-4">
                   <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl border border-purple-100 dark:border-purple-800">
-                      <p className="text-sm text-purple-800 dark:text-purple-300 font-medium mb-1">
-                        {t("schedule.ai.howItWorks")}
-                      </p>
-                      <p className="text-xs text-purple-600 dark:text-purple-400">
-                        {t("schedule.ai.description")}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-2 italic">
-                        {t("schedule.ai.example")}
-                      </p>
-                  </div>
-                  
-                  <div className="relative">
-                      <textarea
-                        className="w-full p-4 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 dark:text-white resize-none text-base pr-12"
-                        rows={4}
-                        placeholder={t("schedule.ai.commandPlaceholder")}
-                        value={aiCommand}
-                        onChange={(e) => setAiCommand(e.target.value)}
-                        disabled={isGenerating}
-                      ></textarea>
-                      
-                      {/* ✅ Microphone Button */}
-                      <button 
-                        onClick={toggleListening}
-                        className={`absolute bottom-3 right-3 p-2 rounded-full transition-all duration-300 shadow-md ${
-                            isListening 
-                            ? "bg-red-500 text-white animate-pulse-ring" 
-                            : "bg-gray-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 hover:bg-purple-100 hover:text-purple-600"
-                        }`}
-                        title={isListening ? t("schedule.voice.stopListening") : t("schedule.voice.startListening")}
-                      >
-                        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-                      </button>
+                    <p className="text-sm text-purple-800 dark:text-purple-300 font-medium mb-1">
+                      {t("schedule.ai.howItWorks")}
+                    </p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">
+                      {t("schedule.ai.description")}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-2 italic">
+                      {t("schedule.ai.example")}
+                    </p>
                   </div>
 
-                  <Button 
-                    onClick={handleAIGenerate} 
+                  <div className="relative">
+                    <textarea
+                      className="w-full p-4 border border-slate-200 dark:border-slate-600 rounded-xl outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-slate-700 dark:text-white resize-none text-base pr-12"
+                      rows={4}
+                      placeholder={t("schedule.ai.commandPlaceholder")}
+                      value={aiCommand}
+                      onChange={(e) => setAiCommand(e.target.value)}
+                      disabled={isGenerating}
+                    ></textarea>
+
+                    {/* ✅ Microphone Button */}
+                    <button
+                      onClick={toggleListening}
+                      className={`absolute bottom-3 right-3 p-2 rounded-full transition-all duration-300 shadow-md ${isListening
+                        ? "bg-red-500 text-white animate-pulse-ring"
+                        : "bg-gray-100 dark:bg-slate-600 text-slate-500 dark:text-slate-300 hover:bg-purple-100 hover:text-purple-600"
+                        }`}
+                      title={isListening ? t("schedule.voice.stopListening") : t("schedule.voice.startListening")}
+                    >
+                      {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                    </button>
+                  </div>
+
+                  <Button
+                    onClick={handleAIGenerate}
                     disabled={!aiCommand.trim() || isGenerating}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 flex justify-center items-center gap-2"
                   >
                     {isGenerating ? (
-                        <>
-                            <Loader2 size={20} className="animate-spin" />
-                            {t("schedule.ai.analyzing")}
-                        </>
+                      <>
+                        <Loader2 size={20} className="animate-spin" />
+                        {t("schedule.ai.analyzing")}
+                      </>
                     ) : (
-                        <>
-                            <Sparkles size={18} /> {t("schedule.ai.generatePlan")}
-                        </>
+                      <>
+                        <Sparkles size={18} /> {t("schedule.ai.generatePlan")}
+                      </>
                     )}
                   </Button>
                 </div>
@@ -762,56 +793,56 @@ export default function Schedule() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-700">
                     <h4 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                        <CheckSquare className="text-emerald-500" size={18}/>
-                        {t("schedule.ai.previewTitle", { count: aiPreview.length })}
+                      <CheckSquare className="text-emerald-500" size={18} />
+                      {t("schedule.ai.previewTitle", { count: aiPreview.length })}
                     </h4>
                   </div>
-                  
+
                   <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 max-h-80 overflow-y-auto space-y-4 custom-scrollbar">
                     {Object.entries(groupShiftsByDate(aiPreview)).map(([date, shifts]) => (
-                        <div key={date}>
-                            <h5 className="text-xs font-bold text-slate-500 uppercase mb-2 sticky top-0 bg-slate-50 dark:bg-slate-900 py-1">{date}</h5>
-                            <div className="space-y-2">
-                                {shifts.map((s, idx) => {
-                                    const empName = employees.find(e => e._id === s.employee_id)?.name || t("schedule.unknown");
-                                    return (
-                                        <div key={idx} className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-xs">
-                                                    {empName.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{empName}</p>
-                                                    <p className="text-xs text-slate-500">{t(`schedule.shiftTypes.${s.shift_type}`)}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                    <Clock size={12} className="text-slate-400"/>
-                                                    {new Date(s.start_date_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - 
-                                                    {new Date(s.end_date_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-                                                </div>
-                                                {s.notes && <p className="text-[10px] text-slate-400 italic max-w-[150px] truncate">{s.notes}</p>}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                      <div key={date}>
+                        <h5 className="text-xs font-bold text-slate-500 uppercase mb-2 sticky top-0 bg-slate-50 dark:bg-slate-900 py-1">{date}</h5>
+                        <div className="space-y-2">
+                          {shifts.map((s, idx) => {
+                            const empName = employees.find(e => e._id === s.employee_id)?.name || t("schedule.unknown");
+                            return (
+                              <div key={idx} className="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-xs">
+                                    {empName.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{empName}</p>
+                                    <p className="text-xs text-slate-500">{t(`schedule.shiftTypes.${s.shift_type}`)}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    <Clock size={12} className="text-slate-400" />
+                                    {new Date(s.start_date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -
+                                    {new Date(s.end_date_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </div>
+                                  {s.notes && <p className="text-[10px] text-slate-400 italic max-w-[150px] truncate">{s.notes}</p>}
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
+                      </div>
                     ))}
                   </div>
 
                   <div className="flex gap-3 pt-2">
-                     {/* ✅ Improved Discard Button */}
-                     <button 
-                        onClick={() => setAiPreview(null)} 
-                        className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 font-semibold flex items-center justify-center gap-2 transition"
-                     >
-                        <RotateCcw size={18} /> {t("schedule.ai.discard")}
-                     </button>
-                     <Button onClick={confirmAI_Shifts} className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-semibold">
-                        {t("schedule.ai.confirmSave")}
-                     </Button>
+                    {/* ✅ Improved Discard Button */}
+                    <button
+                      onClick={() => setAiPreview(null)}
+                      className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 font-semibold flex items-center justify-center gap-2 transition"
+                    >
+                      <RotateCcw size={18} /> {t("schedule.ai.discard")}
+                    </button>
+                    <Button onClick={confirmAI_Shifts} className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-semibold">
+                      {t("schedule.ai.confirmSave")}
+                    </Button>
                   </div>
                 </div>
               )}

@@ -366,7 +366,7 @@
       "password": "كلمة المرور"
     },
     "alerts": {
-      "confirmDelete": "هل أنت متأكد؟ سيؤدي هذا إلى حذف المشرف وقد يؤثر على بيانات الفرع",
+      "confirmDelete": " سيؤدي هذا إلى حذف المشرف وقد يؤثر على بيانات الفرع",
       "updateSuccess": "تم تحديث الفرع بنجاح!",
       "createSuccess": "تم إنشاء الفرع بنجاح!",
       "deleteSuccess": "تم حذف الفرع بنجاح",
@@ -1735,6 +1735,102 @@
         "updateFailed": "فشل في تحديث بيانات الموظف",
         "toggleFailed": "فشل في تغيير الحالة",
         "deleteFailed": "فشل في حذف الموظف"
+      }
+    }
+  },
+  "admins": {
+    "employeeDetails": {
+      "never": "أبداً",
+      "notProvided": "غير مقدم",
+      "records": "سجل",
+      "closeButton": "إغلاق",
+
+      "errors": {
+        "fetchFailed": "فشل في جلب تفاصيل الموظف"
+      },
+
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+
+      "sections": {
+        "basicInfo": "المعلومات الأساسية",
+        "statistics": "الإحصائيات",
+        "accountInfo": "معلومات الحساب",
+        "recentAttendance": "الحضور الأخير"
+      },
+
+      "fields": {
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "position": "المنصب",
+        "branchId": "معرف الفرع"
+      },
+
+      "stats": {
+        "totalShifts": "إجمالي الورديات",
+        "upcomingShifts": "الورديات القادمة"
+      },
+
+      "account": {
+        "memberSince": "عضو منذ",
+        "lastLogin": "آخر تسجيل دخول"
+      },
+
+      "attendance": {
+        "present": "حاضر",
+        "absent": "غائب"
+      },
+
+      "table": {
+        "date": "التاريخ",
+        "status": "الحالة"
+      },
+
+      "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
+    }
+  },
+  "admines": {
+    "employees": {
+      "form": {
+        "editTitle": "تعديل الموظف",
+        "addTitle": "إضافة موظف جديد",
+        "editSubtitle": "تحديث معلومات الموظف",
+        "addSubtitle": "إضافة عضو جديد للفريق",
+
+        "labels": {
+          "fullName": "الاسم الكامل",
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور",
+          "phone": "رقم الهاتف",
+          "position": "المنصب"
+        },
+
+        "placeholders": {
+          "name": "جون دو",
+          "email": "employee@example.com",
+          "password": "••••••••",
+          "phone": "+1 234 567 8900",
+          "position": "مثال: مدير، كاشير، مبيعات"
+        },
+
+        "buttons": {
+          "cancel": "إلغاء",
+          "update": "تحديث الموظف",
+          "add": "إضافة موظف"
+        },
+
+        "errors": {
+          "nameRequired": "الاسم مطلوب",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "البريد الإلكتروني غير صالح",
+          "passwordRequired": "كلمة المرور مطلوبة",
+          "passwordLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phoneInvalid": "أدخل رقم هاتف صالح",
+          "positionRequired": "المنصب مطلوب"
+        }
       }
     }
   }
