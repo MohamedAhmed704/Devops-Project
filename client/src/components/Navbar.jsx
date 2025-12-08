@@ -86,9 +86,9 @@ export default function Navbar({ role }) {
           </button>
           {
             theme === "light" ? (
-              <img src="/icons/lightLogo.png" alt="Logo" className="lg:w-30 w-20" />
+              <img src="/icons/lightLogo.png" alt="Logo" className="lg:w-30 w-25" />
             ) : (
-              <img src="/icons/darkLogo.png" alt="Logo" className="lg:w-30 w-20" />
+              <img src="/icons/darkLogo.png" alt="Logo" className="lg:w-30 w-25" />
             )
           }
         </div>
@@ -107,7 +107,7 @@ export default function Navbar({ role }) {
 
           <button
             onClick={() => navigate("/")}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:text-[#112D4E] dark:hover:text-slate-200 transition relative group"
+            className="hidden md:block p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full text-slate-600 dark:text-slate-400 hover:text-[#112D4E] dark:hover:text-slate-200 transition relative group"
             title={t("navbar.homeTitle")}
           >
             <Home className="w-6 h-6" />
@@ -277,16 +277,30 @@ export default function Navbar({ role }) {
 
       {/* Mobile Navigation */}
       {openMobileMenu && (
-        <div className="md:hidden bg-[#1d2931] dark:bg-slate-900 text-white px-6 py-3">
-          <select
-            value={i18n.language}
-            onChange={(e) => changeLanguage(e.target.value)}
-            className="mb-4 border border-slate-600 dark:border-slate-500 rounded-lg px-2 py-1 text-sm bg-slate-800 text-white"
-          >
-            <option value="en">EN</option>
-            <option value="ar">AR</option>
-          </select>
-          <ul className="flex flex-col gap-4">
+        <div className="md:hidden bg-[#1d2931] dark:bg-slate-900 text-white px-4 py-4">
+
+          <div className="flex items-center justify-between mb-6 px-2">
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 px-2 py-2 text-slate-300 hover:text-[#BBE1FA] transition rounded-lg hover:bg-slate-800"
+              title={t("navbar.homeTitle")}
+            >
+              <Home className="w-5 h-5" />
+              <span>Home</span>
+            </button>
+
+            <select
+              value={i18n.language}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="border border-slate-600 dark:border-slate-500 rounded-lg px-3 py-2 text-sm bg-slate-800 text-white"
+            >
+              <option value="en">EN</option>
+              <option value="ar">AR</option>
+            </select>
+          </div>
+
+          {/* Navigation Links */}
+          <ul className="flex flex-col gap-1">
             {items.filter(item => !item.hidden).map((item) => {
               const Icon = item.icon;
               return (
@@ -295,7 +309,9 @@ export default function Navbar({ role }) {
                     to={item.path}
                     onClick={() => setOpenMobileMenu(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 hover:text-[#BBE1FA] transition py-2 ${isActive ? "text-[#BBE1FA] font-semibold" : ""
+                      `flex items-center gap-3 px-3 py-3 rounded-lg transition ${isActive
+                        ? "text-[#BBE1FA] font-semibold bg-slate-800"
+                        : "text-slate-300 hover:text-[#BBE1FA] hover:bg-slate-800"
                       }`
                     }
                   >
