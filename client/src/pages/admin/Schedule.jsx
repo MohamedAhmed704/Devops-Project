@@ -14,6 +14,7 @@ import {
 import { Alert } from "../../utils/alertService.js";
 import Button from "../../utils/Button"; 
 import { useTranslation } from "react-i18next";
+import i18n from "i18next";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
@@ -298,6 +299,7 @@ export default function Schedule() {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
         } else {
+          // eslint-disable-next-line no-unused-vars
           interimTranscript += event.results[i][0].transcript;
         }
       }
@@ -339,6 +341,7 @@ export default function Schedule() {
       });
       
       setAiPreview(res.data.data); 
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       Alert.error(t("schedule.ai.failedToUnderstand"));
     } finally {
@@ -357,6 +360,7 @@ export default function Schedule() {
       setAiPreview(null);
       setAiCommand("");
       fetchData(); 
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       Alert.error(t("schedule.ai.failedToSave"));
     } finally {
