@@ -14,7 +14,6 @@ import {
 import { Alert } from "../../utils/alertService.js";
 import Button from "../../utils/Button"; 
 import { useTranslation } from "react-i18next";
-import i18n from "i18next";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
@@ -35,7 +34,7 @@ export default function Schedule() {
   
   // ✅ Voice Input State (With Language Toggle)
   const [isListening, setIsListening] = useState(false);
-  const [micLang, setMicLang] = useState('ar-EG'); // Default to Arabic for voice
+  const [micLang, setMicLang] = useState('ar-EG'); 
   const recognitionRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -195,6 +194,7 @@ export default function Schedule() {
     }
   };
 
+  // ✅ handleSubmit (Fixed Timezone Issue)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isReadOnly) return; 
@@ -203,14 +203,19 @@ export default function Schedule() {
       return Alert.warning(t("schedule.validation.requiredFields"));
     }
 
+    // ✅ FIX: Create Date objects directly from input value
+    const start = new Date(formData.start_date_time);
+    const end = new Date(formData.end_date_time);
+
     try {
       show();
+      
       if (selectedShiftId) {
         await shiftService.updateShift(selectedShiftId, {
           employee_id: formData.employee_ids[0],
           title: formData.title,
-          start_date_time: formData.start_date_time,
-          end_date_time: formData.end_date_time,
+          start_date_time: start, // ✅ Send Date object
+          end_date_time: end,     // ✅ Send Date object
           shift_type: formData.shift_type,
           location: formData.location,
           notes: formData.notes
@@ -220,14 +225,16 @@ export default function Schedule() {
         if (formData.employee_ids.length === 1) {
           await shiftService.createShift({
             ...formData,
+            start_date_time: start, // ✅ Send Date object
+            end_date_time: end,     // ✅ Send Date object
             employee_id: formData.employee_ids[0]
           });
         } else {
           const shiftsArray = formData.employee_ids.map(empId => ({
             employee_id: empId,
             title: formData.title,
-            start_date_time: formData.start_date_time,
-            end_date_time: formData.end_date_time,
+            start_date_time: start, // ✅ Send Date object
+            end_date_time: end,     // ✅ Send Date object
             shift_type: formData.shift_type,
             location: formData.location,
             notes: formData.notes
@@ -236,6 +243,7 @@ export default function Schedule() {
         }
         Alert.success(t("schedule.success.created"));
       }
+
       handleCloseModal();
       fetchData();
     } catch (err) {
@@ -266,7 +274,7 @@ export default function Schedule() {
 
   // --- AI HANDLERS ---
   
-  // ✅ Voice Input Logic with Language Selection
+  // ✅ Voice Input Logic
   const toggleListening = () => {
     if (isListening) {
       if (recognitionRef.current) {
@@ -292,14 +300,11 @@ export default function Schedule() {
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
       let finalTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
         }
       }
       
@@ -330,7 +335,6 @@ export default function Schedule() {
     
     try {
       setIsGenerating(true); 
-      // Get user timezone to ensure AI understands "9 AM" correctly
       const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const res = await apiClient.post("/api/shifts/ai-generate", { 
@@ -385,7 +389,6 @@ export default function Schedule() {
         .dark .fc-timegrid-slot { height: 3em; border-color: rgb(51, 65, 85); }
         .dark .fc-timegrid-cell { border-color: rgb(51, 65, 85); background-color: rgb(30, 41, 59); }
         .dark .fc-toolbar { color: rgb(226, 232, 240); }
-        .dark .fc-toolbar-title { font-size: 1.5rem; color: rgb(226, 232, 240); font-weight: 600; }
         
         @keyframes pulse-ring {
             0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -414,7 +417,6 @@ export default function Schedule() {
         </div>
 
         <div className="flex gap-2">
-            {/* ✅ AI Assistant Button */}
             <button 
                 onClick={() => setShowAIModal(true)}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 font-medium transition shadow-sm active:scale-95"
