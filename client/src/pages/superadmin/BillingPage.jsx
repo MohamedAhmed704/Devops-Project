@@ -6,6 +6,8 @@ import { paymentService } from "../../api/services/paymentService";
 import { useToast } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const BillingPage = () => {
     const [plans, setPlans] = useState([]);
@@ -26,35 +28,35 @@ const BillingPage = () => {
     const expiresAt = user?.subscription?.expiresAt ? new Date(user.subscription.expiresAt).toLocaleDateString() : "Never";
 
     const fetchPlans = useCallback(async () => {
-            try {
-                const data = await planService.getPlans();
-                let plansList = Array.isArray(data) ? data : (data.success && Array.isArray(data.data) ? data.data : []);
-                setPlans(plansList.sort((a, b) => a.price - b.price));
-            } catch (err) {
-                console.error("Failed to fetch plans:", err);
-                showToast("Failed to load plans", "error");
-            } finally {
-                setLoadingPlans(false);
-            }
-        }, [showToast]);
+        try {
+            const data = await planService.getPlans();
+            let plansList = Array.isArray(data) ? data : (data.success && Array.isArray(data.data) ? data.data : []);
+            setPlans(plansList.sort((a, b) => a.price - b.price));
+        } catch (err) {
+            console.error("Failed to fetch plans:", err);
+            showToast("Failed to load plans", "error");
+        } finally {
+            setLoadingPlans(false);
+        }
+    }, [showToast]);
 
-        const fetchHistory = useCallback(async () => {
-            try {
-                const response = await paymentService.getBillingHistory();
-                if (response.success) {
-                    setHistory(response.data);
-                }
-            } catch (err) {
-                console.error("Failed to fetch billing history:", err);
-            } finally {
-                setLoadingHistory(false);
+    const fetchHistory = useCallback(async () => {
+        try {
+            const response = await paymentService.getBillingHistory();
+            if (response.success) {
+                setHistory(response.data);
             }
-        }, []);
+        } catch (err) {
+            console.error("Failed to fetch billing history:", err);
+        } finally {
+            setLoadingHistory(false);
+        }
+    }, []);
 
-        useEffect(() => {
-            fetchPlans();
-            fetchHistory();
-        }, [fetchPlans, fetchHistory]);
+    useEffect(() => {
+        fetchPlans();
+        fetchHistory();
+    }, [fetchPlans, fetchHistory]);
 
     const handleSubscribe = async (plan) => {
         if (plan.price === 0) {
@@ -100,6 +102,72 @@ const BillingPage = () => {
                 {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
         );
+    };
+
+    const handleDownloadInvoice = (record) => {
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFontSize(22);
+        doc.setTextColor(40, 40, 40);
+        doc.text("INVOICE", 14, 20);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Invoice #: ${record.transaction_id.substring(0, 10).toUpperCase()}`, 14, 30);
+        doc.text(`Date: ${new Date(record.payment_date).toLocaleDateString()}`, 14, 35);
+        doc.text(`Status: ${record.status.toUpperCase()}`, 14, 40);
+
+        // Logo / Company info (Right side)
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Tadbir", 160, 20, { align: "right" });
+        doc.setFontSize(9);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Tanta, Egypt", 160, 25, { align: "right" });
+        doc.text("tadbersf@gmail.com", 160, 30, { align: "right" });
+
+        // Bill To
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.text("Bill To:", 14, 55);
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`${user.name}`, 14, 62);
+        doc.text(`${user.email}`, 14, 67);
+
+        // Table
+        autoTable(doc, {
+            startY: 75,
+            head: [['Description', 'Billing Period', 'Amount']],
+            body: [
+                [
+                    `Subscription: ${record.plan} Plan`,
+                    `${record.billing_cycle === 'yearly' ? 'Yearly' : 'Monthly'} Subscription`,
+                    `${record.amount} ${record.currency}`
+                ],
+            ],
+            theme: 'grid',
+            headStyles: { fillColor: [15, 23, 42], textColor: 255 }, // Dark slate header
+            styles: { fontSize: 10, cellPadding: 5 },
+        });
+
+        // Total
+        const finalY = doc.lastAutoTable.finalY + 10;
+        doc.setFontSize(10);
+        doc.text(`Total Amount:`, 140, finalY);
+        doc.setFontSize(12);
+        doc.font = "helvetica";
+        doc.fontStyle = "bold";
+        doc.text(`${record.amount} ${record.currency}`, 180, finalY, { align: "right" });
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text("Thank you for your business!", 105, 280, { align: "center" });
+
+        // Save
+        doc.save(`Invoice_${record.transaction_id}.pdf`);
     };
 
     return (
@@ -221,7 +289,11 @@ const BillingPage = () => {
                                                 <StatusBadge status={record.status} />
                                             </td>
                                             <td className="p-4 text-right">
-                                                <button className="text-sky-600 hover:text-sky-700 p-2 hover:bg-sky-50 rounded-full transition-colors" title="Download Invoice (Demo)">
+                                                <button
+                                                    onClick={() => handleDownloadInvoice(record)}
+                                                    className="text-sky-600 hover:text-sky-700 p-2 hover:bg-sky-50 rounded-full transition-colors"
+                                                    title="Download Invoice"
+                                                >
                                                     <FileText className="w-4 h-4" />
                                                 </button>
                                             </td>

@@ -110,7 +110,27 @@ VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ## Run the client:
 ```bash
 npm run dev
+npm run dev
 ```
+
+## 4. 🌍 Production Deployment
+
+### Google OAuth Configuration
+When deploying to production (e.g., Vercel), you MUST add your production callback URL to the **Authorized redirect URIs** in your [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+
+- **URI Format:** `https://your-backend-domain.com/api/auth/google/callback`
+- **Example:** `https://tadbir-six.vercel.app/api/auth/google/callback`
+
+### Vercel Environment Variables
+Ensure the following variables are set in your Vercel project settings:
+
+**Backend Project:**
+- `FRONTEND_URL`: `https://your-frontend-domain.app`
+- `GOOGLE_REDIRECT_URI`: `https://your-backend-domain.app/api/auth/google/callback`
+
+**Frontend Project:**
+- `VITE_API_URL`: `https://your-backend-domain.app`
+- `VITE_FRONTEND_URL`: `https://your-frontend-domain.app`
 ## 🔒 Security Features
 - RBAC: Role-Based Access Control (Platform Owner, Super Admin, Branch Admin, Employee).
 
