@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import { Check, Loader2, CreditCard, RotateCw, History, FileText, CheckCircle, AlertCircle, XCircle } from "lucide-react";
 import { planService } from "../../api/services/planService";
 import { paymentService } from "../../api/services/paymentService";
