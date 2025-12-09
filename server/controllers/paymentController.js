@@ -69,6 +69,11 @@ export async function createPayment(req, res) {
       return res.status(400).json({ success: false, message: "Plan ID is required" });
     }
 
+    const token = await getAuthToken();
+const plan = await Plan.findById(plan_id);
+const amount = plan.price;
+
+const orderId = await createOrder(token, amount);
     console.log("👉 [Backend] Order Created ID:", orderId);
 
     // ... PaymentIntent creation
