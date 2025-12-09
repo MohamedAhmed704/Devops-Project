@@ -26,7 +26,7 @@ export default function Navbar({ role }) {
   const profileRef = useRef(null);
 
   useEffect(() => {
-    function handleClickOutside(e) {
+    const handleClickOutside = (e) => {
       if (
         notificationRef.current &&
         !notificationRef.current.contains(e.target)
@@ -37,7 +37,7 @@ export default function Navbar({ role }) {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setOpenProfileMenu(false);
       }
-    }
+    };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -155,7 +155,9 @@ export default function Navbar({ role }) {
           )}
 
           {/* Notifications */}
-          <div className="relative">
+          <div                 
+          ref={notificationRef}
+          className="relative">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -175,7 +177,6 @@ export default function Navbar({ role }) {
 
             {openNotificationMenu && (
               <div
-                ref={notificationRef}
                 onClick={(e) => e.stopPropagation()}
                 className="absolute right-0 mt-2 md:w-80 w-60 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn">
 
@@ -238,7 +239,9 @@ export default function Navbar({ role }) {
           </div>
 
           {/* Profile Menu */}
-          <div className="relative">
+          <div 
+          ref={profileRef}
+          className="relative">
             <button
               className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full dark:text-slate-300"
               onClick={(e) => {
@@ -264,7 +267,6 @@ export default function Navbar({ role }) {
             </button>
             {openProfileMenu && (
               <div
-                ref={profileRef}
                 onClick={(e) => e.stopPropagation()}
                 className="absolute right-0 mt-2 w-40 bg-white dark:bg-slate-800 shadow-lg rounded-lg z-50">
                 <ul className="flex flex-col">
