@@ -377,48 +377,7 @@
       "operationFailed": "Operation failed"
     }
   },
-  "timeOffRequests": {
-    "title": "Admin Leave Requests",
-    "subtitle": "Review and manage time-off requests from Branch Admins.",
-    "status": {
-      "pending": "Pending",
-      "approved": "Approved",
-      "rejected": "Rejected"
-    },
-    "unknownBranch": "Unknown Branch",
-    "details": {
-      "duration": "Duration",
-      "days": "Days",
-      "halfDay": "Half Day",
-      "reasonType": "Reason & Type"
-    },
-    "adminNote": "Admin Note",
-    "noRequests": "No {status} requests found.",
-    "buttons": {
-      "approve": "Approve",
-      "reject": "Reject"
-    },
-    "pagination": {
-      "previous": "Previous page",
-      "next": "Next page",
-      "page": "Page",
-      "of": "of"
-    },
-    "alerts": {
-      "approvalTitle": "Approval Note",
-      "approvalLabel": "Add approval note (optional):",
-      "rejectionTitle": "Rejection Note",
-      "rejectionLabel": "Reason for rejection (optional):",
-      "notePlaceholder": "Write here...",
-      "approvedSuccess": "Request approved successfully!",
-      "rejectedSuccess": "Request rejected successfully!",
-      "actionFailed": "Action failed",
-      "fetchFailed": "Failed to fetch requests"
-    },
-    "errors": {
-      "fetchFailed": "Failed to fetch requests"
-    }
-  },
+
   "employeeDashboard": {
     "title": "My Dashboard",
     "loading": "Loading dashboard...",
@@ -515,37 +474,71 @@
       "loadData": "Error loading schedule data"
     }
   },
-  "timeOffRequests": {
+"timeOffRequests": {
     "title": "Time Off Requests",
-    "subtitle": "Manage your leave requests and time off",
+    "subtitle": "Manage employee time off requests and approvals",
+    
+    "admin": {
+      "title": "Admin Time Off Requests",
+      "subtitle": "Review and manage time off requests from branch admins."
+    },
+    
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    
+    "details": {
+      "duration": "Duration",
+      "days": "day(s)",
+      "halfDay": "Half day",
+      "reasonType": "Reason & Type"
+    },
+    
+    "adminNote": "Admin Note",
+    "unknownBranch": "Unknown branch",
+    "noRequests": "No {status} requests found.",
+    
     "buttons": {
       "newRequest": "New Request",
       "createFirstRequest": "Create Your First Request",
       "cancel": "Cancel",
-      "submitRequest": "Submit Request"
+      "submitRequest": "Submit Request",
+      "approve": "Approve",
+      "reject": "Reject"
     },
+    
+    "alerts": {
+      "approvalTitle": "Approval Note",
+      "approvalLabel": "Add approval note (optional):",
+      "rejectionTitle": "Rejection Note",
+      "rejectionLabel": "Reason for rejection (optional):",
+      "notePlaceholder": "Type here...",
+      "approvedSuccess": "Request approved successfully!",
+      "rejectedSuccess": "Request rejected successfully!",
+      "actionFailed": "Action failed",
+      "fillAllFields": "Please fill all required fields",
+      "submitSuccess": "Time off request submitted successfully!",
+      "submitFailed": "Failed to submit time off request",
+      "cancelSuccess": "Time off request cancelled successfully!",
+      "cancelFailed": "Failed to cancel time off request"
+    },
+    
     "stats": {
       "totalRequests": "Total Requests",
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected"
     },
-    "filter": {
-      "label": "Filter by status"
-    },
+    
     "yourRequests": "Your Leave Requests",
-    "noRequests": "No leave requests found",
-    "halfDay": "Half Day",
+    "halfDay": "Half day",
     "days": "day(s)",
     "reason": "Reason",
-    "requested": "Requested",
-    "adminNote": "Note",
-    "status": {
-      "approved": "Approved",
-      "rejected": "Rejected",
-      "pending": "Pending",
-      "cancelled": "Cancelled"
-    },
+    "requested": "Requested on",
+    
     "leaveTypes": {
       "sick": "Sick Leave",
       "vacation": "Vacation",
@@ -554,10 +547,12 @@
       "paternity": "Paternity Leave",
       "emergency": "Emergency Leave"
     },
+    
     "modal": {
       "title": "New Leave Request",
-      "close": "Close modal"
+      "close": "Close"
     },
+    
     "form": {
       "leaveType": "Leave Type",
       "halfDay": "Half Day Leave",
@@ -566,13 +561,7 @@
       "reason": "Reason",
       "reasonPlaceholder": "Please provide a reason for your leave request..."
     },
-    "alerts": {
-      "fillAllFields": "Please fill all required fields",
-      "submitSuccess": "Leave request submitted successfully!",
-      "submitFailed": "Failed to submit leave request",
-      "cancelSuccess": "Leave request cancelled successfully!",
-      "cancelFailed": "Failed to cancel leave request"
-    },
+    
     "errors": {
       "fetch": "Error fetching leave requests",
       "submit": "Error submitting leave request",
