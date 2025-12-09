@@ -14,11 +14,9 @@ const PAYMOB_HMAC_SECRET = process.env.PAYMOB_HMAC_SECRET;
 // ... imports
 
 async function getAuthToken() {
-  console.log("👉 [Backend] Getting Paymob Auth Token...");
   const res = await axios.post(`${PAYMOB_API_URL}/auth/tokens`, {
     api_key: PAYMOB_API_KEY,
   });
-  console.log("👉 [Backend] Auth Token Received");
   return res.data.token;
 }
 
@@ -60,7 +58,6 @@ async function createPaymentKey(token, orderId, amount, billingData) {
 export async function createPayment(req, res) {
   try {
     const { plan_id } = req.body;
-    console.log("👉 [Backend] createPayment called for Plan ID:", plan_id);
     const user = req.user;
 
     // ... (validations remain same)
@@ -74,7 +71,6 @@ const plan = await Plan.findById(plan_id);
 const amount = plan.price;
 
 const orderId = await createOrder(token, amount);
-    console.log("👉 [Backend] Order Created ID:", orderId);
 
     // ... PaymentIntent creation
     await PaymentIntent.create({
@@ -95,15 +91,13 @@ const orderId = await createOrder(token, amount);
       email: user.email
     };
 
-    console.log("👉 [Backend] Creating Payment Key...");
     const paymentKey = await createPaymentKey(token, orderId, amount, billingData);
-    console.log("👉 [Backend] Payment Key Created");
 
     const iframeURL = `https://accept.paymob.com/api/acceptance/iframes/${PAYMOB_API_IFRAME}?payment_token=${paymentKey}`;
 
     res.json({ success: true, iframeURL, orderId });
   } catch (err) {
-    console.error("❌ [Backend] Error creating payment:", err.message);
+    console.error("[Backend] Error creating payment:", err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 }
@@ -148,35 +142,28 @@ function calculateHmac(data, secret) {
 
 // Shared function to finalize payment (create Revenue, update Company, etc.)
 async function finalizePayment(paymentIntent, transactionId, paymentDate, gatewayResponse) {
-  console.log(`🔄 [finalizePayment] Starting for order: ${paymentIntent.order_id}, amount: ${paymentIntent.amount}, plan: ${paymentIntent.plan}`);
-
   if (paymentIntent.status === "completed") {
-    console.log(`ℹ️ [finalizePayment] Payment already completed for order: ${paymentIntent.order_id}`);
     return { success: true, message: "Already Completed" };
   }
 
   try {
     // 1. Get User & Company
-    console.log(`🔄 [finalizePayment] Fetching user: ${paymentIntent.user_id}`);
     const user = await import("../models/userModel.js").then(m => m.default.findById(paymentIntent.user_id));
     if (!user) {
-      console.error(`❌ [finalizePayment] User not found: ${paymentIntent.user_id}`);
+      console.error(` [finalizePayment] User not found: ${paymentIntent.user_id}`);
       throw new Error("User not found");
     }
-    console.log(`✅ [finalizePayment] User found: ${user.email}`);
 
     const company = await Company.findById(user.company);
     if (!company) {
-      console.error(`❌ [finalizePayment] Company not found for user: ${user.email}`);
+      console.error(` [finalizePayment] Company not found for user: ${user.email}`);
       throw new Error("Company not found");
     }
-    console.log(`✅ [finalizePayment] Company found: ${company.name}`);
 
     // 2. Create Revenue Record
     // Check if revenue already exists for this transaction
     const existingRevenue = await Revenue.findOne({ transaction_id: transactionId });
     if (!existingRevenue) {
-      console.log(`🔄 [finalizePayment] Creating Revenue record...`);
       const revenueData = {
         company_id: company._id,
         super_admin_id: user.super_admin_id || user._id,
@@ -192,12 +179,9 @@ async function finalizePayment(paymentIntent, transactionId, paymentDate, gatewa
         payment_date: paymentDate || new Date(),
         gateway_response: gatewayResponse
       };
-      console.log(`🔄 [finalizePayment] Revenue data:`, JSON.stringify(revenueData, null, 2));
 
       await Revenue.create(revenueData);
-      console.log(`✅ [finalizePayment] Revenue record created with transaction_id: ${transactionId}`);
     } else {
-      console.log(`ℹ️ [finalizePayment] Revenue already exists for transaction: ${transactionId}`);
     }
 
     // 3. Update Company Subscription (Dynamic from Plan)
@@ -218,7 +202,6 @@ async function finalizePayment(paymentIntent, transactionId, paymentDate, gatewa
         planLimits = plan.limits;
         company.subscription.plan = plan._id;
         company.subscription.plan_name = plan.name;
-        console.log(`✅ [finalizePayment] Plan limits applied: max_employees=${planLimits.max_employees}, max_branches=${planLimits.max_branches}`);
       }
     } else {
       company.subscription.plan_name = paymentIntent.plan;
@@ -261,10 +244,8 @@ export async function webhook(req, res) {
       hmac
     } = req.body;
 
-    console.log("🔔 [Webhook] Type:", type, "| Success:", obj?.success);
 
     if (type !== "TRANSACTION") {
-      console.log("🔔 [Webhook] Ignoring non-TRANSACTION type");
       return res.status(200).send("Ignored");
     }
 
@@ -275,10 +256,8 @@ export async function webhook(req, res) {
    
         // return res.status(403).send("Forbidden");
       } else {
-        console.log("✅ [Webhook] HMAC verification passed");
       }
     } else {
-      console.warn("⚠️ [Webhook] PAYMOB_HMAC_SECRET is missing! Skipping verification.");
     }
 
     if (obj.success === true) {
