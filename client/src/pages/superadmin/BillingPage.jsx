@@ -104,41 +104,69 @@ const BillingPage = () => {
         );
     };
 
-    const handleDownloadInvoice = (record) => {
-        const doc = new jsPDF();
+    const handleDownloadInvoice = async (record) => {
+        // console.log("📄 [Invoice] Generating for record:", record);
 
-        // Header
+        const doc = new jsPDF();
+        const issueDate = new Date();
+
+        // Helper to load image
+        const loadImage = (url) => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => resolve(img);
+                img.onerror = (err) => reject(err);
+            });
+        };
+
+        try {
+            // Load Logo
+            const logoUrl = "/icons/lightLogo.png";
+            const logoImg = await loadImage(logoUrl);
+
+            // Add Logo (Left side)
+            doc.addImage(logoImg, "PNG", 14, 15, 30, 20); // x, y, width, height
+        } catch (err) {
+            console.warn("⚠️ [Invoice] Failed to load logo:", err);
+            // Fallback text if logo fails
+            doc.setFontSize(18);
+            doc.text("Tadbir", 14, 25);
+        }
+
+        // Header Text (shifted down or right depending on logo)
         doc.setFontSize(22);
         doc.setTextColor(40, 40, 40);
-        doc.text("INVOICE", 14, 20);
+        doc.text("INVOICE", 160, 20, { align: "right" }); // Moved to right
 
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`Invoice #: ${record.transaction_id.substring(0, 10).toUpperCase()}`, 14, 30);
-        doc.text(`Date: ${new Date(record.payment_date).toLocaleDateString()}`, 14, 35);
-        doc.text(`Status: ${record.status.toUpperCase()}`, 14, 40);
+        doc.text(`Invoice #: ${record.transaction_id ? record.transaction_id.substring(0, 10).toUpperCase() : 'N/A'}`, 160, 30, { align: "right" });
+        doc.text(`Payment Date: ${new Date(record.payment_date).toLocaleDateString()}`, 160, 35, { align: "right" });
+        doc.text(`Printed On: ${issueDate.toLocaleDateString()}`, 160, 40, { align: "right" });
+        doc.text(`Status: ${record.status.toUpperCase()}`, 160, 45, { align: "right" });
 
-        // Logo / Company info (Right side)
+        // User Company Info (Left side, under logo)
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0);
-        doc.text("Tadbir", 160, 20, { align: "right" });
+        doc.text("Tadbir", 14, 55);
         doc.setFontSize(9);
         doc.setTextColor(100, 100, 100);
-        doc.text("Tanta, Egypt", 160, 25, { align: "right" });
-        doc.text("tadbersf@gmail.com", 160, 30, { align: "right" });
+        doc.text("Tanta, Egypt", 14, 60);
+        doc.text("tadbersf@gmail.com", 14, 65);
 
-        // Bill To
+        // Bill To (Right side or below)
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0);
-        doc.text("Bill To:", 14, 55);
+        doc.text("Bill To:", 14, 80);
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text(`${user.name}`, 14, 62);
-        doc.text(`${user.email}`, 14, 67);
+        doc.text(`${user.name}`, 14, 87);
+        doc.text(`${user.email}`, 14, 92);
 
         // Table
         autoTable(doc, {
-            startY: 75,
+            startY: 100,
             head: [['Description', 'Billing Period', 'Amount']],
             body: [
                 [
@@ -148,7 +176,7 @@ const BillingPage = () => {
                 ],
             ],
             theme: 'grid',
-            headStyles: { fillColor: [15, 23, 42], textColor: 255 }, // Dark slate header
+            headStyles: { fillColor: [15, 23, 42], textColor: 255 },
             styles: { fontSize: 10, cellPadding: 5 },
         });
 
@@ -166,7 +194,6 @@ const BillingPage = () => {
         doc.setTextColor(150, 150, 150);
         doc.text("Thank you for your business!", 105, 280, { align: "center" });
 
-        // Save
         doc.save(`Invoice_${record.transaction_id}.pdf`);
     };
 

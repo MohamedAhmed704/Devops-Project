@@ -237,26 +237,22 @@ async function finalizePayment(paymentIntent, transactionId, paymentDate, gatewa
     }
     company.subscription.expiresAt = expiryDate;
     await company.save();
-    console.log(`✅ [finalizePayment] Company subscription updated. Expires: ${expiryDate}`);
 
     // 4. Update Payment Intent Status
     paymentIntent.status = "completed";
     paymentIntent.transaction_id = transactionId;
     await paymentIntent.save();
 
-    console.log(`✅ [finalizePayment] Payment finalized for order ${paymentIntent.order_id}, User: ${user.email}`);
     return { success: true };
   } catch (error) {
-    console.error(`❌ [finalizePayment] Error:`, error.message);
-    console.error(`❌ [finalizePayment] Stack:`, error.stack);
+
     throw error;
   }
 }
 
 // Secure Webhook Handler
 export async function webhook(req, res) {
-  console.log("🔔 [Webhook] Received callback from Paymob");
-  console.log("🔔 [Webhook] Body:", JSON.stringify(req.body, null, 2));
+
 
   try {
     const {
@@ -276,10 +272,7 @@ export async function webhook(req, res) {
     if (PAYMOB_HMAC_SECRET) {
       const calculatedHmac = calculateHmac(obj, PAYMOB_HMAC_SECRET);
       if (calculatedHmac !== hmac) {
-        console.warn("⚠️ [Webhook] HMAC Mismatch! Expected:", calculatedHmac.substring(0, 20) + "...");
-        console.warn("⚠️ [Webhook] HMAC Received:", hmac?.substring(0, 20) + "...");
-        console.warn("⚠️ [Webhook] Continuing anyway for testing... (FIX THIS IN PRODUCTION!)");
-        // In production, uncomment this:
+   
         // return res.status(403).send("Forbidden");
       } else {
         console.log("✅ [Webhook] HMAC verification passed");
@@ -324,22 +317,19 @@ export async function webhook(req, res) {
 
 export async function userPaid(req, res) {
   const { orderId } = req.params;
-  console.log("👉 [Backend] userPaid (Status Check) called for OrderID:", orderId);
   try {
     const intent = await PaymentIntent.findOne({ order_id: orderId });
 
     if (!intent) {
-      console.error("❌ [Backend] Order not found in DB");
+      console.error(" [Backend] Order not found in DB");
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
     // Use trim() to handle any trailing spaces in status
     if (intent.status?.trim() === "completed") {
-      console.log("👉 [Backend] Order already completed in DB");
       return res.json({ success: true });
     }
 
-    console.log("👉 [Backend] Order is pending. Checking with Paymob...");
     const token = await getAuthToken();
 
     // Better approach: Get transactions for this order
@@ -348,12 +338,10 @@ export async function userPaid(req, res) {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    console.log("👉 [Backend] Paymob Transactions Found:", transactionsRes.data.results.length);
 
     const successfulTx = transactionsRes.data.results.find(tx => tx.success === true);
 
     if (successfulTx) {
-      console.log("👉 [Backend] Found successful transaction. Finalizing...");
       const finalResult = await finalizePayment(
         intent,
         successfulTx.id.toString(),
@@ -366,19 +354,18 @@ export async function userPaid(req, res) {
         return res.status(500).json({ success: false, message: "Finalization failed", error: finalResult.error });
       }
     } else {
-      console.warn("⚠️ [Backend] No successful transaction found on Paymob.");
+      console.warn(" [Backend] No successful transaction found on Paymob.");
     }
 
     res.json({ success: false });
   } catch (err) {
-    console.error("❌ [Backend] userPaid error:", err);
+    console.error(" [Backend] userPaid error:", err);
     res.json({ success: false, error: err.message });
   }
 }
 
 export async function debugPayment(req, res) {
   const { orderId } = req.params;
-  console.log("🐛 [Backend-Debug] Debugging OrderID:", orderId);
 
   const protocol = req.protocol;
   const host = req.get('host');
@@ -397,7 +384,7 @@ export async function debugPayment(req, res) {
     const intent = await PaymentIntent.findOne({ order_id: orderId });
 
     if (!intent) {
-      debugLog.steps.push("❌ PaymentIntent not found locally.");
+      debugLog.steps.push(" PaymentIntent not found locally.");
       return res.json({ success: false, log: debugLog });
     }
 
@@ -408,16 +395,16 @@ export async function debugPayment(req, res) {
       user_id: intent.user_id,
       plan: intent.plan
     };
-    debugLog.steps.push(`✅ Local Intent found. Status: ${intent.status}`);
+    debugLog.steps.push(`Local Intent found. Status: ${intent.status}`);
 
     // 2. Auth with Paymob
     debugLog.steps.push("Authenticating with Paymob...");
     let token;
     try {
       token = await getAuthToken();
-      debugLog.steps.push("✅ Paymob Auth Token received.");
+      debugLog.steps.push(" Paymob Auth Token received.");
     } catch (e) {
-      debugLog.steps.push(`❌ Paymob Auth Failed: ${e.message}`);
+      debugLog.steps.push(` Paymob Auth Failed: ${e.message}`);
       return res.json({ success: false, log: debugLog });
     }
 
@@ -430,7 +417,7 @@ export async function debugPayment(req, res) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       paymobTransactions = transactionsRes.data.results;
-      debugLog.steps.push(`ℹ️ Found ${paymobTransactions.length} transactions.`);
+      debugLog.steps.push(`ℹ Found ${paymobTransactions.length} transactions.`);
       debugLog.paymob_transactions = paymobTransactions.map(t => ({
         id: t.id,
         success: t.success,
@@ -440,16 +427,16 @@ export async function debugPayment(req, res) {
         is_refunded: t.is_refunded
       }));
     } catch (e) {
-      debugLog.steps.push(`❌ Failed to fetch transactions: ${e.message}`);
+      debugLog.steps.push(` Failed to fetch transactions: ${e.message}`);
       return res.json({ success: false, log: debugLog });
     }
 
     // 4. Analyze
     const successfulTx = paymobTransactions.find(tx => tx.success === true);
     if (!successfulTx) {
-      debugLog.steps.push("⚠️ No successful transaction found in Paymob records.");
+      debugLog.steps.push(" No successful transaction found in Paymob records.");
     } else {
-      debugLog.steps.push(`✅ Found successful transaction ID: ${successfulTx.id}`);
+      debugLog.steps.push(` Found successful transaction ID: ${successfulTx.id}`);
 
       if (intent.status?.trim() !== 'completed') {
         debugLog.steps.push("🔄 Attempting to finalize payment now...");
@@ -461,24 +448,24 @@ export async function debugPayment(req, res) {
             successfulTx
           );
           if (finalization.success) {
-            debugLog.steps.push("✅ Finalization SUCCESS.");
+            debugLog.steps.push("Finalization SUCCESS.");
             debugLog.result = "Fixed Pending Status";
           } else {
-            debugLog.steps.push(`❌ Finalization FAILED: ${finalization.message}`);
+            debugLog.steps.push(` Finalization FAILED: ${finalization.message}`);
           }
         } catch (err) {
-          debugLog.steps.push(`❌ Finalization EXCEPTION: ${err.message}`);
+          debugLog.steps.push(` Finalization EXCEPTION: ${err.message}`);
           debugLog.error_stack = err.stack;
         }
       } else {
-        debugLog.steps.push("ℹ️ Local status is already 'completed'. No action needed.");
+        debugLog.steps.push("ℹ Local status is already 'completed'. No action needed.");
       }
     }
 
     res.json({ success: true, log: debugLog });
 
   } catch (err) {
-    debugLog.steps.push(`❌ Fatal Error: ${err.message}`);
+    debugLog.steps.push(` Fatal Error: ${err.message}`);
     res.status(500).json({ success: false, log: debugLog, error: err.message });
   }
 }
@@ -487,17 +474,15 @@ export async function debugPayment(req, res) {
 // Also handles "completed" payments that are missing Revenue records
 export async function forceFinalize(req, res) {
   const { orderId } = req.params;
-  console.log("🔧 [forceFinalize] Starting for OrderID:", orderId);
 
   try {
     const intent = await PaymentIntent.findOne({ order_id: orderId });
 
     if (!intent) {
-      console.error("❌ [forceFinalize] Order not found");
+      console.error(" [forceFinalize] Order not found");
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    console.log("🔧 [forceFinalize] Intent status:", intent.status);
 
     // Check if Revenue exists for this payment
     const existingRevenue = await Revenue.findOne({
@@ -508,15 +493,12 @@ export async function forceFinalize(req, res) {
     });
 
     if (existingRevenue) {
-      console.log("ℹ️ [forceFinalize] Revenue already exists:", existingRevenue._id);
       return res.json({
         success: true,
         message: "Revenue already exists",
         revenue_id: existingRevenue._id
       });
     }
-
-    console.log("⚠️ [forceFinalize] No Revenue found! Will create one...");
 
     // Get auth token and check Paymob
     const token = await getAuthToken();
@@ -528,7 +510,7 @@ export async function forceFinalize(req, res) {
     const successfulTx = transactionsRes.data.results.find(tx => tx.success === true);
 
     if (!successfulTx) {
-      console.error("❌ [forceFinalize] No successful transaction on Paymob");
+      console.error(" [forceFinalize] No successful transaction on Paymob");
       return res.status(400).json({
         success: false,
         message: "No successful transaction found on Paymob",
@@ -536,12 +518,10 @@ export async function forceFinalize(req, res) {
       });
     }
 
-    console.log("✅ [forceFinalize] Found successful tx:", successfulTx.id);
 
     // Reset status to pending so finalizePayment will run
     intent.status = "pending";
     await intent.save();
-    console.log("🔧 [forceFinalize] Reset status to pending");
 
     // Force finalize
     const result = await finalizePayment(
@@ -553,7 +533,7 @@ export async function forceFinalize(req, res) {
 
     res.json({ success: result.success, message: "Payment finalized", transactionId: successfulTx.id });
   } catch (err) {
-    console.error("❌ [forceFinalize] Error:", err);
+    console.error(" [forceFinalize] Error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 }
@@ -561,7 +541,6 @@ export async function forceFinalize(req, res) {
 // Manually create Revenue for orphaned PaymentIntents (when Paymob order expired)
 export async function createRevenueManual(req, res) {
   const { orderId } = req.params;
-  console.log("🔧 [createRevenueManual] Starting for OrderID:", orderId);
 
   try {
     const intent = await PaymentIntent.findOne({ order_id: orderId });
@@ -588,7 +567,6 @@ export async function createRevenueManual(req, res) {
       return res.status(404).json({ success: false, message: "Company not found" });
     }
 
-    console.log("🔧 [createRevenueManual] Creating Revenue for user:", user.email);
 
     // Create Revenue record
     const revenue = await Revenue.create({
@@ -640,7 +618,6 @@ export async function createRevenueManual(req, res) {
     intent.transaction_id = orderId;
     await intent.save();
 
-    console.log("✅ [createRevenueManual] Revenue created:", revenue._id);
     res.json({
       success: true,
       message: "Revenue created manually",
@@ -649,7 +626,7 @@ export async function createRevenueManual(req, res) {
     });
 
   } catch (err) {
-    console.error("❌ [createRevenueManual] Error:", err);
+    console.error(" [createRevenueManual] Error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 }
@@ -659,15 +636,8 @@ export async function getBillingHistory(req, res) {
   try {
     const user = req.user;
     const superAdminId = user.role === "super_admin" ? user._id : user.super_admin_id;
-
-    console.log("👉 [Backend] Fetching billing history for SA:", superAdminId);
-
     // DEBUG: Check if any revenue exists at all for this user (ignoring status)
     const allRevenue = await Revenue.find({ super_admin_id: superAdminId });
-    console.log(`🔍 [Debug] Total revenue records found for this user: ${allRevenue.length}`);
-    if (allRevenue.length > 0) {
-      console.log("🔍 [Debug] Sample record status:", allRevenue[0].status);
-    }
 
     const history = await Revenue.find({
       super_admin_id: superAdminId,
@@ -676,15 +646,13 @@ export async function getBillingHistory(req, res) {
       .sort({ payment_date: -1 })
       .select('payment_date amount currency plan billing_cycle payment_method transaction_id status');
 
-    console.log(`✅ [Backend] Returned ${history.length} completed records.`);
-
     return res.json({
       success: true,
       data: history
     });
 
   } catch (err) {
-    console.error("❌ [Backend] getBillingHistory error:", err);
+    console.error(" [Backend] getBillingHistory error:", err);
     return res.status(500).json({
       success: false,
       message: err.message
