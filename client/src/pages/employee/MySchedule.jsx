@@ -36,7 +36,7 @@ const ShiftDetailsModal = ({ shift, onClose, formatTime, getStatusColor, onSwapR
   const isFutureShift = new Date(shift.start_date_time) > new Date();
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-fadeIn dark:bg-black/80">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-60 p-4 animate-fadeIn dark:bg-black/80">
       <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all scale-100">
         
         {/* Header */}
