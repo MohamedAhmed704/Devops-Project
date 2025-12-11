@@ -1,4 +1,5 @@
 import Plan from "../models/planModel.js";
+import Company from "../models/companyModel.js";
 
 // @desc    Create a new plan
 // @route   POST /api/plans
@@ -48,6 +49,8 @@ export const updatePlan = async (req, res) => {
         const plan = await Plan.findById(req.params.id);
 
         if (plan) {
+            const originalName = plan.name; // Keep tracking of original name in case it changes
+
             plan.name = req.body.name || plan.name;
             plan.description = req.body.description || plan.description;
             plan.price = req.body.price !== undefined ? req.body.price : plan.price;
@@ -56,11 +59,28 @@ export const updatePlan = async (req, res) => {
             plan.is_active = req.body.is_active !== undefined ? req.body.is_active : plan.is_active;
 
             const updatedPlan = await plan.save();
+
+            // 🔄 Auto-Sync: Update all companies subscribed to this plan
+            // We match by plan_name since that seems to be how they are linked in Company model
+            if (req.body.limits) {
+                await Company.updateMany(
+                    { "subscription.plan_name": originalName },
+                    {
+                        $set: {
+                            "subscription.maxBranches": updatedPlan.limits.max_branches,
+                            "subscription.maxUsers": updatedPlan.limits.max_employees
+                        }
+                    }
+                );
+                console.log(`✅ Synced limits for plan '${updatedPlan.name}' to related companies.`);
+            }
+
             res.json(updatedPlan);
         } else {
             res.status(404).json({ message: "Plan not found" });
         }
     } catch (error) {
+        console.error("Update Plan Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -80,6 +100,37 @@ export const deletePlan = async (req, res) => {
             res.status(404).json({ message: "Plan not found" });
         }
     } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Manually sync all companies to their plan limits
+// @route   POST /api/plans/sync-limits
+// @access  Platform Owner
+export const syncCompanyLimits = async (req, res) => {
+    try {
+        const plans = await Plan.find({ is_active: true });
+        let updatedCount = 0;
+
+        for (const plan of plans) {
+            const result = await Company.updateMany(
+                { "subscription.plan_name": plan.name },
+                {
+                    $set: {
+                        "subscription.maxBranches": plan.limits.max_branches,
+                        "subscription.maxUsers": plan.limits.max_employees
+                    }
+                }
+            );
+            updatedCount += result.modifiedCount;
+        }
+
+        res.json({
+            success: true,
+            message: `Synced limits for ${updatedCount} companies across ${plans.length} active plans.`
+        });
+    } catch (error) {
+        console.error("Sync Limits Error:", error);
         res.status(500).json({ message: error.message });
     }
 };
