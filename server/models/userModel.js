@@ -73,7 +73,30 @@ const userSchema = new mongoose.Schema(
       default: true
     },
 
-
+    // ================================================
+    // 📍 NEW: Branch Location for Geofencing
+    // ================================================
+    branch_location: {
+      lat: { 
+        type: Number, 
+        default: null 
+      },
+      lng: { 
+        type: Number, 
+        default: null 
+      },
+      radius: { 
+        type: Number, 
+        default: 200, // النطاق الافتراضي 200 متر
+        min: 10 
+      },
+      address: { 
+        type: String,
+        trim: true,
+        default: "" 
+      }
+    },
+    // ================================================
 
     lastLogin: {
       type: Date,
@@ -302,6 +325,8 @@ userSchema.virtual('profile').get(function () {
   // Add branch info for admin
   if (this.role === "admin") {
     profile.branch_name = this.branch_name;
+    // ✅ إرسال الموقع مع البروفايل ليظهر في الفرونت
+    profile.branch_location = this.branch_location; 
   }
 
   // Add branch info for employee

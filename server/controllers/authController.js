@@ -311,7 +311,8 @@ export const loginUser = async (req, res) => {
       role: user.role,
       email_verified: user.email_verified,
       is_active: user.is_active,
-      lastLogin: user.lastLogin
+      lastLogin: user.lastLogin,
+      branch_location: user.branch_location // ✅ Ensure location is sent on login
     };
 
     if (user.role === "admin") {
@@ -473,7 +474,8 @@ export const getMyProfile = async (req, res) => {
       is_active: user.is_active,
       email_verified: user.email_verified,
       lastLogin: user.lastLogin,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      branch_location: user.branch_location // ✅ Ensure location is sent on refresh
     };
 
     // Add subscription data for super_admin
@@ -541,7 +543,8 @@ export const updateMyProfile = async (req, res) => {
         phone: user.phone,
         avatar: user.avatar, 
         position: user.position,
-        department: user.department
+        department: user.department,
+        branch_location: user.branch_location // ✅ Consistent return
       }
     });
   } catch (err) {

@@ -3,14 +3,11 @@ import {
   protect, 
   employeeOnly 
 } from "../middleware/authMiddleware.js";
+
 import {
   getEmployeeDashboard,
   getMyShifts,
   getMyAttendance,
-  clockIn,
-  clockOut,
-  startBreak,
-  endBreak,
   getMyProfile,
   updateMyProfile,
   getTodayStatus,
@@ -18,6 +15,13 @@ import {
   getColleagues,
   getColleagueShifts
 } from "../controllers/employeeController.js";
+
+import {
+  clockIn,
+  clockOut,
+  startBreak,
+  endBreak
+} from "../controllers/attendanceController.js";
 
 import { createLeaveRequest, getMyLeaveRequests, cancelLeaveRequest } from "../controllers/leaveRequestController.js"; 
 import { getTodayShifts } from "../controllers/shiftController.js";
@@ -41,6 +45,8 @@ router.get("/colleagues/:colleagueId/shifts", getColleagueShifts);
 // Attendance
 router.get("/attendance", getMyAttendance);
 router.get("/attendance/today-status", getTodayStatus);
+
+// attendanceController ...Geofencing
 router.post("/attendance/clock-in", clockIn);
 router.post("/attendance/clock-out", clockOut);
 router.post("/attendance/break/start", startBreak);
