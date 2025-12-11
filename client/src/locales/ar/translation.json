@@ -1,6 +1,19 @@
 {
   "welcome": "مرحبًا بعودتك",
-  "login": "تسجيل الدخول",
+  "login": {
+    "welcomeBack": "مرحبًا بعودتك إلى",
+    "companyName": "تدبير",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "أدخل بريدك الإلكتروني",
+    "password": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "signingIn": "جاري تسجيل الدخول...",
+    "signIn": "تسجيل الدخول",
+    "orContinueWith": "أو تابع باستخدام",
+    "noAccount": "ليس لديك حساب؟",
+    "signUpHere": "سجل هنا"
+  },
   "email": "البريد الإلكتروني",
   "password": "كلمة المرور",
   "ready to transform your workforce management": "هل أنت مستعد لتحويل إدارة القوى العاملة لديك",
@@ -224,32 +237,43 @@
     }
   },
   "employees": {
-    "title": "إدارة الموظفين",
-    "subtitle": "تحكم كامل في الموظفين عبر جميع الفروع.",
+    "title": "الموظفين",
+    "subtitle": "إدارة جميع الموظفين عبر الفروع",
     "buttons": {
       "addEmployee": "إضافة موظف",
       "saveChanges": "حفظ التغييرات",
       "createAccount": "إنشاء حساب"
     },
     "selectBranch": {
-      "placeholder": "اختر الفرع...",
-      "title": "اختر فرعاً",
-      "description": "يرجى اختيار فرع لإدارة الموظفين."
+      "placeholder": "اختر فرعًا لعرض الموظفين",
+      "title": "اختر فرعًا",
+      "description": "اختر فرعًا من القائمة المنسدلة أعلاه لعرض موظفيه"
     },
     "search": {
-      "placeholder": "ابحث عن الموظفين..."
+      "placeholder": "ابحث عن الموظفين بالاسم أو البريد الإلكتروني..."
     },
-    "card": {
-      "defaultPosition": "موظف",
-      "notAvailable": "غير متوفر"
-    },
-    "unknownBranch": "فرع غير معروف",
     "noEmployeesFound": "لم يتم العثور على موظفين في هذا الفرع.",
+    "unknownBranch": "فرع غير معروف",
     "actions": {
       "menu": "قائمة الإجراءات",
       "edit": "تعديل",
       "transfer": "نقل",
       "delete": "حذف"
+    },
+    "card": {
+      "defaultPosition": "لم يتم تعيين منصب",
+      "notAvailable": "غير متاح"
+    },
+    "alerts": {
+      "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الموظف؟",
+      "deleteSuccess": "تم حذف الموظف بنجاح",
+      "deleteFailed": "فشل حذف الموظف",
+      "updateSuccess": "تم تحديث الموظف بنجاح",
+      "createSuccess": "تم إنشاء الموظف بنجاح",
+      "selectBranchWarning": "الرجاء اختيار فرع أولاً",
+      "operationFailed": "فشلت العملية",
+      "transferSuccess": "تم نقل الموظف بنجاح",
+      "transferFailed": "فشل النقل"
     },
     "modal": {
       "editTitle": "تعديل الموظف",
@@ -260,28 +284,17 @@
       "name": "الاسم",
       "position": "المنصب",
       "email": "البريد الإلكتروني",
-      "assignToBranch": "تعيين للفرع",
-      "selectBranch": "اختر الفرع...",
+      "assignToBranch": "تعيين إلى فرع",
+      "selectBranch": "اختر فرعًا",
       "phone": "الهاتف",
       "password": "كلمة المرور",
       "newPasswordOptional": "كلمة مرور جديدة (اختياري)"
     },
     "transferModal": {
       "title": "نقل الموظف",
-      "description": "نقل",
+      "description": "نقل الموظف",
       "selectTargetBranch": "اختر الفرع الهدف...",
       "confirmTransfer": "تأكيد النقل"
-    },
-    "alerts": {
-      "confirmDelete": "هل أنت متأكد؟ سيؤدي هذا إلى حذف الموظف نهائياً.",
-      "deleteSuccess": "تم حذف الموظف بنجاح",
-      "deleteFailed": "فشل في حذف الموظف",
-      "updateSuccess": "تم تحديث الموظف بنجاح!",
-      "createSuccess": "تم إنشاء الموظف بنجاح!",
-      "selectBranchWarning": "يرجى اختيار فرع",
-      "operationFailed": "فشلت العملية",
-      "transferSuccess": "تم نقل الموظف بنجاح!",
-      "transferFailed": "فشل النقل"
     }
   },
   "systemReports": {
@@ -555,81 +568,63 @@
     }
   },
   "timeTracking": {
-    "title": "تتبع الوقت",
-    "subtitle": "تتبع ساعات العمل والاستراحات",
-    "currentTime": "الوقت الحالي",
-    "attendanceStatus": "حالة الحضور",
-    "currentStatus": {
-      "label": "الحالة الحالية",
-      "clockedIn": "مسجل الدخول",
-      "notClockedIn": "غير مسجل الدخول",
-      "onBreak": "في استراحة ☕"
-    },
-    "checkIn": "تسجيل الدخول",
-    "checkOut": "تسجيل الخروج",
-    "scheduledShift": "الوردية المجدولة",
-    "shift": {
-      "defaultTitle": "وردية عادية"
-    },
-    "noShiftScheduled": "لا توجد وردية مجدولة لليوم",
-    "loadingStatus": "جاري تحميل الحالة...",
-    "breakManagement": "إدارة الاستراحة",
-    "breakPrompt": "هل تحتاج إلى استراحة؟",
-    "onBreak": "أنت في استراحة",
-    "breakSince": "منذ",
-    "clockInFirst": "سجل دخول أولاً لإدارة الاستراحات",
-    "stats": {
-      "totalHours": "إجمالي الساعات",
-      "overtime": "العمل الإضافي",
-      "presentDays": "أيام الحضور",
-      "totalDays": "إجمالي الأيام"
-    },
-    "attendanceHistory": "سجل الحضور (آخر 30 يومًا)",
-    "noAttendanceRecords": "لم يتم العثور على سجلات حضور",
-    "table": {
+    "title": "تتبع وقت الموظفين",
+    "subtitle": "مراقبة الحضور، فترات الراحة وساعات العمل في مؤسستك",
+    "failedToLoad": "فشل تحميل بيانات الحضور. الرجاء المحاولة مرة أخرى.",
+    "exportButton": "تصدير",
+    "filtersButton": "مرشحات",
+    "liveTab": "عرض مباشر",
+    "timeCardsTab": "بطاقات الوقت",
+    "filterByStatus": "تصفية حسب الحالة",
+    "currentlyWorking": "يعملون حالياً ({{count}})",
+    "defaultPosition": "موظف",
+    "startTime": "وقت البدء",
+    "duration": "المدة",
+    "pausedBreak": "في استراحة",
+    "tracking": "جاري التتبع",
+    "noActiveEmployees": "لا يوجد موظفين يعملون حالياً",
+    "timeCardManagement": "إدارة بطاقات الوقت",
+    "viewButton": "عرض",
+    "active": "نشط",
+    "hoursShort": "س",
+    "noRecordsFound": "لم يتم العثور على بطاقات وقت لهذا التاريخ",
+    "modal": {
+      "title": "تفاصيل الحضور",
+      "employee": "الموظف",
+      "summary": "ملخص",
       "date": "التاريخ",
-      "checkIn": "تسجيل الدخول",
-      "checkOut": "تسجيل الخروج",
-      "hours": "الساعات",
-      "status": "الحالة"
-    },
-    "status": {
-      "present": "حاضر",
-      "late": "متأخر",
-      "absent": "غائب",
-      "halfDay": "نصف يوم"
-    },
-    "duration": {
-      "default": "0 ساعة 0 دقيقة"
-    },
-    "buttons": {
+      "total": "إجمالي الساعات",
       "clockIn": "تسجيل الدخول",
       "clockOut": "تسجيل الخروج",
-      "startBreak": "بدء الاستراحة",
-      "endBreak": "إنهاء الاستراحة"
+      "notes": "ملاحظات",
+      "close": "إغلاق"
     },
-    "form": {
-      "locationPlaceholder": "الموقع (مثال: المكتب)",
-      "clockOutNotesPlaceholder": "ملاحظة نهاية الوردية...",
-      "breakReasonPlaceholder": "سبب الاستراحة (مثال: غداء، شاي)"
+    "status": {
+      "absent": "غائب",
+      "approved": "معتمد",
+      "onBreak": "في استراحة",
+      "working": "يعمل",
+      "present": "حاضر",
+      "late": "متأخر"
     },
-    "alerts": {
-      "clockInSuccess": "تم تسجيل الدخول بنجاح!",
-      "clockInFailed": "فشل تسجيل الدخول",
-      "clockInFailedTitle": "فشل تسجيل الدخول",
-      "clockOutSuccess": "تم تسجيل الخروج بنجاح!",
-      "clockOutFailed": "فشل تسجيل الخروج",
-      "breakStartSuccess": "بدأت الاستراحة! استمتع بوقتك ☕",
-      "breakStartFailed": "فشل بدء الاستراحة",
-      "breakEndSuccess": "انتهت الاستراحة! أهلاً بعودتك",
-      "breakEndFailed": "فشل إنهاء الاستراحة"
+    "statusFilters": {
+      "all": "الكل",
+      "present": "حاضر",
+      "late": "متأخر",
+      "absent": "غائب"
     },
-    "errors": {
-      "fetchTodayStatus": "خطأ في جلب حالة اليوم",
-      "fetchAttendanceHistory": "خطأ في جلب سجل الحضور",
-      "fetchSummaryStats": "خطأ في جلب الإحصائيات",
-      "loadData": "خطأ في تحميل البيانات الأولية"
-    }
+    "exportColumns": {
+      "name": "اسم الموظف",
+      "date": "التاريخ",
+      "in": "تسجيل الدخول",
+      "out": "تسجيل الخروج",
+      "status": "الحالة"
+    },
+    "exportSheetName": "الحضور",
+    "exportFileName": "تقرير_الحضور",
+    "exportSuccess": "تم تصدير تقرير الحضور بنجاح!",
+    "exportFailed": "فشل تصدير تقرير الحضور",
+    "noDataToExport": "لا توجد بيانات متاحة للتصدير"
   },
   "paymentForm": {
     "title": "معلومات الدفع",
@@ -715,20 +710,6 @@
     "homePage": "الصفحة الرئيسية لتدبير",
     "successMessage": "تم التسجيل بنجاح! جاري التوجيه..."
   },
-  "login": {
-    "welcomeBack": "مرحبًا بعودتك إلى",
-    "companyName": "تدبير",
-    "email": "البريد الإلكتروني",
-    "emailPlaceholder": "أدخل بريدك الإلكتروني",
-    "password": "كلمة المرور",
-    "passwordPlaceholder": "أدخل كلمة المرور الخاصة بك",
-    "forgotPassword": "نسيت كلمة المرور؟",
-    "signingIn": "جاري تسجيل الدخول...",
-    "signIn": "تسجيل الدخول",
-    "orContinueWith": "أو تابع باستخدام",
-    "noAccount": "ليس لديك حساب؟",
-    "signUpHere": "سجل هنا"
-  },
   "navbar": {
     "homeTitle": "الذهاب إلى الصفحة الرئيسية",
     "broadcastTitle": "بث رسالة",
@@ -752,65 +733,6 @@
     "perYear": "سنة",
     "getStartedFree": "ابدأ مجانًا",
     "subscribeNow": "اشترك الآن"
-  },
-  "timeTracking": {
-    "title": "تتبع الوقت",
-    "subtitle": "مراقبة تسجيل دخول/خروج الموظفين وإدارة بطاقات الوقت",
-    "failedToLoad": "فشل تحميل البيانات",
-    "noDataToExport": "لا توجد بيانات للتصدير",
-    "exportButton": "تصدير",
-    "filtersButton": "تصفية",
-    "liveTab": "ساعة الوقت المباشر",
-    "timeCardsTab": "بطاقات الوقت",
-    "filterByStatus": "تصفية حسب الحالة",
-    "currentlyWorking": "يعمل حاليًا ({{count}})",
-    "defaultPosition": "موظف",
-    "startTime": "وقت البدء",
-    "duration": "المدة",
-    "pausedBreak": "متوقف (استراحة)",
-    "tracking": "جارٍ التتبع...",
-    "noActiveEmployees": "لم يتم العثور على موظفين نشطين الآن.",
-    "timeCardManagement": "إدارة بطاقات الوقت",
-    "active": "نشط",
-    "hoursShort": "س",
-    "viewButton": "عرض",
-    "noRecordsFound": "لم يتم العثور على سجلات لهذا التاريخ.",
-    "status": {
-      "absent": "غائب",
-      "approved": "معتمد",
-      "onBreak": "في استراحة",
-      "working": "يعمل"
-    },
-    "statusFilters": {
-      "all": "الكل",
-      "present": "حاضر",
-      "late": "متأخر",
-      "absent": "غائب"
-    },
-    "exportColumns": {
-      "name": "الاسم",
-      "date": "التاريخ",
-      "in": "الدخول",
-      "out": "الخروج",
-      "status": "الحالة",
-      "active": "نشط"
-    },
-    "exportSheetName": "الحضور",
-    "exportFileName": "الحضور",
-    "exportSuccess": "تم التصدير بنجاح",
-    "exportFailed": "فشل التصدير",
-    "modal": {
-      "title": "تفاصيل بطاقة الوقت",
-      "employee": "الموظف",
-      "summary": "الملخص",
-      "date": "التاريخ",
-      "total": "الإجمالي",
-      "clockIn": "تسجيل الدخول",
-      "clockOut": "تسجيل الخروج",
-      "notes": "ملاحظات",
-      "close": "إغلاق"
-    },
-    "hours": "ساعات"
   },
   "timeOff": {
     "title": "إدارة الإجازات",
@@ -1011,85 +933,6 @@
       "shareButton": "مشاركة مع {{count}} موظف"
     }
   },
-  "employees": {
-    "title": "الموظفين",
-    "subtitle": "إدارة أعضاء فريقك وجداولهم",
-    "addEmployee": "إضافة موظف جديد",
-    "searchPlaceholder": "ابحث عن الموظفين بالاسم أو البريد الإلكتروني أو الهاتف...",
-    "resetFilters": "إعادة تعيين المرشحات",
-    "noEmployees": "لم يتم العثور على موظفين",
-    "tryAdjusting": "حاول تعديل البحث أو المرشحات",
-    "getStarted": "ابدأ بإضافة أول موظف لك",
-    "addEmployee": "إضافة موظف",
-    "shifts": "ورديات",
-    "clockedIn": "تم تسجيل الدخول",
-    "notClockedIn": "لم يتم تسجيل الدخول",
-    "notProvided": "غير متوفر",
-    "notAvailable": "غير متاح",
-    "invalidDate": "تاريخ غير صالح",
-    "stats": {
-      "totalEmployees": "إجمالي الموظفين",
-      "presentToday": "حاضر اليوم",
-      "absentToday": "غائب اليوم",
-      "totalShifts": "إجمالي الورديات"
-    },
-    "filters": {
-      "allPositions": "جميع المناصب",
-      "allStatus": "جميع الحالات",
-      "active": "نشط",
-      "inactive": "غير نشط",
-      "presentToday": "حاضر اليوم",
-      "lateToday": "متأخر اليوم",
-      "absentToday": "غائب اليوم"
-    },
-    "table": {
-      "employee": "الموظف",
-      "position": "المنصب",
-      "contact": "الاتصال",
-      "status": "الحالة",
-      "shifts": "الورديات",
-      "joined": "تاريخ الانضمام",
-      "actions": "الإجراءات"
-    },
-    "status": {
-      "inactive": "غير نشط",
-      "present": "حاضر",
-      "late": "متأخر",
-      "absent": "غائب",
-      "active": "نشط"
-    },
-    "actions": {
-      "viewDetails": "عرض التفاصيل",
-      "viewAttendance": "عرض الحضور",
-      "edit": "تعديل",
-      "deactivate": "تعطيل",
-      "activate": "تفعيل",
-      "activated": "تم التفعيل",
-      "deactivated": "تم التعطيل",
-      "delete": "حذف"
-    },
-    "success": {
-      "created": "تم إنشاء الموظف بنجاح",
-      "updated": "تم تحديث الموظف بنجاح",
-      "deleted": "تم حذف الموظف \"{{name}}\" بنجاح"
-    },
-    "errors": {
-      "fetchFailed": "فشل جلب الموظفين",
-      "createFailed": "فشل إنشاء الموظف",
-      "updateFailed": "فشل تحديث الموظف",
-      "toggleFailed": "فشل تحديث حالة الموظف",
-      "deleteFailed": "فشل حذف الموظف"
-    },
-    "confirmDelete": "أنت على وشك حذف \"{{name}}\". لا يمكن التراجع عن هذا الإجراء!",
-    "statusChange": {
-      "title": "تغيير الحالة",
-      "message": "هل أنت متأكد أنك تريد {{action}} {{name}}؟",
-      "confirmActivate": "نعم، قم بالتفعيل",
-      "confirmDeactivate": "نعم، قم بالتعطيل",
-      "success": "تم {{action}} الموظف \"{{name}}\" بنجاح"
-    },
-    "pageOf": "الصفحة {{page}} من {{totalPages}}"
-  },
   "common": {
     "cancel": "إلغاء"
   },
@@ -1185,67 +1028,6 @@
       "rejected": "تم رفض الطلب."
     }
   },
-  "employees": {
-    "title": "الموظفين",
-    "subtitle": "إدارة جميع الموظفين عبر الفروع",
-    "buttons": {
-      "addEmployee": "إضافة موظف",
-      "saveChanges": "حفظ التغييرات",
-      "createAccount": "إنشاء حساب"
-    },
-    "selectBranch": {
-      "placeholder": "اختر فرعًا لعرض الموظفين",
-      "title": "اختر فرعًا",
-      "description": "اختر فرعًا من القائمة المنسدلة أعلاه لعرض موظفيه"
-    },
-    "search": {
-      "placeholder": "ابحث عن الموظفين بالاسم أو البريد الإلكتروني..."
-    },
-    "noEmployeesFound": "لم يتم العثور على موظفين في هذا الفرع.",
-    "unknownBranch": "فرع غير معروف",
-    "actions": {
-      "menu": "قائمة الإجراءات",
-      "edit": "تعديل",
-      "transfer": "نقل",
-      "delete": "حذف"
-    },
-    "card": {
-      "defaultPosition": "لم يتم تعيين منصب",
-      "notAvailable": "غير متاح"
-    },
-    "alerts": {
-      "confirmDelete": "هل أنت متأكد أنك تريد حذف هذا الموظف؟",
-      "deleteSuccess": "تم حذف الموظف بنجاح",
-      "deleteFailed": "فشل حذف الموظف",
-      "updateSuccess": "تم تحديث الموظف بنجاح",
-      "createSuccess": "تم إنشاء الموظف بنجاح",
-      "selectBranchWarning": "الرجاء اختيار فرع أولاً",
-      "operationFailed": "فشلت العملية",
-      "transferSuccess": "تم نقل الموظف بنجاح",
-      "transferFailed": "فشل النقل"
-    },
-    "modal": {
-      "editTitle": "تعديل الموظف",
-      "createTitle": "إضافة موظف جديد",
-      "close": "إغلاق النافذة"
-    },
-    "form": {
-      "name": "الاسم",
-      "position": "المنصب",
-      "email": "البريد الإلكتروني",
-      "assignToBranch": "تعيين إلى فرع",
-      "selectBranch": "اختر فرعًا",
-      "phone": "الهاتف",
-      "password": "كلمة المرور",
-      "newPasswordOptional": "كلمة مرور جديدة (اختياري)"
-    },
-    "transferModal": {
-      "title": "نقل الموظف",
-      "description": "نقل الموظف",
-      "selectTargetBranch": "اختر الفرع الهدف...",
-      "confirmTransfer": "تأكيد النقل"
-    }
-  },
   "subscription": {
     "title": "خطط الاشتراك",
     "subtitle": "قم بترقية مساحة عملك لفتح المزيد من الميزات.",
@@ -1283,142 +1065,6 @@
       "verificationFailed": "فشل التحقق من الدفع. يرجى الاتصال بالدعم.",
       "serverError": "فشل التحقق من الدفع من الخادم."
     }
-  },
-  "timeTracking": {
-    "title": "تتبع الوقت",
-    "subtitle": "تتبع حضورك، فترات الراحة وساعات العمل",
-    "currentTime": "الوقت الحالي",
-    "attendanceStatus": "حالة الحضور",
-    "currentStatus": {
-      "label": "الحالة الحالية",
-      "clockedIn": "تم تسجيل الدخول",
-      "notClockedIn": "لم يتم تسجيل الدخول",
-      "onBreak": "في فترة راحة"
-    },
-    "checkIn": "تسجيل الدخول",
-    "checkOut": "تسجيل الخروج",
-    "scheduledShift": "الوردية المجدولة",
-    "shift": {
-      "defaultTitle": "الوردية العادية"
-    },
-    "noShiftScheduled": "لا توجد وردية مجدولة لهذا اليوم",
-    "loadingStatus": "جاري تحميل الحالة...",
-    "form": {
-      "locationPlaceholder": "أدخل موقعك (مثال: مكتب، عن بُعد)",
-      "clockOutNotesPlaceholder": "إضافة ملاحظات (اختياري)",
-      "breakReasonPlaceholder": "سبب الاستراحة (اختياري)"
-    },
-    "buttons": {
-      "clockIn": "تسجيل الدخول",
-      "clockOut": "تسجيل الخروج",
-      "startBreak": "بدء الاستراحة",
-      "endBreak": "إنهاء الاستراحة"
-    },
-    "breakManagement": "إدارة فترات الراحة",
-    "breakPrompt": "مستعد لاستراحة؟ دعنا نسجلها!",
-    "onBreak": "حالياً في فترة راحة",
-    "breakSince": "منذ",
-    "clockInFirst": "سجل الدخول أولاً لأخذ فترات راحة",
-    "stats": {
-      "totalHours": "إجمالي الساعات",
-      "overtime": "وقت إضافي",
-      "presentDays": "أيام الحضور",
-      "totalDays": "إجمالي الأيام"
-    },
-    "attendanceHistory": "سجل الحضور",
-    "noAttendanceRecords": "لم يتم العثور على سجلات حضور",
-    "table": {
-      "date": "التاريخ",
-      "checkIn": "تسجيل الدخول",
-      "checkOut": "تسجيل الخروج",
-      "hours": "الساعات",
-      "status": "الحالة"
-    },
-    "status": {
-      "present": "حاضر",
-      "late": "متأخر",
-      "absent": "غائب",
-      "halfDay": "نصف يوم"
-    },
-    "duration": {
-      "default": "--:--"
-    },
-    "alerts": {
-      "clockInSuccess": "تم تسجيل الدخول بنجاح!",
-      "clockInFailed": "فشل تسجيل الدخول",
-      "clockInFailedTitle": "خطأ في تسجيل الدخول",
-      "clockOutSuccess": "تم تسجيل الخروج بنجاح!",
-      "clockOutFailed": "فشل تسجيل الخروج",
-      "breakStartSuccess": "بدأت الاستراحة بنجاح!",
-      "breakStartFailed": "فشل بدء الاستراحة",
-      "breakEndSuccess": "انتهت الاستراحة بنجاح!",
-      "breakEndFailed": "فشل إنهاء الاستراحة"
-    },
-    "errors": {
-      "fetchTodayStatus": "خطأ في جلب حالة اليوم",
-      "fetchAttendanceHistory": "خطأ في جلب سجل الحضور",
-      "fetchSummaryStats": "خطأ في جلب الإحصائيات",
-      "loadData": "خطأ في تحميل البيانات"
-    }
-  },
-  "timeTracking": {
-    "title": "تتبع وقت الموظفين",
-    "subtitle": "مراقبة الحضور، فترات الراحة وساعات العمل في مؤسستك",
-    "failedToLoad": "فشل تحميل بيانات الحضور. الرجاء المحاولة مرة أخرى.",
-    "exportButton": "تصدير",
-    "filtersButton": "مرشحات",
-    "liveTab": "عرض مباشر",
-    "timeCardsTab": "بطاقات الوقت",
-    "filterByStatus": "تصفية حسب الحالة",
-    "currentlyWorking": "يعملون حالياً ({{count}})",
-    "defaultPosition": "موظف",
-    "startTime": "وقت البدء",
-    "duration": "المدة",
-    "pausedBreak": "في استراحة",
-    "tracking": "جاري التتبع",
-    "noActiveEmployees": "لا يوجد موظفين يعملون حالياً",
-    "timeCardManagement": "إدارة بطاقات الوقت",
-    "viewButton": "عرض",
-    "active": "نشط",
-    "hoursShort": "س",
-    "noRecordsFound": "لم يتم العثور على بطاقات وقت لهذا التاريخ",
-    "modal": {
-      "title": "تفاصيل الحضور",
-      "employee": "الموظف",
-      "summary": "ملخص",
-      "date": "التاريخ",
-      "total": "إجمالي الساعات",
-      "clockIn": "تسجيل الدخول",
-      "clockOut": "تسجيل الخروج",
-      "notes": "ملاحظات",
-      "close": "إغلاق"
-    },
-    "status": {
-      "absent": "غائب",
-      "approved": "معتمد",
-      "onBreak": "في استراحة",
-      "working": "يعمل",
-      "present": "حاضر",
-      "late": "متأخر"
-    },
-    "statusFilters": {
-      "all": "الكل",
-      "present": "حاضر",
-      "late": "متأخر",
-      "absent": "غائب"
-    },
-    "exportColumns": {
-      "name": "اسم الموظف",
-      "date": "التاريخ",
-      "in": "تسجيل الدخول",
-      "out": "تسجيل الخروج",
-      "status": "الحالة"
-    },
-    "exportSheetName": "الحضور",
-    "exportFileName": "تقرير_الحضور",
-    "exportSuccess": "تم تصدير تقرير الحضور بنجاح!",
-    "exportFailed": "فشل تصدير تقرير الحضور",
-    "noDataToExport": "لا توجد بيانات متاحة للتصدير"
   },
   "adminEmployees": {
     "title": "الموظفين",
@@ -1573,169 +1219,6 @@
       "fetchAttendanceHistory": "خطأ في جلب سجل الحضور",
       "fetchSummaryStats": "خطأ في جلب الإحصائيات",
       "loadData": "خطأ في تحميل البيانات"
-    }
-  },
-  "admin": {
-    "employees": {
-      "title": "إدارة الموظفين",
-      "subtitle": "إدارة ومتابعة القوى العاملة لديك",
-      "addEmployee": "إضافة موظف",
-      "searchPlaceholder": "بحث عن الموظفين...",
-      "resetFilters": "إعادة تعيين الفلاتر",
-      "notAvailable": "غير متوفر",
-      "invalidDate": "تاريخ غير صالح",
-      "notProvided": "غير مقدم",
-      "shifts": "ورديات",
-      "clockedIn": "تم التسجيل اليوم",
-      "notClockedIn": "لم يتم التسجيل",
-      "noEmployees": "لم يتم العثور على موظفين",
-      "tryAdjusting": "حاول تعديل البحث أو الفلاتر للعثور على ما تبحث عنه.",
-      "getStarted": "ابدأ بإضافة أول موظف لك إلى النظام.",
-      "pageOf": "صفحة {page} من {totalPages}",
-      "stats": {
-        "totalEmployees": "إجمالي الموظفين",
-        "presentToday": "الحاضرون اليوم",
-        "absentToday": "الغائبون اليوم",
-        "totalShifts": "إجمالي الورديات"
-      },
-      "filters": {
-        "allPositions": "جميع المناصب",
-        "allStatus": "جميع الحالات",
-        "active": "نشط",
-        "inactive": "غير نشط",
-        "presentToday": "حاضر اليوم",
-        "lateToday": "متأخر اليوم",
-        "absentToday": "غائب اليوم"
-      },
-      "status": {
-        "inactive": "غير نشط",
-        "present": "حاضر",
-        "late": "متأخر",
-        "absent": "غائب",
-        "active": "نشط"
-      },
-      "table": {
-        "employee": "الموظف",
-        "position": "المنصب",
-        "contact": "الاتصال",
-        "status": "الحالة",
-        "shifts": "الورديات",
-        "joined": "تاريخ الانضمام",
-        "actions": "الإجراءات"
-      },
-      "actions": {
-        "viewDetails": "عرض التفاصيل",
-        "viewAttendance": "عرض الحضور",
-        "edit": "تعديل",
-        "deactivate": "تعطيل",
-        "activate": "تفعيل",
-        "activated": "تم التفعيل",
-        "deactivated": "تم التعطيل",
-        "delete": "حذف"
-      },
-      "statusChange": {
-        "title": "تغيير الحالة",
-        "message": "هل أنت متأكد أنك تريد {action} {name}؟",
-        "confirmActivate": "نعم، قم بالتفعيل",
-        "confirmDeactivate": "نعم، قم بالتعطيل",
-        "success": "تم {action} {name} بنجاح."
-      },
-      "confirmDelete": "هل أنت متأكد أنك تريد حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
-      "success": {
-        "created": "تم إنشاء الموظف بنجاح!",
-        "updated": "تم تحديث بيانات الموظف بنجاح!",
-        "deleted": "تم حذف {name} بنجاح!"
-      },
-      "errors": {
-        "fetchFailed": "فشل في جلب بيانات الموظفين",
-        "createFailed": "فشل في إنشاء الموظف",
-        "updateFailed": "فشل في تحديث بيانات الموظف",
-        "toggleFailed": "فشل في تغيير الحالة",
-        "deleteFailed": "فشل في حذف الموظف"
-      }
-    }
-  },
-  "admins": {
-    "employeeDetails": {
-      "never": "أبداً",
-      "notProvided": "غير مقدم",
-      "records": "سجل",
-      "closeButton": "إغلاق",
-      "errors": {
-        "fetchFailed": "فشل في جلب تفاصيل الموظف"
-      },
-      "status": {
-        "active": "نشط",
-        "inactive": "غير نشط"
-      },
-      "sections": {
-        "basicInfo": "المعلومات الأساسية",
-        "statistics": "الإحصائيات",
-        "accountInfo": "معلومات الحساب",
-        "recentAttendance": "الحضور الأخير"
-      },
-      "fields": {
-        "email": "البريد الإلكتروني",
-        "phone": "الهاتف",
-        "position": "المنصب",
-        "branchId": "معرف الفرع"
-      },
-      "stats": {
-        "totalShifts": "إجمالي الورديات",
-        "upcomingShifts": "الورديات القادمة"
-      },
-      "account": {
-        "memberSince": "عضو منذ",
-        "lastLogin": "آخر تسجيل دخول"
-      },
-      "attendance": {
-        "present": "حاضر",
-        "absent": "غائب"
-      },
-      "table": {
-        "date": "التاريخ",
-        "status": "الحالة"
-      },
-      "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
-    }
-  },
-  "admines": {
-    "employees": {
-      "form": {
-        "editTitle": "تعديل الموظف",
-        "addTitle": "إضافة موظف جديد",
-        "editSubtitle": "تحديث معلومات الموظف",
-        "addSubtitle": "إضافة عضو جديد للفريق",
-        "labels": {
-          "fullName": "الاسم الكامل",
-          "email": "البريد الإلكتروني",
-          "password": "كلمة المرور",
-          "phone": "رقم الهاتف",
-          "position": "المنصب"
-        },
-        "placeholders": {
-          "name": "جون دو",
-          "email": "employee@example.com",
-          "password": "••••••••",
-          "phone": "+1 234 567 8900",
-          "position": "مثال: مدير، كاشير، مبيعات"
-        },
-        "buttons": {
-          "cancel": "إلغاء",
-          "update": "تحديث الموظف",
-          "add": "إضافة موظف"
-        },
-        "errors": {
-          "nameRequired": "الاسم مطلوب",
-          "emailRequired": "البريد الإلكتروني مطلوب",
-          "emailInvalid": "البريد الإلكتروني غير صالح",
-          "passwordRequired": "كلمة المرور مطلوبة",
-          "passwordLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
-          "phoneRequired": "رقم الهاتف مطلوب",
-          "phoneInvalid": "أدخل رقم هاتف صالح",
-          "positionRequired": "المنصب مطلوب"
-        }
-      }
     }
   },
   "admin": {
@@ -2141,6 +1624,175 @@
           "deleted": "تم حذف الخطة نهائياً",
           "confirmDelete": "⚠️ تحذير: سيقوم هذا بحذف الخطة نهائياً.\n\nقم بذلك فقط إذا لم تكن هناك شركات مشتركة بها.\n\nهل أنت متأكد تماماً؟"
         }
+      }
+    }
+  },
+  "admins": {
+    "employeeDetails": {
+      "never": "أبداً",
+      "notProvided": "غير مقدم",
+      "records": "سجل",
+      "closeButton": "إغلاق",
+      "errors": {
+        "fetchFailed": "فشل في جلب تفاصيل الموظف"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "sections": {
+        "basicInfo": "المعلومات الأساسية",
+        "statistics": "الإحصائيات",
+        "accountInfo": "معلومات الحساب",
+        "recentAttendance": "الحضور الأخير"
+      },
+      "fields": {
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "position": "المنصب",
+        "branchId": "معرف الفرع"
+      },
+      "stats": {
+        "totalShifts": "إجمالي الورديات",
+        "upcomingShifts": "الورديات القادمة"
+      },
+      "account": {
+        "memberSince": "عضو منذ",
+        "lastLogin": "آخر تسجيل دخول"
+      },
+      "attendance": {
+        "present": "حاضر",
+        "absent": "غائب"
+      },
+      "table": {
+        "date": "التاريخ",
+        "status": "الحالة"
+      },
+      "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
+    }
+  },
+  "admines": {
+    "employees": {
+      "form": {
+        "editTitle": "تعديل الموظف",
+        "addTitle": "إضافة موظف جديد",
+        "editSubtitle": "تحديث معلومات الموظف",
+        "addSubtitle": "إضافة عضو جديد للفريق",
+        "labels": {
+          "fullName": "الاسم الكامل",
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور",
+          "phone": "رقم الهاتف",
+          "position": "المنصب"
+        },
+        "placeholders": {
+          "name": "جون دو",
+          "email": "employee@example.com",
+          "password": "••••••••",
+          "phone": "+1 234 567 8900",
+          "position": "مثال: مدير، كاشير، مبيعات"
+        },
+        "buttons": {
+          "cancel": "إلغاء",
+          "update": "تحديث الموظف",
+          "add": "إضافة موظف"
+        },
+        "errors": {
+          "nameRequired": "الاسم مطلوب",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "البريد الإلكتروني غير صالح",
+          "passwordRequired": "كلمة المرور مطلوبة",
+          "passwordLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phoneInvalid": "أدخل رقم هاتف صالح",
+          "positionRequired": "المنصب مطلوب"
+        }
+      }
+    }
+  },
+  "platform": {
+    "dashboard": {
+      "title": "نظرة عامة على المنصة",
+      "subtitle": "مراقبة أداء النظام والإيرادات ونمو الشركات.",
+      "stats": {
+        "totalRevenue": "إجمالي الإيرادات",
+        "totalCompanies": "إجمالي الشركات",
+        "activeCompanies": "الشركات النشطة",
+        "totalUsers": "إجمالي المستخدمين"
+      },
+      "charts": {
+        "revenueByPlan": "الإيرادات حسب الخطة",
+        "recentSignups": "التسجيلات الأخيرة",
+        "viewAll": "عرض الكل",
+        "noCompanies": "لا توجد شركات بعد."
+      }
+    },
+    "companies": {
+      "title": "الشركات",
+      "subtitle": "إدارة الشركات المسجلة واشتراكاتها.",
+      "searchPlaceholder": "البحث عن الشركات...",
+      "filters": {
+        "label": "تصفية:",
+        "allPlans": "جميع الخطط",
+        "allStatus": "جميع الحالات",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "clear": "مسح"
+      },
+      "card": {
+        "joined": "انضم منذ",
+        "superAdmin": "المشرف العام",
+        "plan": "الخطة",
+        "revenue": "الإيرادات",
+        "employees": "الموظفين",
+        "maxBranches": "أقصى عدد للفروع",
+        "suspended": "معلق",
+        "expires": "انتهاء الصلاحية:"
+      },
+      "actions": {
+        "deactivate": "تعطيل الشركة",
+        "activate": "تفعيل الشركة"
+      },
+      "empty": {
+        "title": "لم يتم العثور على شركات",
+        "message": "حاول تعديل كلمات البحث."
+      }
+    },
+    "plans": {
+      "title": "خطط الاشتراك",
+      "subtitle": "إدارة مستويات التسعير والميزات.",
+      "createList": "إنشاء خطة",
+      "card": {
+        "branches": "فروع",
+        "employees": "موظف",
+        "moreFeatures": "ميزات إضافية",
+        "edit": "تعديل",
+        "deactivate": "تعطيل الخطة",
+        "activate": "تفعيل الخطة",
+        "delete": "حذف نهائي",
+        "free": "مجاني"
+      },
+      "modal": {
+        "createTitle": "إنشاء خطة جديدة",
+        "editTitle": "تعديل الخطة",
+        "name": "اسم الخطة",
+        "slug": "الاسم المختصر (فريد)",
+        "description": "الوصف",
+        "price": "السعر (جم)",
+        "billingCycle": "دورة الفوترة",
+        "maxBranches": "أقصى عدد للفروع",
+        "maxEmployees": "أقصى عدد للموظفين",
+        "features": "الميزات (واحدة في كل سطر)",
+        "activePlan": "خطة نشطة",
+        "cancel": "إلغاء",
+        "create": "إنشاء الخطة",
+        "update": "تحديث الخطة"
+      },
+      "alerts": {
+        "updated": "تم تحديث الخطة بنجاح",
+        "created": "تم إنشاء الخطة بنجاح",
+        "deleted": "تم حذف الخطة نهائياً",
+        "confirmDelete": "⚠️ تحذير: سيقوم هذا بحذف الخطة نهائياً.\n\nقم بذلك فقط إذا لم تكن هناك شركات مشتركة بها.\n\nهل أنت متأكد تماماً؟"
       }
     }
   }
