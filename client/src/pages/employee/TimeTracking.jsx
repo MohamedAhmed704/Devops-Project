@@ -92,6 +92,7 @@ const EmployeeTimeTracking = () => {
     };
     
     loadData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- Action Handlers ---
