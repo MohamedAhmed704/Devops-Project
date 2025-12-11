@@ -617,6 +617,7 @@ const EmployeeTimeTracking = () => {
 };
 
 const StatBox = ({ title, value, icon }) => {
+  // eslint-disable-next-line no-unused-vars
   const { t } = useTranslation();
   
   return (
