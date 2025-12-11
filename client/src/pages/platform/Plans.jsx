@@ -3,8 +3,8 @@ import { planService } from "../../api/services/planService";
 import { useLoading } from "../../contexts/LoaderContext";
 import { useToast } from "../../hooks/useToast";
 import {
-    Plus, Edit2, Trash2, Check, X, DollarSign,
-    Users, Building2, Shield
+    Plus, Edit2, Trash2, Check, X,
+    Users, Building2, Power
 } from "lucide-react";
 
 export default function Plans() {
@@ -31,7 +31,8 @@ export default function Plans() {
     const fetchPlans = async () => {
         try {
             show();
-            const data = await planService.getPlans();
+            // Use getAllPlans to see both inactive and active plans
+            const data = await planService.getAllPlans();
             setPlans(data);
         } catch (err) {
             console.error("Error fetching plans:", err);
@@ -50,7 +51,7 @@ export default function Plans() {
             setEditingPlan(plan);
             setFormData({
                 ...plan,
-                features: plan.features.join('\n') // Convert array to multiline string
+                features: plan.features.join('\n')
             });
         } else {
             setEditingPlan(null);
@@ -74,7 +75,7 @@ export default function Plans() {
             show();
             const payload = {
                 ...formData,
-                features: formData.features.split('\n').filter(f => f.trim() !== "") // Convert string back to array
+                features: formData.features.split('\n').filter(f => f.trim() !== "")
             };
 
             if (editingPlan) {
@@ -94,14 +95,24 @@ export default function Plans() {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to deactivate this plan?")) return;
+    const handleToggleStatus = async (plan) => {
         try {
-            await planService.deletePlan(id);
-            addToast("Plan deactivated", "success");
+            await planService.togglePlanStatus(plan._id);
+            addToast(`Plan ${plan.is_active ? 'deactivated' : 'activated'}`, "success");
             fetchPlans();
         } catch (err) {
-            addToast("Failed to delete plan", "error");
+            addToast("Failed to update status", "error");
+        }
+    };
+
+    const handleDeletePermanent = async (id) => {
+        if (!window.confirm("⚠️ DANGER: This will PERMANENTLY delete this plan.\n\nOnly do this if no companies are subscribed to it.\n\nAre you sure completely?")) return;
+        try {
+            await planService.deletePlanPermanent(id);
+            addToast("Plan permanently deleted", "success");
+            fetchPlans();
+        } catch (err) {
+            addToast(err.response?.data?.message || "Failed to delete plan", "error");
         }
     };
 
@@ -123,19 +134,23 @@ export default function Plans() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {plans.map((plan) => (
-                    <div key={plan._id} className={`bg-white dark:bg-slate-800 rounded-2xl shadow-sm border p-6 hover:shadow-md transition-all duration-300 relative ${!plan.is_active ? 'opacity-75 grayscale' : 'border-slate-100 dark:border-slate-700'}`}>
+                    <div key={plan._id} className={`bg-white dark:bg-slate-800 rounded-2xl shadow-sm border p-6 hover:shadow-md transition-all duration-300 relative ${!plan.is_active ? 'opacity-75 grayscale bg-gray-50 dark:bg-slate-900' : 'border-slate-100 dark:border-slate-700'}`}>
 
-                        <div className="flex justify-between items-start mb-4">
+                        {/* Status Badge */}
+                        <div className={`absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded-full ${plan.is_active ? "bg-emerald-100 text-emerald-700" : "bg-gray-200 text-gray-600"}`}>
+                            {plan.is_active ? "ACTIVE" : "INACTIVE"}
+                        </div>
+
+                        <div className="flex justify-between items-start mb-4 pr-16">
                             <div>
                                 <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{plan.name}</h3>
                                 <p className="text-sm text-slate-500 dark:text-slate-400">{plan.description}</p>
                             </div>
-                            <div className="text-right">
-                                <div className="text-2xl font-bold text-blue-600">
-                                    {plan.price === 0 ? "Free" : `${plan.price} ${plan.currency}`}
-                                </div>
-                                <div className="text-xs text-slate-400 dark:text-slate-400 uppercase">{plan.billing_cycle}</div>
-                            </div>
+                        </div>
+
+                        <div className="text-xl font-bold text-blue-600 mb-4">
+                            {plan.price === 0 ? "Free" : `${plan.price} ${plan.currency}`}
+                            <span className="text-xs text-slate-400 dark:text-slate-400 font-normal uppercase ml-1">/{plan.billing_cycle}</span>
                         </div>
 
                         <div className="space-y-3 border-t border-slate-50 dark:border-slate-700 pt-4 mb-6">
@@ -166,21 +181,31 @@ export default function Plans() {
                             >
                                 <Edit2 size={16} /> Edit
                             </button>
-                            {plan.is_active && (
-                                <button
-                                    onClick={() => handleDelete(plan._id)}
-                                    className="p-2 rounded-lg border border-red-100 dark:border-red-900 text-red-500 hover:bg-red-50 dark:hover:bg-red-900 transition"
-                                    title="Deactivate Plan"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            )}
+
+                            {/* Toggle Status */}
+                            <button
+                                onClick={() => handleToggleStatus(plan)}
+                                className={`p-2 rounded-lg border transition ${plan.is_active
+                                    ? "border-amber-100 text-amber-500 hover:bg-amber-50"
+                                    : "border-emerald-100 text-emerald-500 hover:bg-emerald-50"}`}
+                                title={plan.is_active ? "Deactivate Plan" : "Activate Plan"}
+                            >
+                                <Power size={16} />
+                            </button>
+
+                            {/* Permanent Delete */}
+                            <button
+                                onClick={() => handleDeletePermanent(plan._id)}
+                                className="p-2 rounded-lg border border-red-100 dark:border-red-900 text-red-500 hover:bg-red-50 dark:hover:bg-red-900 transition"
+                                title="Permanently Delete"
+                            >
+                                <Trash2 size={16} />
+                            </button>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">

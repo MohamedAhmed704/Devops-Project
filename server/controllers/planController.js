@@ -85,20 +85,67 @@ export const updatePlan = async (req, res) => {
     }
 };
 
-// @desc    Delete a plan (Soft delete)
-// @route   DELETE /api/plans/:id
+// @desc    Get all plans (Active & Inactive) - Admin Only
+// @route   GET /api/plans/admin/all
 // @access  Platform Owner
-export const deletePlan = async (req, res) => {
+export const getAllPlans = async (req, res) => {
+    try {
+        const plans = await Plan.find({}).sort({ createdAt: -1 });
+        res.json(plans);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Toggle plan status (Active/Inactive)
+// @route   PATCH /api/plans/:id/status
+// @access  Platform Owner
+export const togglePlanStatus = async (req, res) => {
     try {
         const plan = await Plan.findById(req.params.id);
 
         if (plan) {
-            plan.is_active = false;
+            plan.is_active = !plan.is_active;
             await plan.save();
-            res.json({ message: "Plan deactivated" });
+            res.json({
+                success: true,
+                message: `Plan ${plan.is_active ? 'activated' : 'deactivated'}`,
+                plan
+            });
         } else {
             res.status(404).json({ message: "Plan not found" });
         }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Permanently Delete a plan
+// @route   DELETE /api/plans/:id/permanent
+// @access  Platform Owner
+export const permanentDeletePlan = async (req, res) => {
+    try {
+        const plan = await Plan.findById(req.params.id);
+
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        // Safety Check: Are any companies using this plan?
+        // We check by plan name since that's the link used in subscription
+        const companiesUsingPlan = await Company.countDocuments({ "subscription.plan_name": plan.name });
+
+        if (companiesUsingPlan > 0) {
+            return res.status(400).json({
+                success: false,
+                error: "PLAN_IN_USE",
+                message: `Cannot delete plan. It is currently used by ${companiesUsingPlan} companies. Deactivate it instead.`
+            });
+        }
+
+        await plan.deleteOne();
+        res.json({ success: true, message: "Plan permanently deleted" });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
