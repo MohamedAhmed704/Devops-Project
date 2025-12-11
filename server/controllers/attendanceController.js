@@ -1,6 +1,10 @@
 import Attendance from "../models/attendanceModel.js";
 import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
+import { calculateDistance } from "../utils/geoUtils.js"; // ✅ 1. استيراد دالة حساب المسافة
+
+// ✅ إعداد فترة السماح (بالدقائق)
+const GRACE_PERIOD_MINUTES = 15;
 
 // CLOCK IN (start shift) - Create attendance record
 export const clockIn = async (req, res) => {
@@ -10,9 +14,48 @@ export const clockIn = async (req, res) => {
     // ISOLATION KEY: Get the Super Admin ID from the user object
     const tenantOwnerId = userRole === "super_admin" ? userId : req.user.super_admin_id; 
 
+    // ============================================================
+    // 📍 GEOFENCING CHECK START
+    // ============================================================
+    // لا نقوم بالتحقق إذا كان المستخدم هو الأدمن أو السوبر أدمن (اختياري، هنا نطبقه على الموظف)
+    if (userRole === 'employee' && req.user.branch_admin_id) {
+        const { userLat, userLng } = req.body;
+        
+        // جلب بيانات الأدمن المسؤول لمعرفة إعدادات الموقع
+        const branchAdmin = await User.findById(req.user.branch_admin_id);
+
+        if (branchAdmin && branchAdmin.branch_location && branchAdmin.branch_location.lat) {
+            const { lat: branchLat, lng: branchLng, radius } = branchAdmin.branch_location;
+
+            // التأكد من أن الموظف أرسل إحداثياته
+            if (!userLat || !userLng) {
+                return res.status(400).json({ 
+                    message: "Location is required to clock in. Please enable GPS." 
+                });
+            }
+
+            // حساب المسافة
+            const distance = calculateDistance(userLat, userLng, branchLat, branchLng);
+            const allowedRadius = radius || 200; // الافتراضي 200 متر
+
+            // التحقق من النطاق
+            if (distance > allowedRadius) {
+                return res.status(403).json({
+                    message: `You are out of range. Distance: ${Math.round(distance)}m. Allowed: ${allowedRadius}m.`,
+                    distance: Math.round(distance),
+                    allowed_radius: allowedRadius
+                });
+            }
+        }
+    }
+    // ============================================================
+    // 📍 GEOFENCING CHECK END
+    // ============================================================
+
     // Check if already clocked in today
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const now = new Date(); // ✅ Capture exact time
     
     const existingAttendance = await Attendance.findOne({
       user_id: userId,
@@ -20,7 +63,8 @@ export const clockIn = async (req, res) => {
       date: {
         $gte: today,
         $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      }
+      },
+      check_out: { $exists: false } // ✅ Check only for active sessions
     });
 
     if (existingAttendance) {
@@ -36,8 +80,8 @@ export const clockIn = async (req, res) => {
         employeeSAId = employee.super_admin_id;
     }
     
-    // Find today's shift for the user
-    const shift = await Shift.findOne({
+    // ✅ 1. SMART SHIFT SELECTION: Get ALL scheduled shifts for today
+    const todayShifts = await Shift.find({
       employee_id: userId,
       super_admin_id: employeeSAId,
       status: "scheduled",
@@ -48,19 +92,33 @@ export const clockIn = async (req, res) => {
     });
 
     // 🛑 CHECK: Prevent clock in if no shift exists
-    if (!shift) {
+    if (!todayShifts || todayShifts.length === 0) {
       return res.status(400).json({
         message: "Cannot clock in: No shift scheduled for today.",
       });
     }
 
-    // Calculate late minutes if shift exists
+    // ✅ 2. Select the Closest Shift to "Now"
+    // ده عشان لو فيه شفت فات ومحضرهوش، وشفت تاني وقته دلوقتي، يختار بتاع دلوقتي
+    let selectedShift = todayShifts.reduce((closest, current) => {
+        const currentDiff = Math.abs(now - new Date(current.start_date_time));
+        const closestDiff = Math.abs(now - new Date(closest.start_date_time));
+        return currentDiff < closestDiff ? current : closest;
+    });
+
+    // ✅ 3. Calculate Late Minutes with Grace Period
     let late_minutes = 0;
-    const now = new Date();
     
-    if (shift && shift.start_date_time < now) {
-      late_minutes = Math.floor((now - shift.start_date_time) / (1000 * 60));
+    // الشرط ده يضمن إن الـ Late يتحسب بس لو الوقت عدى "فعلياً"
+    if (selectedShift.start_date_time < now) {
+      const diffMinutes = Math.floor((now - selectedShift.start_date_time) / (1000 * 60));
+      
+      // تطبيق فترة السماح
+      if (diffMinutes > GRACE_PERIOD_MINUTES) {
+          late_minutes = diffMinutes;
+      }
     }
+    // لو دخل بدري (now < start)، الشرط مش هيتحقق، والـ late هيفضل 0
 
     // Create attendance record
     const attendance = await Attendance.create({
@@ -70,15 +128,13 @@ export const clockIn = async (req, res) => {
       check_in: now,
       late_minutes: late_minutes,
       status: late_minutes > 0 ? "late" : "present",
-      location: req.body.location || "Office"
+      location: req.body.location || "Office" 
     });
 
-    // Update shift status if exists
-    if (shift) {
-      shift.status = "in_progress";
-      shift.actual_start_time = now;
-      await shift.save();
-    }
+    // Update shift status
+    selectedShift.status = "in_progress";
+    selectedShift.actual_start_time = now;
+    await selectedShift.save();
 
     return res.status(201).json({
       message: "Clocked in successfully",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Coffee, LogOut, Play, Pause, Calendar, TrendingUp } from 'lucide-react';
+import { Clock, Coffee, LogOut, Play, Pause, Calendar, TrendingUp, MapPin } from 'lucide-react'; // ✅ Added MapPin icon
 import Button from '../../utils/Button';
 import apiClient from '../../api/apiClient';
 import { useLoading } from '../../contexts/LoaderContext';
@@ -96,22 +96,59 @@ const EmployeeTimeTracking = () => {
 
   // --- Action Handlers ---
 
+  // ✅ UPDATED: Handle Clock In with Geofencing
   const handleClockIn = async () => {
-    try {
-      showGlobalLoading();
-      await apiClient.post('/api/attendance/clock-in', { location, notes: "" });
-      
-      await Promise.all([
-        fetchTodayStatus(),
-        fetchAttendanceHistory()
-      ]);
-      success(t('employeeTimeTracking.alerts.clockInSuccess'));
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || t('employeeTimeTracking.alerts.clockInFailed');
-      Alert.error(errorMsg, t('employeeTimeTracking.alerts.clockInFailedTitle'));
-    } finally {
-      hideGlobalLoading();
+    // 1. Check if Geolocation is supported
+    if (!navigator.geolocation) {
+      Alert.error(
+        "Geolocation is not supported by your browser.", 
+        t('employeeTimeTracking.alerts.clockInFailedTitle')
+      );
+      return;
     }
+
+    showGlobalLoading();
+
+    // 2. Get Current Position
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // 3. Send coordinates to backend
+          await apiClient.post('/api/attendance/clock-in', { 
+            location, 
+            notes: "",
+            userLat: latitude, // 📍 Sending Latitude
+            userLng: longitude // 📍 Sending Longitude
+          });
+          
+          await Promise.all([
+            fetchTodayStatus(),
+            fetchAttendanceHistory()
+          ]);
+          success(t('employeeTimeTracking.alerts.clockInSuccess'));
+        } catch (error) {
+          // 4. Handle Backend Errors (including Geofencing errors)
+          const errorMsg = error.response?.data?.message || t('employeeTimeTracking.alerts.clockInFailed');
+          Alert.error(errorMsg, t('employeeTimeTracking.alerts.clockInFailedTitle'));
+        } finally {
+          hideGlobalLoading();
+        }
+      },
+      (error) => {
+        // 5. Handle GPS Errors
+        hideGlobalLoading();
+        console.error("Geolocation Error:", error);
+        let msg = "Unable to retrieve your location.";
+        if (error.code === 1) msg = "Please allow location access to clock in."; // User denied
+        else if (error.code === 2) msg = "Location unavailable. Check your GPS."; // Position unavailable
+        else if (error.code === 3) msg = "Location request timed out."; // Timeout
+
+        Alert.error(msg, t('employeeTimeTracking.alerts.clockInFailedTitle'));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const handleClockOut = async () => {
@@ -179,17 +216,6 @@ const EmployeeTimeTracking = () => {
       minute: '2-digit', 
       hour12: i18n.language === 'en' // 12-hour format for English
     });
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const calculateDuration = (startTime) => {
-    if (!startTime) return t('employeeTimeTracking.duration.default');
-    const start = new Date(startTime);
-    const end = new Date();
-    const diffMs = end - start;
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
   };
 
   const getStatusTranslation = (status) => {
@@ -308,7 +334,7 @@ const EmployeeTimeTracking = () => {
                   </div>
                 ) : (
                   <div className="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg border border-red-200 dark:border-red-800 mt-2 text-center">
-                     <p className="text-red-700 dark:text-red-400 font-medium">{t('employeeTimeTracking.noShiftScheduled')}</p>
+                      <p className="text-red-700 dark:text-red-400 font-medium">{t('employeeTimeTracking.noShiftScheduled')}</p>
                   </div>
                 )}
               </div>
@@ -320,13 +346,14 @@ const EmployeeTimeTracking = () => {
             <div className="mt-6">
               {!todayStatus?.clocked_in ? (
                 <div className="space-y-3">
-                   <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-3 relative">
+                     <div className="absolute left-3 top-2.5 text-gray-400"><MapPin size={18}/></div>
                     <input 
                       type="text" 
                       placeholder={t('employeeTimeTracking.form.locationPlaceholder')} 
                       value={location} 
                       onChange={(e) => setLocation(e.target.value)} 
-                      className="px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50" 
+                      className="pl-10 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-50" 
                     />
                   </div>
                   <Button 
@@ -395,7 +422,7 @@ const EmployeeTimeTracking = () => {
                   ) : (
                     <div className="bg-yellow-50 dark:bg-yellow-900/30 p-6 rounded-lg border border-yellow-200 dark:border-yellow-800 text-center">
                       <div className="animate-pulse mb-3 inline-block p-3 bg-yellow-100 dark:bg-yellow-900/50 rounded-full">
-                         <Coffee size={32} className="text-yellow-600 dark:text-yellow-400" />
+                          <Coffee size={32} className="text-yellow-600 dark:text-yellow-400" />
                       </div>
                       <p className="text-lg font-bold text-yellow-800 dark:text-yellow-200 mb-1">{t('employeeTimeTracking.onBreak')}</p>
                       {activeBreakStart && (

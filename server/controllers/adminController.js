@@ -691,3 +691,44 @@ export const deleteEmployee = async (req, res) => {
     });
   }
 };
+
+// ============================================
+// 📍 UPDATE BRANCH LOCATION (Geofencing)
+// ============================================
+export const updateBranchLocation = async (req, res) => {
+  const { lat, lng, radius, address } = req.body;
+
+  try {
+    // نفترض أن الـ Admin هو الذي يقوم بالتحديث لفرعه الخاص
+    // req.user يأتي من الـ middleware
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+      user.branch_location = {
+        lat: lat || user.branch_location.lat,
+        lng: lng || user.branch_location.lng,
+        radius: radius || user.branch_location.radius || 200, // Default 200m
+        address: address || user.branch_location.address
+      };
+
+      const updatedUser = await user.save();
+
+      res.status(200).json({
+        success: true,
+        message: "تم تحديث موقع الفرع بنجاح",
+        data: updatedUser.branch_location // إرجاع البيانات المحدثة
+      });
+    } else {
+      res.status(404).json({ 
+        success: false,
+        message: "المستخدم غير موجود" 
+      });
+    }
+  } catch (error) {
+    console.error("updateBranchLocation error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};

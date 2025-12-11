@@ -1,5 +1,5 @@
 import express from "express";
-import { createPayment, userPaid, webhook, debugPayment, forceFinalize, createRevenueManual } from "../controllers/paymentController.js";
+import { createPayment, userPaid, webhook, debugPayment, forceFinalize, createRevenueManual, getBillingHistory } from "../controllers/paymentController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
