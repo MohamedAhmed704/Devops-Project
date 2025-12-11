@@ -84,7 +84,6 @@
       }
     }
   },
-
   "announcementModal": {
     "title": "رسالة بث",
     "infoText": "سيتم إرسال هذه الرسالة كإشعار إلى جميع أعضاء فريقك النشطين على الفور.",
@@ -473,34 +472,28 @@
       "loadData": "خطأ في تحميل بيانات الجدول"
     }
   },
-
   "timeOffRequests": {
     "title": "طلبات الإجازة",
     "subtitle": "إدارة طلبات الإجازة والوقت الخاص بك",
-    
     "admin": {
       "title": "طلبات الإجازة للمشرفين",
       "subtitle": "مراجعة وإدارة طلبات الإجازة من مشرفي الفروع."
     },
-    
     "status": {
       "pending": "قيد الانتظار",
       "approved": "مقبول",
       "rejected": "مرفوض",
       "cancelled": "ملغي"
     },
-    
     "details": {
       "duration": "المدة",
       "days": "يوم/أيام",
       "halfDay": "نصف يوم",
       "reasonType": "السبب والنوع"
     },
-    
     "adminNote": "ملاحظة المشرف",
     "unknownBranch": "فرع غير معروف",
     "noRequests": "لم يتم العثور على طلبات {status}.",
-    
     "buttons": {
       "newRequest": "طلب جديد",
       "createFirstRequest": "إنشاء طلبك الأول",
@@ -509,7 +502,6 @@
       "approve": "قبول",
       "reject": "رفض"
     },
-    
     "alerts": {
       "approvalTitle": "ملاحظة القبول",
       "approvalLabel": ":إضافة ملاحظة قبول (اختياري)",
@@ -525,20 +517,17 @@
       "cancelSuccess": "تم إلغاء طلب الإجازة بنجاح!",
       "cancelFailed": "فشل في إلغاء طلب الإجازة"
     },
-    
     "stats": {
       "totalRequests": "إجمالي الطلبات",
       "pending": "قيد الانتظار",
       "approved": "مقبول",
       "rejected": "مرفوض"
     },
-    
     "yourRequests": "طلبات الإجازة الخاصة بك",
     "halfDay": "نصف يوم",
     "days": "يوم/أيام",
     "reason": "السبب",
     "requested": "تم الطلب في",
-    
     "leaveTypes": {
       "sick": "إجازة مرضية",
       "vacation": "إجازة",
@@ -547,12 +536,10 @@
       "paternity": "إجازة أبوة",
       "emergency": "إجازة طارئة"
     },
-    
     "modal": {
       "title": "طلب إجازة جديد",
       "close": "إغلاق النافذة"
     },
-    
     "form": {
       "leaveType": "نوع الإجازة",
       "halfDay": "إجازة نصف يوم",
@@ -561,7 +548,6 @@
       "reason": "السبب",
       "reasonPlaceholder": "يرجى تقديم سبب لطلب الإجازة..."
     },
-    
     "errors": {
       "fetch": "خطأ في جلب طلبات الإجازة",
       "submit": "خطأ في إرسال طلب الإجازة",
@@ -789,21 +775,18 @@
     "hoursShort": "س",
     "viewButton": "عرض",
     "noRecordsFound": "لم يتم العثور على سجلات لهذا التاريخ.",
-
     "status": {
       "absent": "غائب",
       "approved": "معتمد",
       "onBreak": "في استراحة",
       "working": "يعمل"
     },
-
     "statusFilters": {
       "all": "الكل",
       "present": "حاضر",
       "late": "متأخر",
       "absent": "غائب"
     },
-
     "exportColumns": {
       "name": "الاسم",
       "date": "التاريخ",
@@ -812,12 +795,10 @@
       "status": "الحالة",
       "active": "نشط"
     },
-
     "exportSheetName": "الحضور",
     "exportFileName": "الحضور",
     "exportSuccess": "تم التصدير بنجاح",
     "exportFailed": "فشل التصدير",
-
     "modal": {
       "title": "تفاصيل بطاقة الوقت",
       "employee": "الموظف",
@@ -829,7 +810,6 @@
       "notes": "ملاحظات",
       "close": "إغلاق"
     },
-
     "hours": "ساعات"
   },
   "timeOff": {
@@ -861,13 +841,11 @@
     "endDate": "تاريخ الانتهاء",
     "reason": "السبب",
     "submitRequestButton": "إرسال الطلب",
-
     "status": {
       "pending": "قيد الانتظار",
       "approved": "معتمد",
       "rejected": "مرفوض"
     },
-
     "leaveTypes": {
       "vacation": "إجازة",
       "sick": "إجازة مرضية",
@@ -892,7 +870,6 @@
     "shiftDeleted": "تم حذف الوردية الأصلية",
     "approveButton": "موافقة",
     "rejectButton": "رفض",
-
     "status": {
       "needsApproval": "بحاجة إلى موافقة",
       "approved": "معتمد",
@@ -905,40 +882,33 @@
     "unknown": "غير معروف",
     "aiAssist": "المساعد الذكي",
     "addShift": "إضافة وردية",
-
     "legend": {
       "scheduled": "مجدول",
       "active": "نشط",
       "completed": "مكتمل",
       "missed": "مفوّت"
     },
-
     "validation": {
       "requiredFields": "الرجاء اختيار موظف واحد على الأقل ونطاق زمني."
     },
-
     "success": {
       "updated": "تم تحديث الوردية بنجاح!",
       "created": "تم إنشاء الوردية/الورديات بنجاح!",
       "deleted": "تم حذف الوردية بنجاح!"
     },
-
     "errors": {
       "operationFailed": "فشلت العملية",
       "deleteFailed": "فشل حذف الوردية"
     },
-
     "confirm": {
       "delete": "هل أنت متأكد أنك تريد حذف هذه الوردية؟"
     },
-
     "voice": {
       "browserNotSupported": "متصفحك لا يدخل الإدخال الصوتي. الرجاء استخدام كروم أو إيدج.",
       "microphoneBlocked": "تم حظر الوصول إلى الميكروفون. الرجاء السماح بالوصول إلى الميكروفون.",
       "stopListening": "إيقاف الاستماع",
       "startListening": "بدء الإدخال الصوتي"
     },
-
     "ai": {
       "failedToUnderstand": "فشل فهم الأمر. حاول أن تكون أكثر تحديدًا.",
       "shiftsCreated": "تم إنشاء {{count}} وردية بنجاح!",
@@ -955,7 +925,6 @@
       "discard": "تجاهل والمحاولة مرة أخرى",
       "confirmSave": "تأكيد وحفظ"
     },
-
     "shiftTypes": {
       "regular": "عادي",
       "overtime": "وقت إضافي",
@@ -963,7 +932,6 @@
       "weekend": "نهاية الأسبوع",
       "emergency": "طوارئ"
     },
-
     "modal": {
       "viewCompleted": "عرض الوردية المكتملة",
       "editShift": "تعديل الوردية",
@@ -1007,18 +975,15 @@
     "generateFailed": "فشل",
     "shareSuccess": "تم مشاركة التقرير بنجاح!",
     "shareFailed": "فشل مشاركة التقرير",
-
     "filters": {
       "all": "جميع التقارير",
       "attendance": "الحضور",
       "shift": "تحليل الورديات"
     },
-
     "types": {
       "attendance": "الحضور",
       "shift": "الورديات"
     },
-
     "stats": {
       "rate": "المعدل",
       "present": "حاضر",
@@ -1026,13 +991,11 @@
       "total": "الإجمالي",
       "completed": "مكتمل"
     },
-
     "actions": {
       "view": "عرض",
       "share": "مشاركة",
       "delete": "حذف"
     },
-
     "generateModal": {
       "title": "إنشاء تقرير",
       "startDate": "تاريخ البدء",
@@ -1040,7 +1003,6 @@
       "allEmployees": "جميع الموظفين",
       "generateButton": "إنشاء"
     },
-
     "shareModal": {
       "title": "مشاركة التقرير",
       "selectEmployees": "اختر الموظفين للمشاركة معهم:",
@@ -1049,7 +1011,6 @@
       "shareButton": "مشاركة مع {{count}} موظف"
     }
   },
-
   "employees": {
     "title": "الموظفين",
     "subtitle": "إدارة أعضاء فريقك وجداولهم",
@@ -1066,14 +1027,12 @@
     "notProvided": "غير متوفر",
     "notAvailable": "غير متاح",
     "invalidDate": "تاريخ غير صالح",
-
     "stats": {
       "totalEmployees": "إجمالي الموظفين",
       "presentToday": "حاضر اليوم",
       "absentToday": "غائب اليوم",
       "totalShifts": "إجمالي الورديات"
     },
-
     "filters": {
       "allPositions": "جميع المناصب",
       "allStatus": "جميع الحالات",
@@ -1083,7 +1042,6 @@
       "lateToday": "متأخر اليوم",
       "absentToday": "غائب اليوم"
     },
-
     "table": {
       "employee": "الموظف",
       "position": "المنصب",
@@ -1093,7 +1051,6 @@
       "joined": "تاريخ الانضمام",
       "actions": "الإجراءات"
     },
-
     "status": {
       "inactive": "غير نشط",
       "present": "حاضر",
@@ -1101,7 +1058,6 @@
       "absent": "غائب",
       "active": "نشط"
     },
-
     "actions": {
       "viewDetails": "عرض التفاصيل",
       "viewAttendance": "عرض الحضور",
@@ -1112,13 +1068,11 @@
       "deactivated": "تم التعطيل",
       "delete": "حذف"
     },
-
     "success": {
       "created": "تم إنشاء الموظف بنجاح",
       "updated": "تم تحديث الموظف بنجاح",
       "deleted": "تم حذف الموظف \"{{name}}\" بنجاح"
     },
-
     "errors": {
       "fetchFailed": "فشل جلب الموظفين",
       "createFailed": "فشل إنشاء الموظف",
@@ -1126,9 +1080,7 @@
       "toggleFailed": "فشل تحديث حالة الموظف",
       "deleteFailed": "فشل حذف الموظف"
     },
-
     "confirmDelete": "أنت على وشك حذف \"{{name}}\". لا يمكن التراجع عن هذا الإجراء!",
-
     "statusChange": {
       "title": "تغيير الحالة",
       "message": "هل أنت متأكد أنك تريد {{action}} {{name}}؟",
@@ -1136,10 +1088,8 @@
       "confirmDeactivate": "نعم، قم بالتعطيل",
       "success": "تم {{action}} الموظف \"{{name}}\" بنجاح"
     },
-
     "pageOf": "الصفحة {{page}} من {{totalPages}}"
   },
-
   "common": {
     "cancel": "إلغاء"
   },
@@ -1221,7 +1171,6 @@
     "shift": "الوردية",
     "acceptButton": "قبول",
     "rejectButton": "رفض",
-
     "status": {
       "pending": "قيد الانتظار",
       "accepted": "مقبول",
@@ -1229,7 +1178,6 @@
       "rejected": "مرفوض",
       "cancelled": "ملغي"
     },
-
     "statusMessages": {
       "pending": "في انتظار قبول الزميل...",
       "accepted": "وافق الزميل. في انتظار موافقة المدير.",
@@ -1306,7 +1254,6 @@
     "subscribeButton": "اشترك",
     "processing": "جارٍ المعالجة...",
     "alreadyOnFreePlan": "أنت بالفعل على الخطة المجانية.",
-
     "errors": {
       "failedToLoad": "فشل تحميل الخطط",
       "paymentInitFailed": "فشل بدء الدفع",
@@ -1489,14 +1436,12 @@
     "shifts": "ورديات",
     "clockedIn": "تم تسجيل الدخول",
     "notClockedIn": "لم يتم تسجيل الدخول",
-
     "stats": {
       "totalEmployees": "إجمالي الموظفين",
       "presentToday": "حاضرون اليوم",
       "absentToday": "غائبون اليوم",
       "totalShifts": "إجمالي الورديات"
     },
-
     "filters": {
       "allPositions": "جميع المناصب",
       "allStatus": "جميع الحالات",
@@ -1506,7 +1451,6 @@
       "lateToday": "متأخر اليوم",
       "absentToday": "غائب اليوم"
     },
-
     "table": {
       "employee": "الموظف",
       "position": "المنصب",
@@ -1516,7 +1460,6 @@
       "joined": "تاريخ الانضمام",
       "actions": "الإجراءات"
     },
-
     "status": {
       "active": "نشط",
       "inactive": "غير نشط",
@@ -1524,7 +1467,6 @@
       "late": "متأخر",
       "absent": "غائب"
     },
-
     "actions": {
       "viewDetails": "عرض التفاصيل",
       "viewAttendance": "عرض الحضور",
@@ -1535,7 +1477,6 @@
       "deactivated": "تم إلغاء التفعيل",
       "delete": "حذف"
     },
-
     "statusChange": {
       "title": "تأكيد تغيير الحالة",
       "message": "هل أنت متأكد من أنك تريد {{action}} {{name}}؟",
@@ -1543,15 +1484,12 @@
       "confirmDeactivate": "نعم، إلغاء التفعيل",
       "success": "تم {{action}} {{name}} بنجاح"
     },
-
     "confirmDelete": "هل أنت متأكد من أنك تريد حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
-
     "success": {
       "created": "تم إنشاء الموظف بنجاح!",
       "updated": "تم تحديث الموظف بنجاح!",
       "deleted": "تم حذف {{name}} بنجاح"
     },
-
     "errors": {
       "fetchFailed": "فشل تحميل الموظفين. الرجاء المحاولة مرة أخرى.",
       "createFailed": "فشل إنشاء الموظف. الرجاء المحاولة مرة أخرى.",
@@ -1654,14 +1592,12 @@
       "tryAdjusting": "حاول تعديل البحث أو الفلاتر للعثور على ما تبحث عنه.",
       "getStarted": "ابدأ بإضافة أول موظف لك إلى النظام.",
       "pageOf": "صفحة {page} من {totalPages}",
-
       "stats": {
         "totalEmployees": "إجمالي الموظفين",
         "presentToday": "الحاضرون اليوم",
         "absentToday": "الغائبون اليوم",
         "totalShifts": "إجمالي الورديات"
       },
-
       "filters": {
         "allPositions": "جميع المناصب",
         "allStatus": "جميع الحالات",
@@ -1671,7 +1607,6 @@
         "lateToday": "متأخر اليوم",
         "absentToday": "غائب اليوم"
       },
-
       "status": {
         "inactive": "غير نشط",
         "present": "حاضر",
@@ -1679,7 +1614,6 @@
         "absent": "غائب",
         "active": "نشط"
       },
-
       "table": {
         "employee": "الموظف",
         "position": "المنصب",
@@ -1689,7 +1623,6 @@
         "joined": "تاريخ الانضمام",
         "actions": "الإجراءات"
       },
-
       "actions": {
         "viewDetails": "عرض التفاصيل",
         "viewAttendance": "عرض الحضور",
@@ -1700,7 +1633,6 @@
         "deactivated": "تم التعطيل",
         "delete": "حذف"
       },
-
       "statusChange": {
         "title": "تغيير الحالة",
         "message": "هل أنت متأكد أنك تريد {action} {name}؟",
@@ -1708,15 +1640,12 @@
         "confirmDeactivate": "نعم، قم بالتعطيل",
         "success": "تم {action} {name} بنجاح."
       },
-
       "confirmDelete": "هل أنت متأكد أنك تريد حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
-
       "success": {
         "created": "تم إنشاء الموظف بنجاح!",
         "updated": "تم تحديث بيانات الموظف بنجاح!",
         "deleted": "تم حذف {name} بنجاح!"
       },
-
       "errors": {
         "fetchFailed": "فشل في جلب بيانات الموظفين",
         "createFailed": "فشل في إنشاء الموظف",
@@ -1732,50 +1661,41 @@
       "notProvided": "غير مقدم",
       "records": "سجل",
       "closeButton": "إغلاق",
-
       "errors": {
         "fetchFailed": "فشل في جلب تفاصيل الموظف"
       },
-
       "status": {
         "active": "نشط",
         "inactive": "غير نشط"
       },
-
       "sections": {
         "basicInfo": "المعلومات الأساسية",
         "statistics": "الإحصائيات",
         "accountInfo": "معلومات الحساب",
         "recentAttendance": "الحضور الأخير"
       },
-
       "fields": {
         "email": "البريد الإلكتروني",
         "phone": "الهاتف",
         "position": "المنصب",
         "branchId": "معرف الفرع"
       },
-
       "stats": {
         "totalShifts": "إجمالي الورديات",
         "upcomingShifts": "الورديات القادمة"
       },
-
       "account": {
         "memberSince": "عضو منذ",
         "lastLogin": "آخر تسجيل دخول"
       },
-
       "attendance": {
         "present": "حاضر",
         "absent": "غائب"
       },
-
       "table": {
         "date": "التاريخ",
         "status": "الحالة"
       },
-
       "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
     }
   },
@@ -1786,7 +1706,6 @@
         "addTitle": "إضافة موظف جديد",
         "editSubtitle": "تحديث معلومات الموظف",
         "addSubtitle": "إضافة عضو جديد للفريق",
-
         "labels": {
           "fullName": "الاسم الكامل",
           "email": "البريد الإلكتروني",
@@ -1794,7 +1713,6 @@
           "phone": "رقم الهاتف",
           "position": "المنصب"
         },
-
         "placeholders": {
           "name": "جون دو",
           "email": "employee@example.com",
@@ -1802,13 +1720,11 @@
           "phone": "+1 234 567 8900",
           "position": "مثال: مدير، كاشير، مبيعات"
         },
-
         "buttons": {
           "cancel": "إلغاء",
           "update": "تحديث الموظف",
           "add": "إضافة موظف"
         },
-
         "errors": {
           "nameRequired": "الاسم مطلوب",
           "emailRequired": "البريد الإلكتروني مطلوب",
@@ -1828,7 +1744,6 @@
       "cancel": "إلغاء",
       "close": "إغلاق"
     },
-
     "employees": {
       "title": "إدارة الموظفين",
       "subtitle": "إدارة ومتابعة القوى العاملة لديك",
@@ -1845,14 +1760,12 @@
       "tryAdjusting": "حاول تعديل البحث أو الفلاتر للعثور على ما تبحث عنه.",
       "getStarted": "ابدأ بإضافة أول موظف لك إلى النظام.",
       "pageOf": "صفحة {page} من {totalPages}",
-
       "stats": {
         "totalEmployees": "إجمالي الموظفين",
         "presentToday": "الحاضرون اليوم",
         "absentToday": "الغائبون اليوم",
         "totalShifts": "إجمالي الورديات"
       },
-
       "filters": {
         "allPositions": "جميع المناصب",
         "allStatus": "جميع الحالات",
@@ -1862,7 +1775,6 @@
         "lateToday": "متأخر اليوم",
         "absentToday": "غائب اليوم"
       },
-
       "status": {
         "inactive": "غير نشط",
         "present": "حاضر",
@@ -1870,7 +1782,6 @@
         "absent": "غائب",
         "active": "نشط"
       },
-
       "table": {
         "employee": "الموظف",
         "position": "المنصب",
@@ -1880,7 +1791,6 @@
         "joined": "تاريخ الانضمام",
         "actions": "الإجراءات"
       },
-
       "actions": {
         "viewDetails": "عرض التفاصيل",
         "viewAttendance": "عرض الحضور",
@@ -1891,7 +1801,6 @@
         "deactivated": "تم التعطيل",
         "delete": "حذف"
       },
-
       "statusChange": {
         "title": "تغيير الحالة",
         "message": "هل أنت متأكد أنك تريد {action} {name}؟",
@@ -1899,15 +1808,12 @@
         "confirmDeactivate": "نعم، قم بالتعطيل",
         "success": "تم {action} {name} بنجاح."
       },
-
       "confirmDelete": "هل أنت متأكد أنك تريد حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
-
       "success": {
         "created": "تم إنشاء الموظف بنجاح!",
         "updated": "تم تحديث بيانات الموظف بنجاح!",
         "deleted": "تم حذف {name} بنجاح!"
       },
-
       "errors": {
         "fetchFailed": "فشل في جلب بيانات الموظفين",
         "createFailed": "فشل في إنشاء الموظف",
@@ -1915,13 +1821,11 @@
         "toggleFailed": "فشل في تغيير الحالة",
         "deleteFailed": "فشل في حذف الموظف"
       },
-
       "form": {
         "editTitle": "تعديل الموظف",
         "addTitle": "إضافة موظف جديد",
         "editSubtitle": "تحديث معلومات الموظف",
         "addSubtitle": "إضافة عضو جديد للفريق",
-
         "labels": {
           "fullName": "الاسم الكامل",
           "email": "البريد الإلكتروني",
@@ -1929,7 +1833,6 @@
           "phone": "رقم الهاتف",
           "position": "المنصب"
         },
-
         "placeholders": {
           "name": "جون دو",
           "email": "employee@example.com",
@@ -1937,13 +1840,11 @@
           "phone": "+1 234 567 8900",
           "position": "مثال: مدير، كاشير، مبيعات"
         },
-
         "buttons": {
           "cancel": "إلغاء",
           "update": "تحديث الموظف",
           "add": "إضافة موظف"
         },
-
         "errors": {
           "nameRequired": "الاسم مطلوب",
           "emailRequired": "البريد الإلكتروني مطلوب",
@@ -1955,7 +1856,6 @@
           "positionRequired": "المنصب مطلوب"
         }
       },
-
       "deleteModal": {
         "title": "حذف الموظف",
         "cannotUndo": "لا يمكن التراجع عن هذا الإجراء",
@@ -1965,19 +1865,16 @@
         "confirmDelete": "حذف الموظف"
       }
     },
-
     "employeeAttendance": {
       "modalTitle": "سجل الحضور",
       "exitButton": "إغلاق",
       "timeUnit": "ساعة",
       "loadError": "فشل في جلب بيانات الحضور",
-
       "metrics": {
         "totalEntries": "إجمالي السجلات",
         "workedHours": "إجمالي الساعات",
         "extraTime": "ساعات إضافية"
       },
-
       "tableHeaders": {
         "day": "التاريخ",
         "startTime": "التسجيل الدخول",
@@ -1985,94 +1882,77 @@
         "duration": "الساعات",
         "workStatus": "الحالة"
       },
-
       "statusTypes": {
         "present": "في الوقت",
         "lateArrival": "متأخر",
         "notPresent": "غائب"
       },
-
       "emptyState": {
         "title": "لا توجد سجلات حضور",
         "description": "لم يتم العثور على سجلات حضور لـ {name}."
       }
     },
-
     "employeeDetails": {
       "never": "أبداً",
       "notProvided": "غير مقدم",
       "records": "سجل",
       "closeButton": "إغلاق",
-
       "errors": {
         "fetchFailed": "فشل في جلب تفاصيل الموظف"
       },
-
       "status": {
         "active": "نشط",
         "inactive": "غير نشط"
       },
-
       "sections": {
         "basicInfo": "المعلومات الأساسية",
         "statistics": "الإحصائيات",
         "accountInfo": "معلومات الحساب",
         "recentAttendance": "الحضور الأخير"
       },
-
       "fields": {
         "email": "البريد الإلكتروني",
         "phone": "الهاتف",
         "position": "المنصب",
         "branchId": "معرف الفرع"
       },
-
       "stats": {
         "totalShifts": "إجمالي الورديات",
         "upcomingShifts": "الورديات القادمة"
       },
-
       "account": {
         "memberSince": "عضو منذ",
         "lastLogin": "آخر تسجيل دخول"
       },
-
       "attendance": {
         "present": "حاضر",
         "absent": "غائب"
       },
-
       "table": {
         "date": "التاريخ",
         "status": "الحالة"
       },
-
       "noAttendanceRecords": "لم يتم العثور على سجلات حضور"
     },
-
     "reports": {
       "defaultTitle": "تفاصيل التقرير",
       "sheetName": "تقرير",
       "unknown": "غير معروف",
       "close": "إغلاق",
       "generatedDate": "تم الإنشاء في",
-
       "aiSmartAnalysis": "التحليل الذكي",
       "aiDescription": "انقر لإنشاء تحليل ذكي يحتوي على رؤى وتوجهات وتوصيات.",
       "analyzing": "جارٍ التحليل...",
       "regenerate": "إعادة التوليد",
       "generateInsights": "توليد رؤى",
-
       "languages": {
         "arabic": "العربية",
         "english": "الإنجليزية"
       },
-
       "aiSummary": {
         "ar": "ملخص التحليل الذكي",
         "en": "AI Smart Analysis"
       },
-
       "stats": {
         "totalHours": "إجمالي الساعات",
         "present": "حاضر",
@@ -2085,19 +1965,16 @@
         "avgPerformance": "متوسط الأداء",
         "avgAttendance": "متوسط الحضور"
       },
-
       "metrics": {
         "totalShifts": "إجمالي الورديات",
         "completed": "مكتملة",
         "scheduled": "مجدولة",
         "inProgress": "جارية"
       },
-
       "tables": {
         "employeeBreakdown": "تفصيل الموظفين",
         "performanceRanking": "ترتيب الأداء"
       },
-
       "tableHeaders": {
         "employee": "الموظف",
         "email": "البريد الإلكتروني",
@@ -2112,7 +1989,6 @@
         "attendance": "الحضور",
         "tasks": "المهام"
       },
-
       "attendanceTable": {
         "en": {
           "employee": "Employee",
@@ -2129,7 +2005,6 @@
           "rate": "معدل الحضور"
         }
       },
-
       "performanceTable": {
         "en": {
           "employee": "Employee",
@@ -2144,7 +2019,6 @@
           "tasks": "المهام المنجزة"
         }
       },
-
       "shiftTable": {
         "en": {
           "metric": "Metric",
@@ -2163,27 +2037,111 @@
           "inProgress": "جارية"
         }
       },
-
       "export": {
         "pdf": "PDF",
         "excel": "Excel"
       },
-
       "errors": {
         "aiAnalysisFailed": "فشل في توليد التحليل الذكي. حاول لاحقًا.",
         "fontFailed": "فشل في جلب الخط",
         "pdfFailed": "فشل في تصدير ملف PDF."
       }
     },
-   "auth": {
-    "validation": {
-      "companyNameRequired": "اسم الشركة مطلوب",
-      "nameRequired": "الاسم الكامل مطلوب",
-      "emailRequired": "البريد الإلكتروني مطلوب",
-      "emailInvalid": "صيغة البريد الإلكتروني غير صالحة",
-      "passwordMinLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
-      "passwordsNoMatch": "كلمات المرور غير متطابقة"
+    "auth": {
+      "validation": {
+        "companyNameRequired": "اسم الشركة مطلوب",
+        "nameRequired": "الاسم الكامل مطلوب",
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "emailInvalid": "صيغة البريد الإلكتروني غير صالحة",
+        "passwordMinLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
+        "passwordsNoMatch": "كلمات المرور غير متطابقة"
+      }
+    },
+    "platform": {
+      "dashboard": {
+        "title": "نظرة عامة على المنصة",
+        "subtitle": "مراقبة أداء النظام والإيرادات ونمو الشركات.",
+        "stats": {
+          "totalRevenue": "إجمالي الإيرادات",
+          "totalCompanies": "إجمالي الشركات",
+          "activeCompanies": "الشركات النشطة",
+          "totalUsers": "إجمالي المستخدمين"
+        },
+        "charts": {
+          "revenueByPlan": "الإيرادات حسب الخطة",
+          "recentSignups": "التسجيلات الأخيرة",
+          "viewAll": "عرض الكل",
+          "noCompanies": "لا توجد شركات بعد."
+        }
+      },
+      "companies": {
+        "title": "الشركات",
+        "subtitle": "إدارة الشركات المسجلة واشتراكاتها.",
+        "searchPlaceholder": "البحث عن الشركات...",
+        "filters": {
+          "label": "تصفية:",
+          "allPlans": "جميع الخطط",
+          "allStatus": "جميع الحالات",
+          "active": "نشط",
+          "inactive": "غير نشط",
+          "clear": "مسح"
+        },
+        "card": {
+          "joined": "انضم منذ",
+          "superAdmin": "المشرف العام",
+          "plan": "الخطة",
+          "revenue": "الإيرادات",
+          "employees": "الموظفين",
+          "maxBranches": "أقصى عدد للفروع",
+          "suspended": "معلق",
+          "expires": "انتهاء الصلاحية:"
+        },
+        "actions": {
+          "deactivate": "تعطيل الشركة",
+          "activate": "تفعيل الشركة"
+        },
+        "empty": {
+          "title": "لم يتم العثور على شركات",
+          "message": "حاول تعديل كلمات البحث."
+        }
+      },
+      "plans": {
+        "title": "خطط الاشتراك",
+        "subtitle": "إدارة مستويات التسعير والميزات.",
+        "createList": "إنشاء خطة",
+        "card": {
+          "branches": "فروع",
+          "employees": "موظف",
+          "moreFeatures": "ميزات إضافية",
+          "edit": "تعديل",
+          "deactivate": "تعطيل الخطة",
+          "activate": "تفعيل الخطة",
+          "delete": "حذف نهائي",
+          "free": "مجاني"
+        },
+        "modal": {
+          "createTitle": "إنشاء خطة جديدة",
+          "editTitle": "تعديل الخطة",
+          "name": "اسم الخطة",
+          "slug": "الاسم المختصر (فريد)",
+          "description": "الوصف",
+          "price": "السعر (جم)",
+          "billingCycle": "دورة الفوترة",
+          "maxBranches": "أقصى عدد للفروع",
+          "maxEmployees": "أقصى عدد للموظفين",
+          "features": "الميزات (واحدة في كل سطر)",
+          "activePlan": "خطة نشطة",
+          "cancel": "إلغاء",
+          "create": "إنشاء الخطة",
+          "update": "تحديث الخطة"
+        },
+        "alerts": {
+          "updated": "تم تحديث الخطة بنجاح",
+          "created": "تم إنشاء الخطة بنجاح",
+          "deleted": "تم حذف الخطة نهائياً",
+          "confirmDelete": "⚠️ تحذير: سيقوم هذا بحذف الخطة نهائياً.\n\nقم بذلك فقط إذا لم تكن هناك شركات مشتركة بها.\n\nهل أنت متأكد تماماً؟"
+        }
+      }
     }
-  }
   }
 }
