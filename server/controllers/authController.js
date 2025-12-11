@@ -49,7 +49,26 @@ export const registerSuperAdmin = async (req, res) => {
 
     // Create company first
     const Company = await import("../models/companyModel.js");
-    const company = await Company.default.create({ name: companyName.trim() });
+    const Plan = await import("../models/planModel.js"); // Import Plan model
+
+    // Find the default free plan (price = 0)
+    const freePlan = await Plan.default.findOne({ price: 0 });
+
+    const companyData = {
+      name: companyName.trim()
+    };
+
+    // If a free plan exists, use its details
+    if (freePlan) {
+      companyData.subscription = {
+        plan: freePlan._id,
+        plan_name: freePlan.name,
+        maxBranches: freePlan.limits.max_branches,
+        maxUsers: freePlan.limits.max_employees
+      };
+    }
+
+    const company = await Company.default.create(companyData);
 
     const superAdmin = await User.create({
       name,
@@ -389,9 +408,9 @@ export const forgetPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Email not found. Please register first." 
+        message: "Email not found. Please register first."
       });
     }
 
@@ -408,17 +427,17 @@ export const forgetPassword = async (req, res) => {
 
     await sendResetPasswordEmail(user.email, resetUrl);
 
-    return res.json({ 
+    return res.json({
       success: true,
-      message: "Reset link has been sent to your email." 
+      message: "Reset link has been sent to your email."
     });
   } catch (err) {
     console.error("forgetPassword error:", err);
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-        await user.save({ validateBeforeSave: false });
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+      await user.save({ validateBeforeSave: false });
     }
     return res.status(500).json({ success: false, message: "Email could not be sent. Please try again." });
   }
@@ -541,7 +560,7 @@ export const updateMyProfile = async (req, res) => {
         email: user.email,
         role: user.role,
         phone: user.phone,
-        avatar: user.avatar, 
+        avatar: user.avatar,
         position: user.position,
         department: user.department,
         branch_location: user.branch_location // ✅ Consistent return
@@ -605,7 +624,7 @@ export const createAdmin = async (req, res) => {
         id: admin._id,
         email: admin.email,
         branch_name: admin.branch_name,
-        super_admin_id: admin.super_admin_id 
+        super_admin_id: admin.super_admin_id
       }
     });
   } catch (err) {
