@@ -14,6 +14,7 @@ const LocationMapModal = ({ isOpen, onClose, currentLocation, onSave }) => {
   // Pre-fill existing data when modal opens
   useEffect(() => {
     if (isOpen && currentLocation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData({
         lat: currentLocation.lat || "",
         lng: currentLocation.lng || "",

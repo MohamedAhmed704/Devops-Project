@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { authService } from "../api/services/authService";
 import { dashboardService } from "../api/services/admin/dashboardService"; // ✅ Import dashboard service
@@ -44,6 +45,7 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update Data (Text)
