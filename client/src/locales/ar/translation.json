@@ -1795,5 +1795,23 @@
         "confirmDelete": "⚠️ تحذير: سيقوم هذا بحذف الخطة نهائياً.\n\nقم بذلك فقط إذا لم تكن هناك شركات مشتركة بها.\n\nهل أنت متأكد تماماً؟"
       }
     }
-  }
+  },
+  "Dashboard": "لوحة المعلومات",
+  "Companies": "الشركات",
+  "Plans": "الخطط",
+  "Profile": "الملف الشخصي",
+  "Payment Verification": "تحقق الدفع",
+  "Teams": "الفرق",
+  "Employees": "الموظفين",
+  "Leave Requests": "طلبات الإجازة",
+  "Reports": "التقارير",
+  "Billing": "الفوترة",
+  "Scheduler": "الجدول",
+  "Swap Approvals": "موافقات التبادل",
+  "Time Tracking": "تتبع الوقت",
+  "Time Off": "الإجازات",
+  "My Schedule": "جدولي",
+  "Shift Swaps": "تبادلات الورديات",
+  "Time Off Requests": "طلبات الإجازة",
+  "My Reports": "تقاريري"
 }
