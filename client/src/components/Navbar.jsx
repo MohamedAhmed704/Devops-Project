@@ -47,6 +47,7 @@ export default function Navbar({ role }) {
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
     localStorage.setItem("lang", lang);
+    window.location.reload();
   };
 
   const fetchNotifications = async () => {
@@ -155,9 +156,9 @@ export default function Navbar({ role }) {
           )}
 
           {/* Notifications */}
-          <div                 
-          ref={notificationRef}
-          className="relative">
+          <div
+            ref={notificationRef}
+            className="relative">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -239,9 +240,9 @@ export default function Navbar({ role }) {
           </div>
 
           {/* Profile Menu */}
-          <div 
-          ref={profileRef}
-          className="relative">
+          <div
+            ref={profileRef}
+            className="relative">
             <button
               className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full dark:text-slate-300"
               onClick={(e) => {
