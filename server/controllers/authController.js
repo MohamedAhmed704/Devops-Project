@@ -2,10 +2,7 @@ import User from "../models/userModel.js";
 import OTP from "../models/otpModel.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from "../utils/token.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { sendResetPasswordEmail, sendOTPEmail } from "../utils/emailService.js";
 
 // REGISTER SUPER ADMIN (First Setup) - With OTP Verification
@@ -18,7 +15,7 @@ export const registerSuperAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "INVALID_EMAIL",
-        message: "Please provide a valid email address"
+        message: "Please provide a valid email address",
       });
     }
 
@@ -26,7 +23,7 @@ export const registerSuperAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "WEAK_PASSWORD",
-        message: "Password must be at least 6 characters long"
+        message: "Password must be at least 6 characters long",
       });
     }
 
@@ -34,7 +31,7 @@ export const registerSuperAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "INVALID_COMPANY_NAME",
-        message: "Company name must be at least 2 characters long"
+        message: "Company name must be at least 2 characters long",
       });
     }
 
@@ -43,7 +40,7 @@ export const registerSuperAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "EMAIL_EXISTS",
-        message: "Email already in use"
+        message: "Email already in use",
       });
     }
 
@@ -55,7 +52,7 @@ export const registerSuperAdmin = async (req, res) => {
     const freePlan = await Plan.default.findOne({ price: 0 });
 
     const companyData = {
-      name: companyName.trim()
+      name: companyName.trim(),
     };
 
     // If a free plan exists, use its details
@@ -64,7 +61,7 @@ export const registerSuperAdmin = async (req, res) => {
         plan: freePlan._id,
         plan_name: freePlan.name,
         maxBranches: freePlan.limits.max_branches,
-        maxUsers: freePlan.limits.max_employees
+        maxUsers: freePlan.limits.max_employees,
       };
     }
 
@@ -77,7 +74,7 @@ export const registerSuperAdmin = async (req, res) => {
       role: "super_admin",
       is_active: false,
       company: company._id,
-      email_verified: false
+      email_verified: false,
     });
 
     const otpCode = OTP.generateOTP();
@@ -86,7 +83,7 @@ export const registerSuperAdmin = async (req, res) => {
       email: email.toLowerCase(),
       otp: otpCode,
       type: "email_verification",
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     });
 
     await sendOTPEmail(email, otpCode, "email_verification");
@@ -103,16 +100,16 @@ export const registerSuperAdmin = async (req, res) => {
         is_active: superAdmin.is_active,
         company: {
           id: company._id,
-          name: company.name
-        }
-      }
+          name: company.name,
+        },
+      },
     });
   } catch (err) {
     console.error("registerSuperAdmin error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: "Registration failed. Please try again later."
+      message: "Registration failed. Please try again later.",
     });
   }
 };
@@ -126,7 +123,7 @@ export const verifyEmail = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "MISSING_FIELDS",
-        message: "Email and OTP are required"
+        message: "Email and OTP are required",
       });
     }
 
@@ -135,7 +132,7 @@ export const verifyEmail = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "INVALID_EMAIL",
-        message: "Please provide a valid email address"
+        message: "Please provide a valid email address",
       });
     }
 
@@ -144,7 +141,7 @@ export const verifyEmail = async (req, res) => {
       return res.status(404).json({
         success: false,
         error: "USER_NOT_FOUND",
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -152,17 +149,21 @@ export const verifyEmail = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "ALREADY_VERIFIED",
-        message: "Email is already verified"
+        message: "Email is already verified",
       });
     }
 
-    const otpRecord = await OTP.findValidOTP(email.toLowerCase(), otp, "email_verification");
+    const otpRecord = await OTP.findValidOTP(
+      email.toLowerCase(),
+      otp,
+      "email_verification"
+    );
 
     if (!otpRecord) {
       return res.status(400).json({
         success: false,
         error: "INVALID_OTP",
-        message: "Invalid or expired OTP"
+        message: "Invalid or expired OTP",
       });
     }
 
@@ -191,16 +192,15 @@ export const verifyEmail = async (req, res) => {
         email: user.email,
         role: user.role,
         email_verified: user.email_verified,
-        is_active: user.is_active
-      }
+        is_active: user.is_active,
+      },
     });
-
   } catch (err) {
     console.error("verifyEmail error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: "Email verification failed."
+      message: "Email verification failed.",
     });
   }
 };
@@ -214,7 +214,7 @@ export const resendOTP = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "MISSING_EMAIL",
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
@@ -223,7 +223,7 @@ export const resendOTP = async (req, res) => {
       return res.status(404).json({
         success: false,
         error: "USER_NOT_FOUND",
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -231,7 +231,7 @@ export const resendOTP = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "ALREADY_VERIFIED",
-        message: "Email is already verified"
+        message: "Email is already verified",
       });
     }
 
@@ -239,7 +239,7 @@ export const resendOTP = async (req, res) => {
       {
         email: email.toLowerCase(),
         type: "email_verification",
-        isVerified: false
+        isVerified: false,
       },
       { expiresAt: Date.now() }
     );
@@ -250,7 +250,7 @@ export const resendOTP = async (req, res) => {
       email: email.toLowerCase(),
       otp: otpCode,
       type: "email_verification",
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
     });
 
     await sendOTPEmail(email, otpCode, "email_verification");
@@ -260,15 +260,15 @@ export const resendOTP = async (req, res) => {
       message: "OTP sent successfully.",
       data: {
         email: email,
-        expires_in: "10 minutes"
-      }
+        expires_in: "10 minutes",
+      },
     });
   } catch (err) {
     console.error("resendOTP error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: "Failed to resend OTP."
+      message: "Failed to resend OTP.",
     });
   }
 };
@@ -283,7 +283,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "INVALID_CREDENTIALS",
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
 
@@ -291,7 +291,7 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({
         success: false,
         error: "EMAIL_NOT_VERIFIED",
-        message: "Verify email before logging in"
+        message: "Verify email before logging in",
       });
     }
 
@@ -299,7 +299,7 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({
         success: false,
         error: "ACCOUNT_INACTIVE",
-        message: "Account inactive"
+        message: "Account inactive",
       });
     }
 
@@ -308,7 +308,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "INVALID_CREDENTIALS",
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
 
@@ -331,7 +331,7 @@ export const loginUser = async (req, res) => {
       email_verified: user.email_verified,
       is_active: user.is_active,
       lastLogin: user.lastLogin,
-      branch_location: user.branch_location // ✅ Ensure location is sent on login
+      branch_location: user.branch_location, // Ensure location is sent on login
     };
 
     if (user.role === "admin") {
@@ -355,7 +355,7 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: err.message
+      message: err.message,
     });
   }
 };
@@ -385,7 +385,9 @@ export const refreshAccessToken = async (req, res) => {
     return res.json({ accessToken: newAccessToken });
   } catch (err) {
     console.error("refreshAccessToken error:", err);
-    return res.status(401).json({ message: "Refresh token expired or invalid" });
+    return res
+      .status(401)
+      .json({ message: "Refresh token expired or invalid" });
   }
 };
 
@@ -410,26 +412,29 @@ export const forgetPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Email not found. Please register first."
+        message: "Email not found. Please register first.",
       });
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
 
     user.resetPasswordToken = hashedToken;
     user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     await sendResetPasswordEmail(user.email, resetUrl);
 
     return res.json({
       success: true,
-      message: "Reset link has been sent to your email."
+      message: "Reset link has been sent to your email.",
     });
   } catch (err) {
     console.error("forgetPassword error:", err);
@@ -439,7 +444,12 @@ export const forgetPassword = async (req, res) => {
       user.resetPasswordExpire = undefined;
       await user.save({ validateBeforeSave: false });
     }
-    return res.status(500).json({ success: false, message: "Email could not be sent. Please try again." });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Email could not be sent. Please try again.",
+      });
   }
 };
 
@@ -474,7 +484,7 @@ export const resetPassword = async (req, res) => {
 // GET PROFILE
 export const getMyProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -494,22 +504,30 @@ export const getMyProfile = async (req, res) => {
       email_verified: user.email_verified,
       lastLogin: user.lastLogin,
       createdAt: user.createdAt,
-      branch_location: user.branch_location // ✅ Ensure location is sent on refresh
+      branch_location: user.branch_location, // Ensure location is sent on refresh
     };
 
     // Add subscription data for super_admin
     if (user.role === "super_admin" && user.company) {
       const Company = (await import("../models/companyModel.js")).default;
-      const company = await Company.findById(user.company).populate('subscription.plan');
+      const company = await Company.findById(user.company).populate(
+        "subscription.plan"
+      );
 
       if (company && company.subscription) {
-        profileData.plan_slug = company.subscription.plan?.slug || company.subscription.plan_name || "free";
-        profileData.plan_name = company.subscription.plan?.name || company.subscription.plan_name || "Free";
+        profileData.plan_slug =
+          company.subscription.plan?.slug ||
+          company.subscription.plan_name ||
+          "free";
+        profileData.plan_name =
+          company.subscription.plan?.name ||
+          company.subscription.plan_name ||
+          "Free";
         profileData.subscription = {
           status: company.subscription.status,
           expiresAt: company.subscription.expiresAt,
           maxUsers: company.subscription.maxUsers,
-          maxBranches: company.subscription.maxBranches
+          maxBranches: company.subscription.maxBranches,
         };
       }
     }
@@ -563,8 +581,8 @@ export const updateMyProfile = async (req, res) => {
         avatar: user.avatar,
         position: user.position,
         department: user.department,
-        branch_location: user.branch_location // ✅ Consistent return
-      }
+        branch_location: user.branch_location, // Consistent return
+      },
     });
   } catch (err) {
     console.error("updateMyProfile error:", err);
@@ -584,24 +602,24 @@ export const createAdmin = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "EMAIL_EXISTS",
-        message: "Email is already in use"
+        message: "Email is already in use",
       });
     }
 
     // ENFORCE SUBSCRIPTION LIMITS (Max Branches) - Added for consistency
-    const superAdmin = await User.findById(superAdminId).populate('company');
+    const superAdmin = await User.findById(superAdminId).populate("company");
     if (superAdmin && superAdmin.company) {
       const company = superAdmin.company;
       const currentBranches = await User.countDocuments({
         role: "admin",
-        super_admin_id: superAdminId
+        super_admin_id: superAdminId,
       });
 
       if (currentBranches >= company.subscription.maxBranches) {
         return res.status(403).json({
           success: false,
           error: "LIMIT_EXCEEDED",
-          message: `You have reached the limit of ${company.subscription.maxBranches} branches for your ${company.subscription.plan_name} plan.`
+          message: `You have reached the limit of ${company.subscription.maxBranches} branches for your ${company.subscription.plan_name} plan.`,
         });
       }
     }
@@ -614,7 +632,7 @@ export const createAdmin = async (req, res) => {
       branch_name,
       is_active: true,
       email_verified: true,
-      super_admin_id: superAdminId
+      super_admin_id: superAdminId,
     });
 
     return res.status(201).json({
@@ -624,15 +642,15 @@ export const createAdmin = async (req, res) => {
         id: admin._id,
         email: admin.email,
         branch_name: admin.branch_name,
-        super_admin_id: admin.super_admin_id
-      }
+        super_admin_id: admin.super_admin_id,
+      },
     });
   } catch (err) {
     console.error("createAdmin error:", err);
     return res.status(500).json({
       success: false,
       error: "SERVER_ERROR",
-      message: err.message
+      message: err.message,
     });
   }
 };

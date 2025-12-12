@@ -14,20 +14,26 @@ export const getPlatformDashboard = async (req, res) => {
       totalRevenue,
       totalUsers,
       recentCompanies,
-      revenueByPlan
+      revenueByPlan,
     ] = await Promise.all([
       Company.countDocuments(),
       Company.countDocuments({ isActive: true }),
       Revenue.aggregate([
         { $match: { status: "completed" } },
-        { $group: { _id: null, total: { $sum: "$amount" } } }
+        { $group: { _id: null, total: { $sum: "$amount" } } },
       ]),
       User.countDocuments(),
       Company.find().sort({ createdAt: -1 }).limit(5),
       Revenue.aggregate([
         { $match: { status: "completed" } },
-        { $group: { _id: "$plan", total: { $sum: "$amount" }, count: { $sum: 1 } } }
-      ])
+        {
+          $group: {
+            _id: "$plan",
+            total: { $sum: "$amount" },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
     ]);
 
     res.json({
@@ -37,11 +43,11 @@ export const getPlatformDashboard = async (req, res) => {
           total_companies: totalCompanies,
           active_companies: activeCompanies,
           total_revenue: totalRevenue[0]?.total || 0,
-          total_users: totalUsers
+          total_users: totalUsers,
         },
         recent_companies: recentCompanies,
-        revenue_by_plan: revenueByPlan
-      }
+        revenue_by_plan: revenueByPlan,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -83,8 +89,8 @@ export const getAllCompanies = async (req, res) => {
           from: "revenues",
           localField: "_id",
           foreignField: "company_id",
-          as: "revenues"
-        }
+          as: "revenues",
+        },
       },
       {
         $lookup: {
@@ -92,10 +98,10 @@ export const getAllCompanies = async (req, res) => {
           let: { companyId: "$_id" },
           pipeline: [
             { $match: { $expr: { $eq: ["$company", "$$companyId"] } } },
-            { $count: "total" }
+            { $count: "total" },
           ],
-          as: "userCount"
-        }
+          as: "userCount",
+        },
       },
       {
         $lookup: {
@@ -107,53 +113,58 @@ export const getAllCompanies = async (req, res) => {
                 $expr: {
                   $and: [
                     { $eq: ["$company", "$$companyId"] },
-                    { $eq: ["$role", "super_admin"] }
-                  ]
-                }
-              }
+                    { $eq: ["$role", "super_admin"] },
+                  ],
+                },
+              },
             },
             { $project: { name: 1, email: 1 } },
-            { $limit: 1 }
+            { $limit: 1 },
           ],
-          as: "superAdmin"
-        }
+          as: "superAdmin",
+        },
       },
       {
         $addFields: {
           totalRevenue: {
             $sum: {
               $map: {
-                input: { $filter: { input: "$revenues", as: "r", cond: { $eq: ["$$r.status", "completed"] } } },
+                input: {
+                  $filter: {
+                    input: "$revenues",
+                    as: "r",
+                    cond: { $eq: ["$$r.status", "completed"] },
+                  },
+                },
                 as: "rev",
-                in: "$$rev.amount"
-              }
-            }
+                in: "$$rev.amount",
+              },
+            },
           },
-          employeeCount: { $ifNull: [{ $arrayElemAt: ["$userCount.total", 0] }, 0] },
-          superAdmin: { $arrayElemAt: ["$superAdmin", 0] }
-        }
+          employeeCount: {
+            $ifNull: [{ $arrayElemAt: ["$userCount.total", 0] }, 0],
+          },
+          superAdmin: { $arrayElemAt: ["$superAdmin", 0] },
+        },
       },
       {
         $project: {
           revenues: 0,
           userCount: 0,
           verificationToken: 0,
-          verificationExpires: 0
-        }
+          verificationExpires: 0,
+        },
       },
       { $skip: skip },
-      { $limit: limit }
+      { $limit: limit },
     ];
 
     // Count pipeline
-    const countPipeline = [
-      { $match: matchQuery },
-      { $count: "total" }
-    ];
+    const countPipeline = [{ $match: matchQuery }, { $count: "total" }];
 
     const [companies, countResult] = await Promise.all([
       Company.aggregate(pipeline),
-      Company.aggregate(countPipeline)
+      Company.aggregate(countPipeline),
     ]);
 
     const total = countResult[0]?.total || 0;
@@ -165,14 +176,14 @@ export const getAllCompanies = async (req, res) => {
       success: true,
       data: companies,
       filters: {
-        plans: availablePlans.filter(p => p) // Remove nulls
+        plans: availablePlans.filter((p) => p), // Remove nulls
       },
       pagination: {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("[getAllCompanies] Error:", error);
@@ -193,7 +204,10 @@ export const toggleCompanyStatus = async (req, res) => {
     company.isActive = !company.isActive;
     await company.save();
 
-    res.json({ success: true, message: `Company ${company.isActive ? 'activated' : 'deactivated'}` });
+    res.json({
+      success: true,
+      message: `Company ${company.isActive ? "activated" : "deactivated"}`,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

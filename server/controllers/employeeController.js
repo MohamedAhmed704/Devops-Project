@@ -3,13 +3,12 @@ import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
 import Report from "../models/reportModel.js";
 
-// ✅ 1. إعداد فترة السماح (15 دقيقة) لمنع حساب الـ Late لأي تأخير بسيط
 const GRACE_PERIOD_MINUTES = 15;
 
 // Utility function to get the Super Admin ID (Tenant Owner ID)
 const getTenantOwnerId = (user) => {
-    // For employee, the owner ID is stored in super_admin_id field
-    return user.super_admin_id; 
+  // For employee, the owner ID is stored in super_admin_id field
+  return user.super_admin_id;
 };
 
 // GET EMPLOYEE DASHBOARD
@@ -20,9 +19,9 @@ export const getEmployeeDashboard = async (req, res) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    // ✅ FIX: Ensure weekStart is set to the beginning of the day (00:00:00)
-    const weekStart = new Date(today); 
+
+    // FIX: Ensure weekStart is set to the beginning of the day (00:00:00)
+    const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay()); // Sunday as start of week
 
     // Get dashboard data in parallel (All queries now filtered by tenantOwnerId)
@@ -32,114 +31,124 @@ export const getEmployeeDashboard = async (req, res) => {
       weeklyAttendance,
       weeklyShifts,
       branchAdmin,
-      upcomingShifts
+      upcomingShifts,
     ] = await Promise.all([
       // Today's attendance (ISOLATION)
       Attendance.findOne({
         user_id: employeeId,
-        super_admin_id: tenantOwnerId, 
-        date: { $gte: today }
+        super_admin_id: tenantOwnerId,
+        date: { $gte: today },
       }),
-      
+
       // Today's shifts (ISOLATION)
       Shift.find({
         employee_id: employeeId,
         super_admin_id: tenantOwnerId,
-        start_date_time: { 
+        start_date_time: {
           $gte: today,
-          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-        }
-      })
-      .sort({ start_date_time: 1 }),
-      
+          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        },
+      }).sort({ start_date_time: 1 }),
+
       // Weekly attendance summary (ISOLATION)
       Attendance.find({
         user_id: employeeId,
         super_admin_id: tenantOwnerId,
-        date: { $gte: weekStart }
+        date: { $gte: weekStart },
       }),
-      
+
       // Weekly shifts (ISOLATION)
       Shift.find({
         employee_id: employeeId,
         super_admin_id: tenantOwnerId,
-        start_date_time: { $gte: weekStart }
+        start_date_time: { $gte: weekStart },
       }),
-      
+
       // Branch admin info
-      User.findById(req.user.branch_admin_id)
-        .select('name branch_name phone email'),
-      
+      User.findById(req.user.branch_admin_id).select(
+        "name branch_name phone email"
+      ),
+
       // Upcoming shifts (next 3 days) (ISOLATION)
       Shift.find({
         employee_id: employeeId,
         super_admin_id: tenantOwnerId,
-        start_date_time: { 
+        start_date_time: {
           $gte: today,
-          $lte: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000)
+          $lte: new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000),
         },
-        status: "scheduled"
+        status: "scheduled",
       })
-      .sort({ start_date_time: 1 })
-      .limit(5)
+        .sort({ start_date_time: 1 })
+        .limit(5),
     ]);
 
     // Calculate weekly stats
     const weeklyStats = {
       total_days: weeklyAttendance.length,
-      present_days: weeklyAttendance.filter(a => 
-        a.status === 'present' || a.status === 'late'
+      present_days: weeklyAttendance.filter(
+        (a) => a.status === "present" || a.status === "late"
       ).length,
-      // ✅ FIX: Ensure numbers are formatted correctly to 2 decimals
-      total_hours: parseFloat(weeklyAttendance.reduce((sum, a) => sum + (a.total_hours || 0), 0).toFixed(2)),
-      overtime: parseFloat(weeklyAttendance.reduce((sum, a) => sum + (a.overtime || 0), 0).toFixed(2))
+      // FIX: Ensure numbers are formatted correctly to 2 decimals
+      total_hours: parseFloat(
+        weeklyAttendance
+          .reduce((sum, a) => sum + (a.total_hours || 0), 0)
+          .toFixed(2)
+      ),
+      overtime: parseFloat(
+        weeklyAttendance
+          .reduce((sum, a) => sum + (a.overtime || 0), 0)
+          .toFixed(2)
+      ),
     };
 
-    // ✅ FIX: Enhanced logic to find the "current" shift even if not started yet
+    // FIX: Enhanced logic to find the "current" shift even if not started yet
     const now = new Date();
-    let currentShift = todayShifts.find(shift => shift.status === 'in_progress');
+    let currentShift = todayShifts.find(
+      (shift) => shift.status === "in_progress"
+    );
 
     if (!currentShift) {
-        // If no shift is active, try to find one overlapping with current time
-        currentShift = todayShifts.find(shift => 
-            shift.start_date_time <= now && shift.end_date_time >= now
-        );
+      // If no shift is active, try to find one overlapping with current time
+      currentShift = todayShifts.find(
+        (shift) => shift.start_date_time <= now && shift.end_date_time >= now
+      );
     }
 
     if (!currentShift) {
-        // If still no shift, find the first scheduled shift for today (e.g. upcoming/early arrival)
-        currentShift = todayShifts.find(shift => shift.status === 'scheduled');
+      // If still no shift, find the first scheduled shift for today (e.g. upcoming/early arrival)
+      currentShift = todayShifts.find((shift) => shift.status === "scheduled");
     }
 
     const dashboardData = {
       today: {
         clocked_in: !!todayAttendance?.check_in,
-        current_status: todayAttendance?.status || 'absent',
+        current_status: todayAttendance?.status || "absent",
         check_in_time: todayAttendance?.check_in,
         today_shifts: todayShifts,
-        current_shift: currentShift // ✅ Updated logic
+        current_shift: currentShift, // Updated logic
       },
       weekly: weeklyStats,
       branch: {
         admin: branchAdmin,
-        name: branchAdmin?.branch_name
+        name: branchAdmin?.branch_name,
       },
       upcoming: {
         shifts: upcomingShifts,
-        next_shift: upcomingShifts[0]
-      }
+        next_shift: upcomingShifts[0],
+      },
     };
 
     return res.json({
       success: true,
       message: "Employee dashboard retrieved successfully",
-      data: dashboardData
+      data: dashboardData,
     });
   } catch (err) {
     console.error("getEmployeeDashboard error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -149,17 +158,11 @@ export const getMyShifts = async (req, res) => {
   try {
     const employeeId = req.user._id;
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
-    const { 
-      start_date, 
-      end_date, 
-      page = 1, 
-      limit = 20,
-      status 
-    } = req.query;
+    const { start_date, end_date, page = 1, limit = 20, status } = req.query;
 
-    let query = { 
+    let query = {
       employee_id: employeeId,
-      super_admin_id: tenantOwnerId // ISOLATION: Filter by owner ID
+      super_admin_id: tenantOwnerId, // ISOLATION: Filter by owner ID
     };
 
     // Add date range filter
@@ -177,7 +180,7 @@ export const getMyShifts = async (req, res) => {
     }
 
     const shifts = await Shift.find(query)
-      .populate('created_by_admin_id', 'name branch_name')
+      .populate("created_by_admin_id", "name branch_name")
       .sort({ start_date_time: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -192,14 +195,14 @@ export const getMyShifts = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        total_pages: Math.ceil(total / limit)
-      }
+        total_pages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     console.error("getMyShifts error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -210,16 +213,11 @@ export const getMyAttendance = async (req, res) => {
     const employeeId = req.user._id;
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
 
-    const { 
-      start_date, 
-      end_date, 
-      page = 1, 
-      limit = 30 
-    } = req.query;
+    const { start_date, end_date, page = 1, limit = 30 } = req.query;
 
-    let query = { 
-        user_id: employeeId,
-        super_admin_id: tenantOwnerId // ISOLATION: Filter by owner ID
+    let query = {
+      user_id: employeeId,
+      super_admin_id: tenantOwnerId, // ISOLATION: Filter by owner ID
     };
 
     // Add date range filter
@@ -241,12 +239,18 @@ export const getMyAttendance = async (req, res) => {
     // Calculate summary
     const summary = {
       total_records: total,
-      total_hours: attendance.reduce((sum, record) => sum + (record.total_hours || 0), 0),
-      total_overtime: attendance.reduce((sum, record) => sum + (record.overtime || 0), 0),
-      present_days: attendance.filter(record => 
-        record.status === 'present' || record.status === 'late'
+      total_hours: attendance.reduce(
+        (sum, record) => sum + (record.total_hours || 0),
+        0
+      ),
+      total_overtime: attendance.reduce(
+        (sum, record) => sum + (record.overtime || 0),
+        0
+      ),
+      present_days: attendance.filter(
+        (record) => record.status === "present" || record.status === "late"
       ).length,
-      late_days: attendance.filter(record => record.status === 'late').length
+      late_days: attendance.filter((record) => record.status === "late").length,
     };
 
     return res.json({
@@ -254,20 +258,20 @@ export const getMyAttendance = async (req, res) => {
       message: "Attendance records retrieved successfully",
       data: {
         records: attendance,
-        summary: summary
+        summary: summary,
       },
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        total_pages: Math.ceil(total / limit)
-      }
+        total_pages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     console.error("getMyAttendance error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -281,62 +285,60 @@ export const clockIn = async (req, res) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const now = new Date(); // ✅ Capture exact time
+    const now = new Date(); // Capture exact time
 
     // Check if already clocked in today (ISOLATION)
     const existingAttendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
       date: { $gte: today },
-      check_out: { $exists: false } // ✅ Check only for active sessions
+      check_out: { $exists: false }, // Check only for active sessions
     });
 
     if (existingAttendance) {
       return res.status(400).json({
         success: false,
-        message: "You have already clocked in today"
+        message: "You have already clocked in today",
       });
     }
 
-    // ✅ 1. SMART SHIFT SELECTION: Get ALL scheduled shifts for today
+    // 1. SMART SHIFT SELECTION: Get ALL scheduled shifts for today
     const todayShifts = await Shift.find({
       employee_id: employeeId,
       super_admin_id: tenantOwnerId,
       status: "scheduled",
-      start_date_time: { 
+      start_date_time: {
         $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-      }
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+      },
     });
 
     if (!todayShifts || todayShifts.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Cannot clock in: No shift scheduled for today."
+        message: "Cannot clock in: No shift scheduled for today.",
       });
     }
 
-    // ✅ 2. Select the Closest Shift to "Now"
-    // ده عشان لو فيه شفت فات ومحضرهوش، وشفت تاني وقته دلوقتي، يختار بتاع دلوقتي
+    // 2. Select the Closest Shift to "Now"
     let selectedShift = todayShifts.reduce((closest, current) => {
-        const currentDiff = Math.abs(now - new Date(current.start_date_time));
-        const closestDiff = Math.abs(now - new Date(closest.start_date_time));
-        return currentDiff < closestDiff ? current : closest;
+      const currentDiff = Math.abs(now - new Date(current.start_date_time));
+      const closestDiff = Math.abs(now - new Date(closest.start_date_time));
+      return currentDiff < closestDiff ? current : closest;
     });
 
-    // ✅ 3. Calculate Late Minutes with Grace Period
+    // 3. Calculate Late Minutes with Grace Period
     let late_minutes = 0;
-    
-    // الشرط ده يضمن إن الـ Late يتحسب بس لو الوقت عدى "فعلياً"
+
     if (selectedShift.start_date_time < now) {
-      const diffMinutes = Math.floor((now - selectedShift.start_date_time) / (1000 * 60));
-      
-      // تطبيق فترة السماح
+      const diffMinutes = Math.floor(
+        (now - selectedShift.start_date_time) / (1000 * 60)
+      );
+
       if (diffMinutes > GRACE_PERIOD_MINUTES) {
-          late_minutes = diffMinutes;
+        late_minutes = diffMinutes;
       }
     }
-    // لو دخل بدري (now < start)، الشرط مش هيتحقق، والـ late هيفضل 0
 
     // Create attendance record (ISOLATION)
     const attendance = await Attendance.create({
@@ -345,9 +347,9 @@ export const clockIn = async (req, res) => {
       date: today,
       check_in: now,
       late_minutes: late_minutes,
-      status: late_minutes > 0 ? "late" : "present", // ✅ Correct status based on grace period
+      status: late_minutes > 0 ? "late" : "present", // Correct status based on grace period
       location: location || "Office",
-      notes: notes || ""
+      notes: notes || "",
     });
 
     // Update shift status
@@ -364,17 +366,17 @@ export const clockIn = async (req, res) => {
           check_in: attendance.check_in,
           status: attendance.status,
           late_minutes: attendance.late_minutes,
-          location: attendance.location
+          location: attendance.location,
         },
         is_late: late_minutes > 0,
-        late_minutes: late_minutes
-      }
+        late_minutes: late_minutes,
+      },
     });
   } catch (err) {
     console.error("clockIn error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -394,30 +396,30 @@ export const clockOut = async (req, res) => {
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
       date: { $gte: today },
-      check_out: { $exists: false }
+      check_out: { $exists: false },
     });
 
     if (!attendance) {
       return res.status(400).json({
         success: false,
-        message: "No active attendance record found or already clocked out"
+        message: "No active attendance record found or already clocked out",
       });
     }
 
     const now = new Date();
-    
+
     // Find the related shift (ISOLATION)
     const shift = await Shift.findOne({
       employee_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      start_date_time: { 
+      start_date_time: {
         $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
       },
-      status: "in_progress"
+      status: "in_progress",
     });
 
-    // ✅ Calculate Durations
+    // Calculate Durations
     const workedMs = now - new Date(attendance.check_in);
     let totalHours = workedMs / (1000 * 60 * 60);
 
@@ -435,19 +437,19 @@ export const clockOut = async (req, res) => {
 
     totalHours = parseFloat(totalHours.toFixed(2));
 
-    // ✅ Smart Overtime Logic
+    // Smart Overtime Logic
     let overtime = 0;
-    const SPECIAL_SHIFT_TYPES = ['overtime', 'holiday', 'weekend', 'emergency'];
+    const SPECIAL_SHIFT_TYPES = ["overtime", "holiday", "weekend", "emergency"];
 
     if (shift && SPECIAL_SHIFT_TYPES.includes(shift.shift_type)) {
-        overtime = totalHours;
+      overtime = totalHours;
     } else {
-        const STANDARD_WORK_HOURS = 8;
-        if (totalHours > STANDARD_WORK_HOURS) {
-            overtime = totalHours - STANDARD_WORK_HOURS;
-        }
+      const STANDARD_WORK_HOURS = 8;
+      if (totalHours > STANDARD_WORK_HOURS) {
+        overtime = totalHours - STANDARD_WORK_HOURS;
+      }
     }
-    
+
     overtime = parseFloat(overtime.toFixed(2));
 
     // Save Updates
@@ -477,17 +479,17 @@ export const clockOut = async (req, res) => {
           check_out: attendance.check_out,
           total_hours: attendance.total_hours,
           overtime: attendance.overtime,
-          status: attendance.status
+          status: attendance.status,
         },
         total_hours: attendance.total_hours,
-        overtime: attendance.overtime
-      }
+        overtime: attendance.overtime,
+      },
     });
   } catch (err) {
     console.error("clockOut error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -507,13 +509,13 @@ export const startBreak = async (req, res) => {
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
       date: { $gte: today },
-      check_out: { $exists: false }
+      check_out: { $exists: false },
     });
 
     if (!attendance) {
       return res.status(400).json({
         success: false,
-        message: "No active attendance record found"
+        message: "No active attendance record found",
       });
     }
 
@@ -522,14 +524,14 @@ export const startBreak = async (req, res) => {
     if (lastBreak && !lastBreak.end) {
       return res.status(400).json({
         success: false,
-        message: "You are already in a break"
+        message: "You are already in a break",
       });
     }
 
     attendance.breaks.push({
       start: new Date(),
       end: null,
-      notes: notes || ""
+      notes: notes || "",
     });
 
     await attendance.save();
@@ -539,14 +541,14 @@ export const startBreak = async (req, res) => {
       message: "Break started",
       data: {
         break_start: new Date(),
-        break_count: attendance.breaks.length
-      }
+        break_count: attendance.breaks.length,
+      },
     });
   } catch (err) {
     console.error("startBreak error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -564,13 +566,13 @@ export const endBreak = async (req, res) => {
     const attendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      date: { $gte: today }
+      date: { $gte: today },
     });
 
     if (!attendance) {
       return res.status(400).json({
         success: false,
-        message: "No attendance record found"
+        message: "No attendance record found",
       });
     }
 
@@ -579,12 +581,12 @@ export const endBreak = async (req, res) => {
     if (!lastBreak || lastBreak.end) {
       return res.status(400).json({
         success: false,
-        message: "No active break to end"
+        message: "No active break to end",
       });
     }
 
     lastBreak.end = new Date();
-    
+
     // Optional: Calculate break duration right here for immediate feedback
     const durationMs = lastBreak.end - lastBreak.start;
     lastBreak.duration = Math.floor(durationMs / (1000 * 60)); // minutes
@@ -596,14 +598,14 @@ export const endBreak = async (req, res) => {
       message: "Break ended",
       data: {
         break_duration: lastBreak.duration,
-        break_end: new Date()
-      }
+        break_end: new Date(),
+      },
     });
   } catch (err) {
     console.error("endBreak error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -614,19 +616,21 @@ export const getMyProfile = async (req, res) => {
     const employeeId = req.user._id;
     // Note: tenantOwnerId is read for context, but User.findById(employeeId) is inherently tenant-safe if the token is valid
 
-    const employee = await User.findById(employeeId)
-      .select('-password -resetPasswordToken -resetPasswordExpire');
+    const employee = await User.findById(employeeId).select(
+      "-password -resetPasswordToken -resetPasswordExpire"
+    );
 
     if (!employee) {
       return res.status(404).json({
         success: false,
-        message: "Employee not found"
+        message: "Employee not found",
       });
     }
 
     // Get branch admin info
-    const branchAdmin = await User.findById(employee.branch_admin_id)
-      .select('name branch_name email phone');
+    const branchAdmin = await User.findById(employee.branch_admin_id).select(
+      "name branch_name email phone"
+    );
 
     const profileData = {
       id: employee._id,
@@ -644,21 +648,21 @@ export const getMyProfile = async (req, res) => {
         admin: {
           name: branchAdmin?.name,
           email: branchAdmin?.email,
-          phone: branchAdmin?.phone
-        }
-      }
+          phone: branchAdmin?.phone,
+        },
+      },
     };
 
     return res.json({
       success: true,
       message: "Profile retrieved successfully",
-      data: profileData
+      data: profileData,
     });
   } catch (err) {
     console.error("getMyProfile error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -669,11 +673,11 @@ export const updateMyProfile = async (req, res) => {
     const employeeId = req.user._id;
 
     const employee = await User.findById(employeeId);
-    
+
     if (!employee) {
       return res.status(404).json({
         success: false,
-        message: "Employee not found"
+        message: "Employee not found",
       });
     }
 
@@ -684,19 +688,20 @@ export const updateMyProfile = async (req, res) => {
 
     await employee.save();
 
-    const updatedEmployee = await User.findById(employeeId)
-      .select('-password -resetPasswordToken -resetPasswordExpire');
+    const updatedEmployee = await User.findById(employeeId).select(
+      "-password -resetPasswordToken -resetPasswordExpire"
+    );
 
     return res.json({
       success: true,
       message: "Profile updated successfully",
-      data: updatedEmployee
+      data: updatedEmployee,
     });
   } catch (err) {
     console.error("updateMyProfile error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -715,56 +720,55 @@ export const getTodayStatus = async (req, res) => {
       Attendance.findOne({
         user_id: employeeId,
         super_admin_id: tenantOwnerId, // ISOLATION
-        date: { $gte: today }
+        date: { $gte: today },
       }),
       Shift.find({
         employee_id: employeeId,
         super_admin_id: tenantOwnerId, // ISOLATION
-        start_date_time: { 
+        start_date_time: {
           $gte: today,
-          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
-        }
-      })
-      .sort({ start_date_time: 1 })
+          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        },
+      }).sort({ start_date_time: 1 }),
     ]);
 
-    // ✅ FIX: Enhanced logic to find the "current" shift even if not started yet
+    // FIX: Enhanced logic to find the "current" shift even if not started yet
     const now = new Date();
-    let currentShift = shifts.find(shift => shift.status === 'in_progress');
+    let currentShift = shifts.find((shift) => shift.status === "in_progress");
 
     if (!currentShift) {
-        // If no shift is active, try to find one overlapping with current time
-        currentShift = shifts.find(shift => 
-            shift.start_date_time <= now && shift.end_date_time >= now
-        );
+      // If no shift is active, try to find one overlapping with current time
+      currentShift = shifts.find(
+        (shift) => shift.start_date_time <= now && shift.end_date_time >= now
+      );
     }
 
     if (!currentShift) {
-        // If still no shift, find the first scheduled shift for today (e.g. upcoming/early arrival)
-        currentShift = shifts.find(shift => shift.status === 'scheduled');
+      // If still no shift, find the first scheduled shift for today (e.g. upcoming/early arrival)
+      currentShift = shifts.find((shift) => shift.status === "scheduled");
     }
 
     const status = {
       clocked_in: !!attendance?.check_in,
       check_in_time: attendance?.check_in,
       check_out_time: attendance?.check_out,
-      current_status: attendance?.status || 'absent',
+      current_status: attendance?.status || "absent",
       today_shifts: shifts,
-      current_shift: currentShift, // ✅ Updated logic
+      current_shift: currentShift, // Updated logic
       can_clock_in: !attendance?.check_in,
-      can_clock_out: !!attendance?.check_in && !attendance?.check_out
+      can_clock_out: !!attendance?.check_in && !attendance?.check_out,
     };
 
     return res.json({
       success: true,
       message: "Today's status retrieved successfully",
-      data: status
+      data: status,
     });
   } catch (err) {
     console.error("getTodayStatus error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
@@ -777,16 +781,19 @@ export const getMyReports = async (req, res) => {
     const { type, page = 1, limit = 10 } = req.query;
 
     let query = {
-        super_admin_id: tenantOwnerId, // ISOLATION: Base filter for all reports
+      super_admin_id: tenantOwnerId, // ISOLATION: Base filter for all reports
     };
-    
+
     // Add custom OR conditions for accessibility (within the tenant's data)
     query.$or = [
       { employee_id: employeeId },
       // Restrict access to reports generated by the employee's admin (branch admin is the creator)
-      { access_level: "branch", generated_by_admin_id: req.user.branch_admin_id }, 
+      {
+        access_level: "branch",
+        generated_by_admin_id: req.user.branch_admin_id,
+      },
       { access_level: "company_wide", is_public: true },
-      { shared_with_users: employeeId }
+      { shared_with_users: employeeId },
     ];
 
     if (type) {
@@ -794,7 +801,7 @@ export const getMyReports = async (req, res) => {
     }
 
     const reports = await Report.find(query)
-      .populate('generated_by_admin_id', 'name branch_name')
+      .populate("generated_by_admin_id", "name branch_name")
       .sort({ created_at: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -809,37 +816,36 @@ export const getMyReports = async (req, res) => {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
-        total_pages: Math.ceil(total / limit)
-      }
+        total_pages: Math.ceil(total / limit),
+      },
     });
   } catch (err) {
     console.error("getMyReports error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: err.message 
+      message: err.message,
     });
   }
 };
 
-// ✅ GET COLLEAGUES (For Swap Selection)
+// GET COLLEAGUES (For Swap Selection)
 export const getColleagues = async (req, res) => {
   try {
     const userId = req.user._id;
-    const branchAdminId = req.user.branch_admin_id; // الموظف تابع لنفس الأدمن
+    const branchAdminId = req.user.branch_admin_id;
     const tenantOwnerId = req.user.super_admin_id;
 
-    // هات كل الموظفين في نفس الفرع ماعدا أنا
     const colleagues = await User.find({
       branch_admin_id: branchAdminId,
       super_admin_id: tenantOwnerId,
       role: "employee",
-      _id: { $ne: userId }, // استبعاد نفسي
-      is_active: true
+      _id: { $ne: userId },
+      is_active: true,
     }).select("name email position avatar");
 
     return res.json({
       success: true,
-      data: colleagues
+      data: colleagues,
     });
   } catch (err) {
     console.error("getColleagues error:", err);
@@ -847,7 +853,7 @@ export const getColleagues = async (req, res) => {
   }
 };
 
-// ✅ GET COLLEAGUE SHIFTS (For Shift-for-Shift Swap)
+// GET COLLEAGUE SHIFTS (For Shift-for-Shift Swap)
 export const getColleagueShifts = async (req, res) => {
   try {
     const { colleagueId } = req.params;
@@ -858,14 +864,14 @@ export const getColleagueShifts = async (req, res) => {
       employee_id: colleagueId,
       super_admin_id: tenantOwnerId,
       status: "scheduled",
-      start_date_time: { $gt: new Date() } // Future only
+      start_date_time: { $gt: new Date() }, // Future only
     })
-    .sort({ start_date_time: 1 })
-    .select('_id start_date_time end_date_time title shift_type');
+      .sort({ start_date_time: 1 })
+      .select("_id start_date_time end_date_time title shift_type");
 
     return res.json({
       success: true,
-      data: shifts
+      data: shifts,
     });
   } catch (err) {
     console.error("getColleagueShifts error:", err);
