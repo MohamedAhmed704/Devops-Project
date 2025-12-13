@@ -22,6 +22,8 @@ import ResetPasswordRoute from "./ResetPasswordRoute.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import Loader from "../components/Loader.jsx";
 import CalendarModal from "../components/CalendarModal.jsx";
+import About from "../pages/Aboutus.jsx";
+import ContactUs from "../pages/Contactus.jsx";
 
 export default function AppRouter() {
   const { loading } = useAuth();
@@ -61,7 +63,8 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route path="/test" element={<PaymentForm />} />
+        
+
         {/* Public Routes */}
         <Route
           path="/"
