@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { superAdminService } from "../../api/services/superAdminService";
-import { useLoading } from "../../contexts/LoaderContext";
 import { 
-  FileText, Calendar, Filter, User, Building, Eye, BarChart2, Clock, 
+  Calendar, Filter, Building, Eye, BarChart2, Clock, 
   ChevronLeft, ChevronRight 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ReportDetailsModal from "./ReportDetailsModal"; 
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function SystemReports() {
   const [reports, setReports] = useState([]);
   const [filterType, setFilterType] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
-  
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const limit = 6; 
 
-  const { show, hide } = useLoading();
   const { t, i18n } = useTranslation();
 
   const fetchReports = async () => {
     try {
-      show();
+      setLoading(true)
       const params = { 
         page, 
         limit,
@@ -39,7 +38,7 @@ export default function SystemReports() {
     } catch (err) {
       console.error(t("systemReports.errors.fetchFailed"), err);
     } finally {
-      hide();
+      setLoading(false)
     }
   };
 
@@ -50,6 +49,8 @@ export default function SystemReports() {
   useEffect(() => {
     setPage(1);
   }, [filterType]);
+
+  if(loading) return <DashboardSkeleton />
 
   const getStatusColor = (type) => {
     switch (type) {
@@ -199,7 +200,7 @@ export default function SystemReports() {
             ))}
           </div>
 
-          {/* ✅ Pagination Controls */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-4 mt-8 pb-4">
               <button
