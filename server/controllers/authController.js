@@ -10,8 +10,11 @@ export const registerSuperAdmin = async (req, res) => {
   try {
     const { name, email, password, companyName } = req.body;
 
+    // Normalize email to lowercase
+    const normalizedEmail = email.toLowerCase();
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
         error: "INVALID_EMAIL",
@@ -35,7 +38,7 @@ export const registerSuperAdmin = async (req, res) => {
       });
     }
 
-    const exists = await User.findOne({ email });
+    const exists = await User.findOne({ email: normalizedEmail });
     if (exists) {
       return res.status(400).json({
         success: false,
@@ -69,7 +72,7 @@ export const registerSuperAdmin = async (req, res) => {
 
     const superAdmin = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       role: "super_admin",
       is_active: false,
@@ -278,7 +281,7 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -597,7 +600,9 @@ export const createAdmin = async (req, res) => {
 
     const superAdminId = req.user._id;
 
-    const exists = await User.findOne({ email });
+    const normalizedEmail = email.toLowerCase();
+
+    const exists = await User.findOne({ email: normalizedEmail });
     if (exists) {
       return res.status(400).json({
         success: false,
@@ -626,7 +631,7 @@ export const createAdmin = async (req, res) => {
 
     const admin = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       role: "admin",
       branch_name,
