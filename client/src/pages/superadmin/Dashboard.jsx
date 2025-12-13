@@ -58,7 +58,7 @@ export default function Dashboard() {
             </h1>
             <p className="text-blue-100 dark:text-slate-300 text-lg max-w-2xl">
               {t("superDashboard.hero.description")}{" "}
-              <span className="font-bold text-white">{overview?.active_branches} {t("superDashboard.hero.activeBranches")}</span>
+              <span className="font-bold text-white">{overview?.active_branches} <span className="me-1">{t("superDashboard.hero.activeBranches")}</span></span>
               {t("superDashboard.hero.runningSmoothly")}
             </p>
             
