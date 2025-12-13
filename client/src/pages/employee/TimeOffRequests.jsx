@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Calendar,
   Clock,
@@ -11,16 +11,15 @@ import {
 } from "lucide-react";
 import Button from "../../utils/Button";
 import apiClient from "../../api/apiClient";
-import { useLoading } from "../../contexts/LoaderContext";
 import { useToast } from "../../hooks/useToast";
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 const TimeOffRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState("all");
-  const { show: showGlobalLoading, hide: hideGlobalLoading } = useLoading();
   const { success, error } = useToast();
   const { t, i18n } = useTranslation();
 
@@ -67,7 +66,7 @@ const TimeOffRequests = () => {
     }
 
     try {
-      showGlobalLoading();
+      setLoading(true);
       const response = await apiClient.post("/api/employee/leave-requests", {
         ...formData,
         start_date: formData.start_date,
@@ -91,7 +90,7 @@ const TimeOffRequests = () => {
       console.error(t("timeOffRequests.errors.submit"), err);
       error(err.response?.data?.message || t("timeOffRequests.alerts.submitFailed"));
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   };
 
@@ -107,7 +106,7 @@ const TimeOffRequests = () => {
   // Handle cancel request
   const handleCancelRequest = async (requestId) => {
     try {
-      showGlobalLoading();
+      setLoading(true);
       await apiClient.patch(`/api/employee/leave-requests/${requestId}/cancel`);
       await fetchRequests();
       success(t("timeOffRequests.alerts.cancelSuccess"));
@@ -115,7 +114,7 @@ const TimeOffRequests = () => {
       console.error(t("timeOffRequests.errors.cancel"), error);
       error(error.response?.data?.message || t("timeOffRequests.alerts.cancelFailed"));
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   };
 
@@ -211,6 +210,8 @@ const TimeOffRequests = () => {
       default: return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
+
+  if(loading) return <DashboardSkeleton />;
 
   return (
     <div className="p-4 sm:p-10 dark:bg-slate-900 dark:text-slate-50 min-h-screen">
