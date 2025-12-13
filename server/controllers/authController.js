@@ -10,6 +10,14 @@ export const registerSuperAdmin = async (req, res) => {
   try {
     const { name, email, password, companyName } = req.body;
 
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: "MISSING_EMAIL",
+        message: "Email is required",
+      });
+    }
+
     // Normalize email to lowercase
     const normalizedEmail = email.toLowerCase();
 
@@ -280,6 +288,14 @@ export const resendOTP = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: "MISSING_FIELDS",
+        message: "Email and password are required",
+      });
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
@@ -599,6 +615,14 @@ export const createAdmin = async (req, res) => {
     const { name, email, password, branch_name } = req.body;
 
     const superAdminId = req.user._id;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: "MISSING_EMAIL",
+        message: "Email is required",
+      });
+    }
 
     const normalizedEmail = email.toLowerCase();
 
