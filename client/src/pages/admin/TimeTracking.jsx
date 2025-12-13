@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { User, Download, Funnel, Eye, Clock, Calendar, X, Timer, Coffee } from "lucide-react";
 import { attendanceService } from "../../api/services/admin/attendanceService";
-import { useLoading } from "../../contexts/LoaderContext";
 import toast, { Toaster } from "react-hot-toast";
 import * as XLSX from "xlsx";
 import {Alert} from "../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function TimeTracking() {
 
   const [isLive, setIsLive] = useState(true);
   const [records, setRecords] = useState([]);
-  
+  const [loading, setLoading] = useState(true);
+
   // Use local date instead of UTC to avoid timezone issues
   const getLocalDate = () => {
     const d = new Date();
@@ -22,26 +23,22 @@ export default function TimeTracking() {
   };
 
   const [selectedDate, setSelectedDate] = useState(getLocalDate());
-  
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  
   const [showFilters, setShowFilters] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
-
-  const { show, hide } = useLoading();
   const { t } = useTranslation();
 
   const fetchData = async () => {
     try {
-      show();
+      setLoading(true);
       const res = await attendanceService.getBranchAttendance(selectedDate);
       setRecords(res.data.records || []);
     } catch (err) {
       console.error(err);
       Alert.error(t("timeTracking.failedToLoad"));
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -107,6 +104,8 @@ export default function TimeTracking() {
     setSelectedRecord(record);
     setOpenModal(true);
   };
+
+  if(loading) return <DashboardSkeleton />
 
   return (
     <>

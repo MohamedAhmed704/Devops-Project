@@ -1,28 +1,28 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { swapService } from "../../api/services/admin/swapService";
-import { useLoading } from "../../contexts/LoaderContext";
 import { Alert } from "../../utils/alertService"; 
 import { 
   ArrowRightLeft, CheckCircle, XCircle, Calendar, AlertTriangle 
 } from "lucide-react";
 import Button from "../../utils/Button";
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function SwapApprovals() {
   const [requests, setRequests] = useState([]);
   const [filter, setFilter] = useState("pending");
-  const { show, hide } = useLoading();
   const { t } = useTranslation();
-
+  const [loading, setLoading] = useState(true);
+  
   const fetchRequests = async () => {
     try {
-      show();
+      setLoading(true);
       const res = await swapService.getBranchRequests();
       setRequests(res.data.data || []);
     } catch (err) {
       console.error(err);
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -49,7 +49,7 @@ export default function SwapApprovals() {
     }
 
     try {
-      show();
+      setLoading(true);
       if (action === "approve") {
         await swapService.approveRequest(id, adminNote); 
         Alert.success(t("swapApprovals.approveSuccess"));
@@ -61,7 +61,7 @@ export default function SwapApprovals() {
     } catch (err) {
       Alert.error(err.response?.data?.message || t("swapApprovals.actionFailed"));
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -98,6 +98,8 @@ export default function SwapApprovals() {
       };
     }
   };
+
+  if(loading) return <DashboardSkeleton />;
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen">

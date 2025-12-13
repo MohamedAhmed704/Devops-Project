@@ -3,7 +3,6 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { useLoading } from "../../contexts/LoaderContext";
 import shiftService from "../../api/services/admin/shiftService";
 import apiClient from "../../api/apiClient";
 import { 
@@ -14,12 +13,13 @@ import {
 import { Alert } from "../../utils/alertService.js";
 import Button from "../../utils/Button"; 
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function Schedule() {
   const [events, setEvents] = useState([]);
   const [employees, setEmployees] = useState([]);
-  const { show, hide } = useLoading();
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
   
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function Schedule() {
   const [aiPreview, setAiPreview] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   
-  // ✅ Voice Input State (With Language Toggle)
+  // Voice Input State (With Language Toggle)
   const [isListening, setIsListening] = useState(false);
   const [micLang, setMicLang] = useState('ar-EG'); 
   const recognitionRef = useRef(null);
@@ -50,7 +50,7 @@ export default function Schedule() {
   // Fetch Shifts & Employees
   const fetchData = async () => {
     try {
-      show();
+      setLoading(true)
       const [shiftsRes, employeesRes] = await Promise.all([
         shiftService.getBranchShifts({ limit: 1000 }), 
         apiClient.get("/api/admin/employees")
@@ -62,7 +62,7 @@ export default function Schedule() {
     } catch (err) {
       console.error("Failed to load schedule data", err);
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -194,7 +194,7 @@ export default function Schedule() {
     }
   };
 
-  // ✅ handleSubmit (Fixed Timezone Issue)
+  // handleSubmit (Fixed Timezone Issue)
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isReadOnly) return; 
@@ -203,19 +203,18 @@ export default function Schedule() {
       return Alert.warning(t("schedule.validation.requiredFields"));
     }
 
-    // ✅ FIX: Create Date objects directly from input value
+    // FIX: Create Date objects directly from input value
     const start = new Date(formData.start_date_time);
     const end = new Date(formData.end_date_time);
 
     try {
-      show();
-      
+      setLoading(true)
       if (selectedShiftId) {
         await shiftService.updateShift(selectedShiftId, {
           employee_id: formData.employee_ids[0],
           title: formData.title,
-          start_date_time: start, // ✅ Send Date object
-          end_date_time: end,     // ✅ Send Date object
+          start_date_time: start, // Send Date object
+          end_date_time: end,     // Send Date object
           shift_type: formData.shift_type,
           location: formData.location,
           notes: formData.notes
@@ -250,7 +249,7 @@ export default function Schedule() {
       console.error(err);
       Alert.error(err.response?.data?.message || t("schedule.errors.operationFailed"));
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -260,7 +259,7 @@ export default function Schedule() {
     if (!confirmResult.isConfirmed) return;
     
     try {
-      show();
+      setLoading(true);
       await shiftService.deleteShift(selectedShiftId);
       Alert.success(t("schedule.success.deleted"));
       handleCloseModal();
@@ -268,7 +267,7 @@ export default function Schedule() {
     } catch (err) {
       Alert.error(err.response?.data?.message || t("schedule.errors.deleteFailed"));
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -354,7 +353,7 @@ export default function Schedule() {
     if(!aiPreview || aiPreview.length === 0) return;
     
     try {
-      show();
+      setLoading(true)
       await shiftService.createBulkShifts({ shifts: aiPreview });
       Alert.success(t("schedule.ai.shiftsCreated", { count: aiPreview.length }));
       setShowAIModal(false);
@@ -364,7 +363,7 @@ export default function Schedule() {
     } catch (err) {
       Alert.error(t("schedule.ai.failedToSave"));
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -377,6 +376,7 @@ export default function Schedule() {
       return acc;
     }, {});
   };
+  if(loading) return <DashboardSkeleton />
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen dark:text-slate-100">

@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { authService } from "../api/services/authService";
-import { dashboardService } from "../api/services/admin/dashboardService"; // ✅ Import dashboard service
-import LocationMapModal from "../components/admin/LocationMapModal"; // ✅ Import Location Map Modal
-import { useLoading } from "../contexts/LoaderContext";
+import { dashboardService } from "../api/services/admin/dashboardService";
+import LocationMapModal from "../components/admin/LocationMapModal";
 import {
   User,
   Mail,
@@ -13,22 +11,23 @@ import {
   Clock,
   Camera,
   Save,
-  MapPin, // ✅ Import MapPin icon
+  MapPin,
 } from "lucide-react";
 import { Alert } from "../utils/alertService.js";
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../utils/DashboardSkeleton.jsx";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({ name: "", phone: "" });
-  const [isMapOpen, setIsMapOpen] = useState(false); // ✅ Modal open state
-  const { show, hide } = useLoading();
+  const [isMapOpen, setIsMapOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { t, i18n } = useTranslation();
 
   // Fetch Data
   const fetchProfile = async () => {
     try {
-      show();
+      setLoading(true)
       const res = await authService.getProfile();
       const data = res.data.data || res.data;
       setProfile(data);
@@ -39,20 +38,19 @@ export default function Profile() {
     } catch (err) {
       console.error(err);
     } finally {
-      hide();
+      setLoading(false)
     }
   };
 
   useEffect(() => {
     fetchProfile();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update Data (Text)
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      show();
+      setLoading(true);
       await authService.updateProfile(formData);
       setProfile({ ...profile, ...formData });
       window.dispatchEvent(
@@ -62,14 +60,14 @@ export default function Profile() {
     } catch (err) {
       Alert.error(t("profile.alerts.updateFailed"));
     } finally {
-      hide();
+      setLoading(false)
     }
   };
 
-  // ✅ Save new location
+  // Save new location
   const handleSaveLocation = async (locationData) => {
     try {
-      show();
+      setLoading(true);
       await dashboardService.updateBranchLocation(locationData);
       
       // Update local state
@@ -84,7 +82,7 @@ export default function Profile() {
       console.error(err);
       Alert.error("Failed to update location");
     } finally {
-      hide();
+      setLoading(false);
     }
   };
 
@@ -97,7 +95,7 @@ export default function Profile() {
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       try {
-        show();
+        setLoading(true);
         const base64Image = reader.result;
 
         await authService.updateProfile({ ...formData, avatar: base64Image });
@@ -106,7 +104,7 @@ export default function Profile() {
       } catch (err) {
         Alert.error(t("profile.alerts.imageUploadFailed"));
       } finally {
-        hide();
+        setLoading(false);
       }
     };
   };
@@ -119,7 +117,8 @@ export default function Profile() {
       default: return role.replace("_", " ").toUpperCase();
     }
   };
-
+  
+  if(loading) return <DashboardSkeleton />
   if (!profile) return null;
 
   return (
