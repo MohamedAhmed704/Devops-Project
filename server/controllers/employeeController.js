@@ -3,6 +3,7 @@ import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
 import Report from "../models/reportModel.js";
 
+// ✅ إعداد فترة السماح
 const GRACE_PERIOD_MINUTES = 15;
 
 // Utility function to get the Super Admin ID (Tenant Owner ID)
@@ -24,16 +25,23 @@ export const getEmployeeDashboard = async (req, res) => {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay()); // Sunday as start of week
 
+    // ✅ FIX OVERNIGHT: Get Active Attendance regardless of date first
+    const activeAttendance = await Attendance.findOne({
+      user_id: employeeId,
+      super_admin_id: tenantOwnerId,
+      check_out: { $exists: false }
+    });
+
     // Get dashboard data in parallel (All queries now filtered by tenantOwnerId)
     const [
-      todayAttendance,
+      todayAttendanceRecord, // For history/stats fallback
       todayShifts,
       weeklyAttendance,
       weeklyShifts,
       branchAdmin,
       upcomingShifts,
     ] = await Promise.all([
-      // Today's attendance (ISOLATION)
+      // Today's attendance (For showing 'checked in today' if started today)
       Attendance.findOne({
         user_id: employeeId,
         super_admin_id: tenantOwnerId,
@@ -83,13 +91,16 @@ export const getEmployeeDashboard = async (req, res) => {
         .limit(5),
     ]);
 
+    // Determine which attendance to show as "Current Status"
+    // If there is an active attendance (even from yesterday), use it.
+    const displayAttendance = activeAttendance || todayAttendanceRecord;
+
     // Calculate weekly stats
     const weeklyStats = {
       total_days: weeklyAttendance.length,
       present_days: weeklyAttendance.filter(
         (a) => a.status === "present" || a.status === "late"
       ).length,
-      // FIX: Ensure numbers are formatted correctly to 2 decimals
       total_hours: parseFloat(
         weeklyAttendance
           .reduce((sum, a) => sum + (a.total_hours || 0), 0)
@@ -102,17 +113,20 @@ export const getEmployeeDashboard = async (req, res) => {
       ),
     };
 
-    // FIX: Enhanced logic to find the "current" shift even if not started yet
+    // ✅ FIX: Enhanced logic to find the "current" shift even if not started yet
     const now = new Date();
-    let currentShift = todayShifts.find(
-      (shift) => shift.status === "in_progress"
-    );
+    // 1. First check for IN_PROGRESS shift
+    let currentShift = await Shift.findOne({
+        employee_id: employeeId,
+        super_admin_id: tenantOwnerId,
+        status: "in_progress"
+    });
 
+    // 2. If no in_progress shift, check today's shifts
     if (!currentShift) {
-      // If no shift is active, try to find one overlapping with current time
-      currentShift = todayShifts.find(
-        (shift) => shift.start_date_time <= now && shift.end_date_time >= now
-      );
+        currentShift = todayShifts.find(
+            (shift) => shift.start_date_time <= now && shift.end_date_time >= now
+        );
     }
 
     if (!currentShift) {
@@ -122,9 +136,9 @@ export const getEmployeeDashboard = async (req, res) => {
 
     const dashboardData = {
       today: {
-        clocked_in: !!todayAttendance?.check_in,
-        current_status: todayAttendance?.status || "absent",
-        check_in_time: todayAttendance?.check_in,
+        clocked_in: !!displayAttendance?.check_in && !displayAttendance?.check_out,
+        current_status: displayAttendance?.status || "absent",
+        check_in_time: displayAttendance?.check_in,
         today_shifts: todayShifts,
         current_shift: currentShift, // Updated logic
       },
@@ -287,18 +301,17 @@ export const clockIn = async (req, res) => {
     today.setHours(0, 0, 0, 0);
     const now = new Date(); // Capture exact time
 
-    // Check if already clocked in today (ISOLATION)
+    // ✅ FIX OVERNIGHT: Check for ANY open session regardless of date
     const existingAttendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      date: { $gte: today },
       check_out: { $exists: false }, // Check only for active sessions
     });
 
     if (existingAttendance) {
       return res.status(400).json({
         success: false,
-        message: "You have already clocked in today",
+        message: "You have already clocked in",
       });
     }
 
@@ -344,7 +357,7 @@ export const clockIn = async (req, res) => {
     const attendance = await Attendance.create({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION: Save the owner ID
-      date: today,
+      date: now, // Use actual date
       check_in: now,
       late_minutes: late_minutes,
       status: late_minutes > 0 ? "late" : "present", // Correct status based on grace period
@@ -388,14 +401,12 @@ export const clockOut = async (req, res) => {
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
     const { notes } = req.body;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
 
-    // Find today's attendance record (ISOLATION)
+    // ✅ FIX OVERNIGHT: Find ANY active attendance record regardless of date
     const attendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      date: { $gte: today },
       check_out: { $exists: false },
     });
 
@@ -406,17 +417,11 @@ export const clockOut = async (req, res) => {
       });
     }
 
-    const now = new Date();
-
-    // Find the related shift (ISOLATION)
+    // Find the related shift (The one currently IN PROGRESS)
     const shift = await Shift.findOne({
-      employee_id: employeeId,
-      super_admin_id: tenantOwnerId, // ISOLATION
-      start_date_time: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
-      status: "in_progress",
+        employee_id: employeeId,
+        super_admin_id: tenantOwnerId,
+        status: "in_progress",
     });
 
     // Calculate Durations
@@ -449,7 +454,6 @@ export const clockOut = async (req, res) => {
         overtime = totalHours - STANDARD_WORK_HOURS;
       }
     }
-
     overtime = parseFloat(overtime.toFixed(2));
 
     // Save Updates
@@ -501,14 +505,10 @@ export const startBreak = async (req, res) => {
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
     const { notes } = req.body;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Find active attendance record (ISOLATION)
+    // ✅ FIX OVERNIGHT: active session only
     const attendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      date: { $gte: today },
       check_out: { $exists: false },
     });
 
@@ -559,14 +559,11 @@ export const endBreak = async (req, res) => {
     const employeeId = req.user._id;
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    // Find today's attendance record (ISOLATION)
+    // ✅ FIX OVERNIGHT: active session only
     const attendance = await Attendance.findOne({
       user_id: employeeId,
       super_admin_id: tenantOwnerId, // ISOLATION
-      date: { $gte: today },
+      check_out: { $exists: false },
     });
 
     if (!attendance) {
@@ -715,48 +712,66 @@ export const getTodayStatus = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Filter by tenantOwnerId
-    const [attendance, shifts] = await Promise.all([
-      Attendance.findOne({
-        user_id: employeeId,
-        super_admin_id: tenantOwnerId, // ISOLATION
-        date: { $gte: today },
-      }),
-      Shift.find({
-        employee_id: employeeId,
-        super_admin_id: tenantOwnerId, // ISOLATION
-        start_date_time: {
-          $gte: today,
-          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
-      }).sort({ start_date_time: 1 }),
-    ]);
+    // ✅ FIX OVERNIGHT: 1. Try to find an ACTIVE attendance first (Active Session)
+    let attendance = await Attendance.findOne({
+      user_id: employeeId,
+      super_admin_id: tenantOwnerId, // ISOLATION
+      check_out: { $exists: false }, // Open session
+    });
 
-    // FIX: Enhanced logic to find the "current" shift even if not started yet
+    // If no active session, find if there was a closed session *today* just for history
+    if (!attendance) {
+      attendance = await Attendance.findOne({
+        user_id: employeeId,
+        super_admin_id: tenantOwnerId,
+        date: { $gte: today },
+      });
+    }
+
+    // Shifts
+    const shifts = await Shift.find({
+      employee_id: employeeId,
+      super_admin_id: tenantOwnerId, // ISOLATION
+      start_date_time: {
+        $gte: today,
+        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+      },
+    }).sort({ start_date_time: 1 });
+
+    // ✅ FIX: Enhanced logic to find the "current" shift even if not started yet
     const now = new Date();
-    let currentShift = shifts.find((shift) => shift.status === "in_progress");
+    // 1. Look for shift marked as IN_PROGRESS (Most accurate)
+    let currentShift = await Shift.findOne({
+        employee_id: employeeId,
+        super_admin_id: tenantOwnerId,
+        status: "in_progress"
+    });
 
     if (!currentShift) {
-      // If no shift is active, try to find one overlapping with current time
-      currentShift = shifts.find(
-        (shift) => shift.start_date_time <= now && shift.end_date_time >= now
-      );
+        // 2. If no shift is active, try to find one overlapping with current time from today's list
+        currentShift = shifts.find(
+            (shift) => shift.start_date_time <= now && shift.end_date_time >= now
+        );
     }
 
     if (!currentShift) {
-      // If still no shift, find the first scheduled shift for today (e.g. upcoming/early arrival)
+      // 3. Fallback: Find first scheduled
       currentShift = shifts.find((shift) => shift.status === "scheduled");
     }
 
+    // ✅ CHECK IF ON BREAK
+    const isOnBreak = attendance?.breaks?.some(b => b.start && !b.end);
+
     const status = {
-      clocked_in: !!attendance?.check_in,
+      clocked_in: !!(attendance && !attendance.check_out),
       check_in_time: attendance?.check_in,
       check_out_time: attendance?.check_out,
       current_status: attendance?.status || "absent",
+      is_on_break: !!isOnBreak, // ✅ Explicitly send break status
       today_shifts: shifts,
       current_shift: currentShift, // Updated logic
-      can_clock_in: !attendance?.check_in,
-      can_clock_out: !!attendance?.check_in && !attendance?.check_out,
+      can_clock_in: !(attendance && !attendance.check_out),
+      can_clock_out: !!(attendance && !attendance.check_out),
     };
 
     return res.json({
@@ -828,18 +843,19 @@ export const getMyReports = async (req, res) => {
   }
 };
 
-// GET COLLEAGUES (For Swap Selection)
+// ✅ GET COLLEAGUES (For Swap Selection)
 export const getColleagues = async (req, res) => {
   try {
     const userId = req.user._id;
-    const branchAdminId = req.user.branch_admin_id;
+    const branchAdminId = req.user.branch_admin_id; // الموظف تابع لنفس الأدمن
     const tenantOwnerId = req.user.super_admin_id;
 
+    // هات كل الموظفين في نفس الفرع ماعدا أنا
     const colleagues = await User.find({
       branch_admin_id: branchAdminId,
       super_admin_id: tenantOwnerId,
       role: "employee",
-      _id: { $ne: userId },
+      _id: { $ne: userId }, // استبعاد نفسي
       is_active: true,
     }).select("name email position avatar");
 
@@ -853,7 +869,7 @@ export const getColleagues = async (req, res) => {
   }
 };
 
-// GET COLLEAGUE SHIFTS (For Shift-for-Shift Swap)
+// ✅ GET COLLEAGUE SHIFTS (For Shift-for-Shift Swap)
 export const getColleagueShifts = async (req, res) => {
   try {
     const { colleagueId } = req.params;

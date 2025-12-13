@@ -231,11 +231,14 @@ const EmployeeTimeTracking = () => {
 
   // --- Derived State Logic ---
   
+  // ✅ FIX: Use backend status for break (handles overnight shifts correctly)
+  // ده بيخلي الزرار يقلب "End Break" حتى لو السجل بتاريخ إمبارح
+  const isOnBreak = todayStatus?.is_on_break;
+
   const todayRecord = attendanceHistory.find(r => 
     new Date(r.date).toDateString() === new Date().toDateString()
   );
   
-  const isOnBreak = todayRecord?.breaks?.some(b => b.start && !b.end);
   const activeBreakStart = todayRecord?.breaks?.find(b => b.start && !b.end)?.start;
 
   const stats = {
@@ -348,7 +351,7 @@ const EmployeeTimeTracking = () => {
               {!todayStatus?.clocked_in ? (
                 <div className="space-y-3">
                     <div className="grid grid-cols-1 gap-3 relative">
-                     <div className="absolute left-3 top-2.5 text-gray-400"><MapPin size={18}/></div>
+                      <div className="absolute left-3 top-2.5 text-gray-400"><MapPin size={18}/></div>
                     <input 
                       type="text" 
                       placeholder={t('employeeTimeTracking.form.locationPlaceholder')} 

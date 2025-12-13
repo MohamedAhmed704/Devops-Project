@@ -45,7 +45,7 @@ const AttendanceModal = ({ employee, onClose }) => {
   };
 
   const formatTime = (timeString) => {
-    if (!timeString) return t("admin.shared.unavailable");
+    if (!timeString) return t("---");
 
     const date = new Date(timeString);
 
