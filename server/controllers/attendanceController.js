@@ -8,6 +8,9 @@ const GRACE_PERIOD_MINUTES = 15;
 // CLOCK IN (start shift) - Create attendance record
 export const clockIn = async (req, res) => {
   try {
+    // ✅ FIX: Extract location, notes, and coordinates from request body first
+    const { location, notes, userLat, userLng } = req.body;
+
     const userId = req.user._id;
     const userRole = req.user.role;
     // ISOLATION KEY: Get the Super Admin ID from the user object
@@ -18,7 +21,7 @@ export const clockIn = async (req, res) => {
     // GEOFENCING CHECK START
     // ============================================================
     if (userRole === "employee" && req.user.branch_admin_id) {
-      const { userLat, userLng } = req.body;
+      // userLat and userLng are now available from the top destructuring
 
       const branchAdmin = await User.findById(req.user.branch_admin_id);
 
@@ -132,8 +135,8 @@ export const clockIn = async (req, res) => {
       check_in: now,
       late_minutes: late_minutes,
       status: late_minutes > 0 ? "late" : "present",
-      location: location || "Office",
-      notes: notes || "",
+      location: location || "Office", // ✅ Now 'location' is defined
+      notes: notes || "", // ✅ Now 'notes' is defined
     });
 
     // Update shift status
