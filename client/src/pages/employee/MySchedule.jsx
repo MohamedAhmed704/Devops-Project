@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar, Clock, MapPin, User, ChevronLeft, ChevronRight, Plus, X, FileText, Briefcase, Info, ArrowRightLeft } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Calendar, Clock, MapPin, ChevronLeft, ChevronRight, Plus, X, FileText, Briefcase, Info, ArrowRightLeft } from 'lucide-react';
 import Button from '../../utils/Button';
 import apiClient from '../../api/apiClient';
-import { useLoading } from '../../contexts/LoaderContext';
 import CalendarModal from '../../components/CalendarModal';
 import SwapRequestModal from '../../components/employee/SwapRequestModal'; 
 import { useTranslation } from 'react-i18next';
-import { Alert } from '../../utils/alertService'; // ✅ 1. Import Alert Service
+import { Alert } from '../../utils/alertService'; 
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 const ShiftDetailsModal = ({ shift, onClose, formatTime, getStatusColor, onSwapRequest }) => {
   const { t, i18n } = useTranslation();
@@ -170,18 +170,17 @@ const MySchedule = () => {
   const [showCalendarView, setShowCalendarView] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedShift, setSelectedShift] = useState(null);
-  
+  const [loading, setLoading] = useState(true);
+
   // Swap Modal State
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [shiftToSwap, setShiftToSwap] = useState(null);
-  
-  const { show: showGlobalLoading, hide: hideGlobalLoading } = useLoading();
-  const { t, i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
 
   // Fetch shifts for current week
   const fetchShifts = useCallback(async () => {
     try {
-      showGlobalLoading();
+      setLoading(true);
       const startOfWeek = new Date(currentWeek);
       startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
       
@@ -200,7 +199,7 @@ const MySchedule = () => {
       console.error(error);
       Alert.error(t('mySchedule.errors.fetchShifts') || "Failed to load shifts"); // ✅ 2. Use Alert for error
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   }, [currentWeek, t]); // Removed showGlobalLoading/hideGlobalLoading to prevent loop
 
@@ -300,7 +299,7 @@ const MySchedule = () => {
   };
 
   const weekDates = getWeekDates();
-
+  if(loading) return <DashboardSkeleton />;
   return (
     <>
     <div className="p-4 sm:p-10 mx-auto dark:bg-slate-900 dark:text-slate-50 min-h-screen">
