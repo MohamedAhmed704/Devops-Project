@@ -20,3 +20,13 @@
 .card {
   @apply shadow-sm border-sky-100 border rounded-lg p-4 flex items-center justify-between hover:bg-blue-100;
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

@@ -121,7 +121,7 @@ export const getAdminDashboard = async (req, res) => {
   }
 };
 
-// GET BRANCH EMPLOYEES
+// GET BRANCH EMPLOYEES (✅ FIXED FOR OVERNIGHT STATUS)
 export const getBranchEmployees = async (req, res) => {
   try {
     const adminId = req.user._id;
@@ -152,7 +152,7 @@ export const getBranchEmployees = async (req, res) => {
 
     const employees = await User.find(query)
       .select("-password -resetPasswordToken -resetPasswordExpire")
-      .sort({ createdAt: -1 }) // ✅ Fixed sort field
+      .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
 
@@ -164,13 +164,24 @@ export const getBranchEmployees = async (req, res) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // All sub-queries must be filtered by the tenantOwnerId
-        const [todayAttendance, totalShifts, recentShifts] = await Promise.all([
-          Attendance.findOne({
+        // ✅ FIX: Find Active Session OR Today's Session
+        // This ensures the status list shows "Present" for overnight shifts
+        let todayAttendance = await Attendance.findOne({
             user_id: employee._id,
-            super_admin_id: tenantOwnerId, // ISOLATION
-            date: { $gte: today },
-          }),
+            super_admin_id: tenantOwnerId,
+            check_out: { $exists: false } // Priority 1: Currently Active
+        });
+
+        // If no active session, find if they attended today and left
+        if (!todayAttendance) {
+            todayAttendance = await Attendance.findOne({
+                user_id: employee._id,
+                super_admin_id: tenantOwnerId,
+                date: { $gte: today }
+            }).sort({ createdAt: -1 });
+        }
+
+        const [totalShifts, recentShifts] = await Promise.all([
           Shift.countDocuments({
             employee_id: employee._id,
             super_admin_id: tenantOwnerId, // ISOLATION
@@ -186,7 +197,7 @@ export const getBranchEmployees = async (req, res) => {
         return {
           ...employee.toObject(),
           stats: {
-            clocked_in_today: !!todayAttendance,
+            clocked_in_today: !!(todayAttendance && !todayAttendance.check_out),
             today_status: todayAttendance?.status || "absent",
             total_shifts: totalShifts,
             recent_shifts: recentShifts,
@@ -705,7 +716,6 @@ export const updateBranchLocation = async (req, res) => {
   const { lat, lng, radius, address } = req.body;
 
   try {
-    // نفترض أن الـ Admin هو الذي يقوم بالتحديث لفرعه الخاص
     // req.user يأتي من الـ middleware
     const user = await User.findById(req.user._id);
 

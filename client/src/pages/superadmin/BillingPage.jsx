@@ -18,6 +18,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 const BillingPage = () => {
   const [plans, setPlans] = useState([]);
@@ -115,6 +116,7 @@ const BillingPage = () => {
       failed: <AlertCircle className="w-3 h-3 mr-1" />,
       expired: <XCircle className="w-3 h-3 mr-1" />,
     };
+    if(loadingHistory && loadingPlans) return <DashboardSkeleton />
 
     return (
       <span
