@@ -135,7 +135,7 @@ const HomeNav = () => {
               onClick={() => setOpen(false)}
             >
               <LayoutDashboard className="w-4 h-4" />
-              {t("nav.dashboard")}
+              {t("navDashboard")}
             </Link>
           )}
         </div>
