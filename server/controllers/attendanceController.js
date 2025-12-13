@@ -62,24 +62,21 @@ export const clockIn = async (req, res) => {
     //  GEOFENCING CHECK END
     // ============================================================
 
-    // Check if already clocked in today
+    // Check if already clocked in today (or has open session)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const now = new Date(); // Capture exact time
 
+    // ✅ FIX: Check for ANY open session regardless of date
     const existingAttendance = await Attendance.findOne({
       user_id: userId,
       super_admin_id: tenantOwnerId,
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
       check_out: { $exists: false }, // Check only for active sessions
     });
 
     if (existingAttendance) {
       return res.status(400).json({
-        message: "You have already clocked in today",
+        message: "You have already clocked in",
       });
     }
 
@@ -101,7 +98,6 @@ export const clockIn = async (req, res) => {
       },
     });
 
-    // CHECK: Prevent clock in if no shift exists
     if (!todayShifts || todayShifts.length === 0) {
       return res.status(400).json({
         message: "Cannot clock in: No shift scheduled for today.",
@@ -109,7 +105,6 @@ export const clockIn = async (req, res) => {
     }
 
     // 2. Select the Closest Shift to "Now"
-    // ده عشان لو فيه شفت فات ومحضرهوش، وشفت تاني وقته دلوقتي، يختار بتاع دلوقتي
     let selectedShift = todayShifts.reduce((closest, current) => {
       const currentDiff = Math.abs(now - new Date(current.start_date_time));
       const closestDiff = Math.abs(now - new Date(closest.start_date_time));
@@ -133,11 +128,12 @@ export const clockIn = async (req, res) => {
     const attendance = await Attendance.create({
       user_id: userId,
       super_admin_id: employeeSAId,
-      date: today,
+      date: now, // Use actual time
       check_in: now,
       late_minutes: late_minutes,
       status: late_minutes > 0 ? "late" : "present",
-      location: req.body.location || "Office",
+      location: location || "Office",
+      notes: notes || "",
     });
 
     // Update shift status
@@ -170,18 +166,14 @@ export const clockOut = async (req, res) => {
     const userRole = req.user.role;
     const tenantOwnerId =
       userRole === "super_admin" ? userId : req.user.super_admin_id;
+    const { notes } = req.body;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
 
-    // 1. Find today's active attendance record
+    // ✅ FIX OVERNIGHT: Find ANY active attendance record regardless of date
     const attendance = await Attendance.findOne({
       user_id: userId,
       super_admin_id: tenantOwnerId,
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
       check_out: { $exists: false },
     });
 
@@ -191,22 +183,16 @@ export const clockOut = async (req, res) => {
       });
     }
 
-    const now = new Date();
-
-    // 2. Find the related shift to check its TYPE
+    // Find the related shift (The one currently IN PROGRESS)
     const shift = await Shift.findOne({
       employee_id: userId,
       super_admin_id: tenantOwnerId,
       status: "in_progress",
-      start_date_time: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
     });
 
-    // 3. Calculate Durations (Total Hours & Break Deduction)
+    // Calculate Durations
     const workedMs = now - new Date(attendance.check_in);
-    let totalHours = workedMs / (1000 * 60 * 60); // Hours as float
+    let totalHours = workedMs / (1000 * 60 * 60);
 
     // Subtract breaks
     if (attendance.breaks && attendance.breaks.length > 0) {
@@ -222,36 +208,32 @@ export const clockOut = async (req, res) => {
 
     totalHours = parseFloat(totalHours.toFixed(2));
 
-    // 4. SMART OVERTIME LOGIC
+    // Smart Overtime Logic
     let overtime = 0;
     const SPECIAL_SHIFT_TYPES = ["overtime", "holiday", "weekend", "emergency"];
 
     if (shift && SPECIAL_SHIFT_TYPES.includes(shift.shift_type)) {
-      // Logic A: If shift is special, ALL hours are overtime
       overtime = totalHours;
     } else {
-      // Logic B: Regular shift, overtime is anything > 8 hours
       const STANDARD_WORK_HOURS = 8;
       if (totalHours > STANDARD_WORK_HOURS) {
         overtime = totalHours - STANDARD_WORK_HOURS;
       }
     }
-
     overtime = parseFloat(overtime.toFixed(2));
 
-    // 5. Save Updates (Using findByIdAndUpdate to set calculated fields directly)
-    await Attendance.findByIdAndUpdate(attendance._id, {
-      check_out: now,
-      notes: req.body.notes || attendance.notes,
-      total_hours: totalHours,
-      overtime: overtime,
-    });
+    // Save Updates
+    attendance.check_out = now;
+    attendance.notes = notes || attendance.notes;
+    attendance.total_hours = totalHours;
+    attendance.overtime = overtime;
 
-    // 6. Complete the Shift
+    await attendance.save();
+
+    // Update shift status if exists
     if (shift) {
       shift.status = "completed";
       shift.actual_end_time = now;
-      // Store actual calculated minutes in shift too for consistency
       shift.total_worked_minutes = Math.floor(totalHours * 60);
       shift.overtime_minutes = Math.floor(overtime * 60);
       await shift.save();
@@ -259,16 +241,18 @@ export const clockOut = async (req, res) => {
 
     return res.json({
       message: "Clocked out successfully",
-      attendance: {
-        id: attendance._id,
-        check_in: attendance.check_in,
-        check_out: now,
-        total_hours: totalHours,
-        overtime: overtime,
-        status: attendance.status,
+      data: {
+        attendance: {
+          id: attendance._id,
+          check_in: attendance.check_in,
+          check_out: attendance.check_out,
+          total_hours: attendance.total_hours,
+          overtime: attendance.overtime,
+          status: attendance.status,
+        },
+        total_hours: attendance.total_hours,
+        overtime: attendance.overtime,
       },
-      total_hours: totalHours,
-      overtime: overtime,
     });
   } catch (err) {
     console.error("clockOut error:", err);
@@ -283,17 +267,12 @@ export const startBreak = async (req, res) => {
     const userRole = req.user.role;
     const tenantOwnerId =
       userRole === "super_admin" ? userId : req.user.super_admin_id;
+    const { notes } = req.body;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
+    // ✅ FIX OVERNIGHT
     const attendance = await Attendance.findOne({
       user_id: userId,
       super_admin_id: tenantOwnerId,
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
       check_out: { $exists: false },
     });
 
@@ -313,6 +292,7 @@ export const startBreak = async (req, res) => {
     attendance.breaks.push({
       start: new Date(),
       end: null,
+      notes: notes || "",
     });
 
     await attendance.save();
@@ -335,16 +315,11 @@ export const endBreak = async (req, res) => {
     const tenantOwnerId =
       userRole === "super_admin" ? userId : req.user.super_admin_id;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
+    // ✅ FIX OVERNIGHT
     const attendance = await Attendance.findOne({
       user_id: userId,
       super_admin_id: tenantOwnerId,
-      date: {
-        $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
+      check_out: { $exists: false },
     });
 
     if (!attendance) {
@@ -354,7 +329,6 @@ export const endBreak = async (req, res) => {
     }
 
     const lastBreak = attendance.breaks[attendance.breaks.length - 1];
-
     if (!lastBreak || lastBreak.end) {
       return res.status(400).json({
         message: "No active break to end",
@@ -362,8 +336,6 @@ export const endBreak = async (req, res) => {
     }
 
     lastBreak.end = new Date();
-
-    // Optional: Calculate break duration right here for immediate feedback
     const durationMs = lastBreak.end - lastBreak.start;
     lastBreak.duration = Math.floor(durationMs / (1000 * 60)); // minutes
 
@@ -380,7 +352,7 @@ export const endBreak = async (req, res) => {
   }
 };
 
-// GET MY ATTENDANCE (with date range filter)
+// GET MY ATTENDANCE
 export const getMyAttendance = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -423,7 +395,7 @@ export const getMyAttendance = async (req, res) => {
   }
 };
 
-// GET BRANCH ATTENDANCE (Admin only)
+// ✅ GET BRANCH ATTENDANCE (Admin only) - FIXED FOR OVERNIGHT
 export const getBranchAttendance = async (req, res) => {
   try {
     const adminId = req.user._id;
@@ -434,6 +406,15 @@ export const getBranchAttendance = async (req, res) => {
 
     const targetDate = date ? new Date(date) : new Date();
     targetDate.setHours(0, 0, 0, 0);
+    
+    // Create Next Day object for comparison
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(targetDate.getDate() + 1);
+
+    // Check if requesting "Today"
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isRequestingToday = targetDate.getTime() === today.getTime();
 
     const employees = await User.find({
       branch_admin_id: adminId,
@@ -443,14 +424,23 @@ export const getBranchAttendance = async (req, res) => {
 
     const employeeIds = employees.map((emp) => emp._id);
 
-    const attendance = await Attendance.find({
+    let query = {
       user_id: { $in: employeeIds },
       super_admin_id: tenantOwnerId,
-      date: {
-        $gte: targetDate,
-        $lt: new Date(targetDate.getTime() + 24 * 60 * 60 * 1000),
-      },
-    })
+    };
+
+    if (isRequestingToday) {
+        // ✅ FIX: If requesting today, get today's records OR any active record (Overnight)
+        query.$or = [
+            { date: { $gte: targetDate, $lt: nextDay } }, // Records created today
+            { check_out: { $exists: false } } // Active records (even from yesterday)
+        ];
+    } else {
+        // For past dates, strictly use the date
+        query.date = { $gte: targetDate, $lt: nextDay };
+    }
+
+    const attendance = await Attendance.find(query)
       .populate("user_id", "name email position")
       .sort({ check_in: -1 });
 
@@ -458,7 +448,11 @@ export const getBranchAttendance = async (req, res) => {
       (a) => a.status === "present" || a.status === "late"
     ).length;
     const lateCount = attendance.filter((a) => a.status === "late").length;
-    const absentCount = employees.length - presentCount;
+    
+    // Calculate active now count
+    const activeCount = attendance.filter((a) => !a.check_out).length;
+    
+    const absentCount = Math.max(0, employees.length - presentCount);
 
     return res.json({
       branch_name: req.user.branch_name,
@@ -467,6 +461,7 @@ export const getBranchAttendance = async (req, res) => {
       records: attendance,
       summary: {
         present: presentCount,
+        active: activeCount, // Added active count
         late: lateCount,
         absent: absentCount,
         attendance_rate:
