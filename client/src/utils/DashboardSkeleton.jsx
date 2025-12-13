@@ -1,6 +1,6 @@
 export default function DashboardSkeleton() {
   return (
-    <div className="p-4 sm:p-6 lg:p-10 space-y-8 sm:space-y-10 animate-pulse min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-10 space-y-8 sm:space-y-10 animate-pulse min-h-screen dark:bg-slate-800">
 
       {/* ================= HERO ================= */}
       <div className="relative overflow-hidden rounded-3xl bg-slate-200 dark:bg-slate-700 h-40 sm:h-44 lg:h-52">
