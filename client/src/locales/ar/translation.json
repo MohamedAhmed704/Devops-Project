@@ -21,7 +21,6 @@
         "addSubtitle": "إنشاء حساب موظف جديد",
         "editTitle": "تعديل الموظف",
         "editSubtitle": "تحديث بيانات الموظف",
-
         "labels": {
           "fullName": "الاسم الكامل",
           "email": "البريد الإلكتروني",
@@ -29,7 +28,6 @@
           "phone": "رقم الهاتف",
           "position": "الوظيفة"
         },
-
         "placeholders": {
           "name": "أدخل الاسم الكامل",
           "email": "أدخل البريد الإلكتروني",
@@ -37,13 +35,11 @@
           "phone": "أدخل رقم الهاتف",
           "position": "أدخل المسمى الوظيفي"
         },
-
         "buttons": {
           "cancel": "إلغاء",
           "add": "إضافة موظف",
           "update": "تحديث الموظف"
         },
-
         "errors": {
           "nameRequired": "الاسم الكامل مطلوب",
           "emailRequired": "البريد الإلكتروني مطلوب",
@@ -98,7 +94,9 @@
   "nav": {
     "logoAlt": "شعار تدبير",
     "login": "تسجيل الدخول",
-    "getStarted": "ابدأ الآن"
+    "getStarted": "ابدأ الآن",
+    "about": "من نحن",
+    "contact": "اتصل بنا"
   },
   "services": {
     "title": "كل ما تحتاجه لإدارة القوى العاملة الحديثة",
@@ -1840,26 +1838,25 @@
     }
   },
   "navigation": {
-  "Dashboard": "لوحة المعلومات",
-  "Companies": "الشركات",
-  "Plans": "الخطط",
-  "Profile": "الملف الشخصي",
-  "Payment Verification": "تحقق الدفع",
-  "Teams": "الفرق",
-  "Employees": "الموظفين",
-  "Leave Requests": "طلبات الإجازة",
-  "Reports": "التقارير",
-  "Billing": "الفوترة",
-  "Scheduler": "الجدول",
-  "Swap Approvals": "موافقات التبادل",
-  "Time Tracking": "تتبع الوقت",
-  "Time Off": "الإجازات",
-  "My Schedule": "جدولي",
-  "Shift Swaps": "تبادلات الورديات",
-  "Time Off Requests": "طلبات الإجازة",
-  "My Reports": "تقاريري"
-},
-
+    "Dashboard": "لوحة المعلومات",
+    "Companies": "الشركات",
+    "Plans": "الخطط",
+    "Profile": "الملف الشخصي",
+    "Payment Verification": "تحقق الدفع",
+    "Teams": "الفرق",
+    "Employees": "الموظفين",
+    "Leave Requests": "طلبات الإجازة",
+    "Reports": "التقارير",
+    "Billing": "الفوترة",
+    "Scheduler": "الجدول",
+    "Swap Approvals": "موافقات التبادل",
+    "Time Tracking": "تتبع الوقت",
+    "Time Off": "الإجازات",
+    "My Schedule": "جدولي",
+    "Shift Swaps": "تبادلات الورديات",
+    "Time Off Requests": "طلبات الإجازة",
+    "My Reports": "تقاريري"
+  },
   "about": {
     "hero": {
       "title": "عن تدبير",

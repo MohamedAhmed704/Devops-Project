@@ -42,6 +42,20 @@ const HomeNav = () => {
             <option value="ar">AR</option>
           </select>
 
+          {/* Public Links */}
+          <Link
+            to="/about"
+            className="text-slate-600 dark:text-slate-300 hover:text-[#112D4E] dark:hover:text-white transition font-medium"
+          >
+            {t("nav.about")}
+          </Link>
+          <Link
+            to="/contact"
+            className="text-slate-600 dark:text-slate-300 hover:text-[#112D4E] dark:hover:text-white transition font-medium"
+          >
+            {t("nav.contact")}
+          </Link>
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -49,6 +63,8 @@ const HomeNav = () => {
           >
             {theme === "light" ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
           </button>
+
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-2"></div>
 
           {isAuthenticated ? (
             <Link
@@ -108,6 +124,23 @@ const HomeNav = () => {
             {t("theme")}
           </button>
 
+          {/* Mobile Links */}
+          <Link
+            to="/about"
+            className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium hover:text-[#112D4E] dark:hover:text-white"
+            onClick={() => setOpen(false)}
+          >
+            {t("nav.about")}
+          </Link>
+          <Link
+            to="/contact"
+            className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium hover:text-[#112D4E] dark:hover:text-white"
+            onClick={() => setOpen(false)}
+          >
+            {t("nav.contact")}
+          </Link>
+          <hr className="border-gray-100 dark:border-slate-800" />
+
           {!isAuthenticated ? (
             <>
               <Link
@@ -139,8 +172,9 @@ const HomeNav = () => {
             </Link>
           )}
         </div>
-      )}
-    </nav>
+      )
+      }
+    </nav >
   );
 };
 

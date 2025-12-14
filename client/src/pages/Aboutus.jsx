@@ -1,6 +1,6 @@
 import React from "react";
 import { Users, Target, Award, TrendingUp } from "lucide-react";
-import Navbar from "../components/Navbar";
+import HomeNav from "../components/Home/HomeNav";
 import { useTranslation } from "react-i18next";
 import Footer from "../components/Home/Footer";
 
@@ -9,9 +9,9 @@ const About = () => {
 
   const teamMembers = [
     {
-      name: t("about.team.member1.name"),
-      role: t("about.team.member1.role"),
-      image: "/images/team/member1.jpg",
+      name: t("Ahmed Salah AboShendy"),
+      role: t("Full Stack Developer"),
+      image: "/images/about/my-img.jpg",
     },
     {
       name: t("about.team.member2.name"),
@@ -67,8 +67,8 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar/>
-      
+      <HomeNav />
+
       {/* HERO SECTION */}
       <section className="bg-gradient-to-r from-sky-200 to-sky-50 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
@@ -210,8 +210,16 @@ const About = () => {
                 key={index}
                 className="bg-gray-50 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300"
               >
-                <div className="aspect-square bg-gradient-to-br from-sky-200 to-sky-300 flex items-center justify-center">
-                  <Users className="w-20 h-20 text-sky-700" />
+                <div className="aspect-square bg-gradient-to-br from-sky-200 to-sky-300 flex items-center justify-center relative">
+                  {member.image && !member.image.includes("member") ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Users className="w-20 h-20 text-sky-700" />
+                  )}
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="font-semibold text-xl text-slate-900 mb-2">

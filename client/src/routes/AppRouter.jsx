@@ -51,7 +51,7 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        
+
 
         {/* Public Routes */}
         <Route
@@ -62,6 +62,9 @@ function AppRoutes() {
             </PublicRoute>
           }
         />
+
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<ContactUs />} />
 
         <Route
           path="/login"

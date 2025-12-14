@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
-import Navbar from "../components/Navbar";
+import HomeNav from "../components/Home/HomeNav";
 import { useTranslation } from "react-i18next";
 import Footer from "../components/Home/Footer";
 
@@ -65,7 +65,7 @@ const ContactUs = () => {
 
   return (
     <>
-      <Navbar />
+      <HomeNav />
       <div className="min-h-screen bg-white">
         {/* HERO SECTION */}
         <section className="bg-gradient-to-r from-sky-200 to-sky-50 py-20 px-6">
@@ -83,7 +83,7 @@ const ContactUs = () => {
         <section className="py-20 px-6">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              
+
               {/* CONTACT FORM */}
               <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
                 <h2 className="font-bold text-2xl md:text-3xl text-slate-900 mb-6">
@@ -268,7 +268,7 @@ const ContactUs = () => {
         </section>
 
         {/* FOOTER */}
-   <Footer/>
+        <Footer />
       </div>
     </>
   );

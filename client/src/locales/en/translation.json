@@ -21,7 +21,6 @@
         "addSubtitle": "Create a new employee account",
         "editTitle": "Edit Employee",
         "editSubtitle": "Update employee information",
-
         "labels": {
           "fullName": "Full Name",
           "email": "Email Address",
@@ -29,7 +28,6 @@
           "phone": "Phone Number",
           "position": "Position"
         },
-
         "placeholders": {
           "name": "Enter full name",
           "email": "Enter email address",
@@ -37,13 +35,11 @@
           "phone": "Enter phone number",
           "position": "Enter job position"
         },
-
         "buttons": {
           "cancel": "Cancel",
           "add": "Add Employee",
           "update": "Update Employee"
         },
-
         "errors": {
           "nameRequired": "Full name is required",
           "emailRequired": "Email is required",
@@ -98,7 +94,9 @@
   "nav": {
     "logoAlt": "Tadbir Logo",
     "login": "Login",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "about": "About Us",
+    "contact": "Contact Us"
   },
   "services": {
     "title": "Everything You Need for Modern Workforce Management",
@@ -1550,7 +1548,6 @@
       "passwordsNoMatch": "Passwords do not match"
     }
   },
-  
   "platform": {
     "dashboard": {
       "title": "Platform Overview",
@@ -1637,7 +1634,6 @@
       }
     }
   },
-
   "navigation": {
     "Dashboard": "Dashboard",
     "Companies": "Companies",
@@ -1658,7 +1654,6 @@
     "Time Off Requests": "Time Off Requests",
     "My Reports": "My Reports"
   },
-
   "about": {
     "hero": {
       "title": "About Tadbir",
