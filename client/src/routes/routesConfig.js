@@ -12,6 +12,7 @@ import {
   Building2,
   FileText,
   ArrowRightLeft,
+  MessageSquare,
 } from "lucide-react";
 
 // ============================================
@@ -27,6 +28,7 @@ const PaymentCallback = lazy(() => import("../pages/shared/PaymentCallback"));
 const PlatformDashboard = lazy(() => import("../pages/platform/Dashboard"));
 const CompaniesPage = lazy(() => import("../pages/platform/Companies"));
 const PlansPage = lazy(() => import("../pages/platform/Plans"));
+const MessagesPage = lazy(() => import("../pages/platform/Messages"));
 
 // Super Admin Pages
 const SA_Dashboard = lazy(() => import("../pages/superadmin/Dashboard"));
@@ -59,6 +61,7 @@ const routes = {
     { path: "/dashboard", element: PlatformDashboard, label: "Dashboard", icon: LayoutDashboard },
     { path: "/companies", element: CompaniesPage, label: "Companies", icon: Building2 },
     { path: "/plans", element: PlansPage, label: "Plans", icon: FileText },
+    { path: "/messages", element: MessagesPage, label: "Messages", icon: MessageSquare },
     { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
     { path: "/payment/callback", element: PaymentCallback, label: "Payment Verification", icon: CreditCard, hidden: true },
   ],

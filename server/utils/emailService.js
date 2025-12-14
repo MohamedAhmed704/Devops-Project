@@ -290,3 +290,79 @@ export const sendContactFormEmail = async ({ name, email, phone, message }) => {
         // In controller we can decide if we want to block response or not.
     }
 };
+
+// Send Reply Email to User
+export const sendContactReplyEmail = async ({ to, subject, replyMessage, originalMessage }) => {
+    try {
+        const transporter = createTransporter();
+        const logoPath = path.join(__dirname, '..', 'assets', 'logo.png')
+        const logoExists = fs.existsSync(logoPath)
+
+        const mailOptions = {
+            to: to,
+            from: process.env.EMAIL_USER,
+            subject: subject || "Reply to your message - Tadber Shift Planner",
+            attachments: logoExists ? [
+                {
+                    filename: 'logo.png',
+                    path: logoPath,
+                    cid: 'tadber-logo'
+                }
+            ] : [],
+            html: `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reply from Tadber Team</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #F9F7F7;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #DBE2EF; border-radius: 10px; overflow: hidden;">
+        <!-- Header -->
+        <div style="background-color: #19283a; padding: 20px; text-align: center;">
+            <img src="${logoExists ? 'cid:tadber-logo' : ''}" alt="Tadber Logo" style="max-width: 150px; height: auto;" />
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 30px;">
+            <h1 style="color: #112D4E; font-size: 24px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+                Reply to your inquiry
+            </h1>
+
+            <p style="color: #112D4E; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                Hello,
+            </p>
+
+            <div style="background-color: #ffffff; border: 1px solid #DBE2EF; border-radius: 5px; padding: 15px; color: #333; line-height: 1.6; margin-bottom: 30px;">
+                ${replyMessage.replace(/\n/g, '<br>')}
+            </div>
+
+            <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
+                <p style="color: #888; font-size: 14px; margin-bottom: 10px;">Original Message:</p>
+                <div style="background-color: #F8F9FA; padding: 15px; border-radius: 5px; color: #666; font-size: 14px; font-style: italic;">
+                    "${originalMessage}"
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #F9F7F7; padding: 20px; text-align: center; border-top: 1px solid #DBE2EF;">
+            <p style="color: #112D4E; font-size: 14px; margin: 0;">
+                © 2025 Tadber Shift Planner. All rights reserved.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+            `,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log("Reply email sent to:", to);
+        return info;
+    } catch (err) {
+        console.error("sendContactReplyEmail error:", err);
+        throw err;
+    }
+};

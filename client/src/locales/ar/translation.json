@@ -2000,5 +2000,42 @@
     "footer": {
       "copyright": "© {{year}} تدبير. جميع الحقوق محفوظة."
     }
+  },
+  "messages": {
+    "title": "الرسائل والاستفسارات",
+    "subtitle": "إدارة رسائل واستفسارات نموذج التواصل",
+    "filter": {
+      "all": "الكل",
+      "unread": "غير مقروء",
+      "replied": "تم الرد"
+    },
+    "searchRequests": "بحث في الرسائل...",
+    "noMessages": "لا توجد رسائل.",
+    "table": {
+      "sender": "المرسل",
+      "subject": "الموضوع",
+      "date": "التاريخ",
+      "status": "الحالة",
+      "actions": "إجراءات"
+    },
+    "status": {
+      "unread": "غير مقروء",
+      "read": "مقروء",
+      "replied": "تم الرد"
+    },
+    "actions": {
+      "reply": "رد",
+      "delete": "حذف"
+    },
+    "replyModal": {
+      "title": "الرد على الرسالة",
+      "to": "إلى",
+      "originalMessage": "الرسالة الأصلية",
+      "yourReply": "ردك",
+      "placeholder": "اكتب ردك هنا...",
+      "send": "إرسال الرد"
+    },
+    "confirmDelete": "هل أنت متأكد من حذف هذه الرسالة؟",
+    "replyFailed": "فشل إرسال الرد. حاول مرة أخرى."
   }
 }
