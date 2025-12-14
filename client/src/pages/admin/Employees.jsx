@@ -209,11 +209,8 @@ const Employees = () => {
     const newStatus = !currentStatus;
     
     const result = await Swal.fire({
-      title: t("admin.employees.statusChange.title"),
-      text: t("admin.employees.statusChange.message", { 
-        action: newStatus ? t("admin.employees.actions.activate") : t("admin.employees.actions.deactivate"), 
-        name: employeeName 
-      }),
+      title: "Change Status",
+      text:` Are you sure you want to ${newStatus ?  "Activate" : "Deactivate"} ${employeeName}`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: newStatus ? '#10b981' : '#d33',
@@ -245,14 +242,11 @@ const Employees = () => {
         ));
         
         applyFilters();
-        Alert.success(t("admin.employees.statusChange.success", { 
-          name: employeeName, 
-          action: newStatus ? t("admin.employees.actions.activated") : t("admin.employees.actions.deactivated") 
-        }));
+        Alert.success(` ${employeeName} ${newStatus ? "Activated" : "Deactivated"} Successfully`);
         
         setShowActionsMenu(null);
       } catch (error) {
-        Alert.error(error.response?.data?.message || t("admin.employees.errors.toggleFailed"));
+        Alert.error(error.response?.data?.message || "  Change Status Failed");
         console.error("Toggle status error:", error);
       } finally {
         setLoading(false);
@@ -262,18 +256,18 @@ const Employees = () => {
 
   // Handle delete employee
   const handleDeleteEmployee = async (employeeId, employeeName) => {
-    const result = await Alert.confirm(t("admin.employees.confirmDelete", { name: employeeName }));
+    const result = await Alert.confirm(`Are you sure you want to delete ${employeeName} ?`);
     
     if (result.isConfirmed) {
       try {
         setLoading(true);
         await employeesService.deleteEmployee(employeeId);
         setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
-        Alert.success(t("admin.employees.success.deleted", { name: employeeName }));
+        Alert.success(`${employeeName} Deleted Successfully`);
         applyFilters();
         
       } catch (error) {
-        Alert.error(error.response?.data?.message || t("admin.employees.errors.deleteFailed"));
+        Alert.error(error.response?.data?.message || "Delete Failed");
       } finally {
         setLoading(false);
       }
