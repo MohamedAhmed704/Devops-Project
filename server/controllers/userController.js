@@ -119,7 +119,7 @@ export const createEmployee = async (req, res) => {
       return res.status(403).json({ message: "Admin access required" });
     }
 
-    const { name, email, password, phone, position, department } = req.body;
+    const { name, email, password, phone, position, department, hourly_rate, currency } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -198,6 +198,8 @@ export const createEmployee = async (req, res) => {
       phone: phone || "",
       position: position || "",
       department: department || "",
+      hourly_rate: hourly_rate || 0,
+      currency: currency || "EGP",
       is_active: true,
     });
 
@@ -495,9 +497,8 @@ export const toggleUserStatus = async (req, res) => {
 
     return res.json({
       success: true,
-      message: `User ${
-        user.is_active ? "activated" : "deactivated"
-      } successfully`,
+      message: `User ${user.is_active ? "activated" : "deactivated"
+        } successfully`,
       data: {
         id: user._id,
         name: user.name,

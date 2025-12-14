@@ -167,18 +167,18 @@ export const getBranchEmployees = async (req, res) => {
         // ✅ FIX: Find Active Session OR Today's Session
         // This ensures the status list shows "Present" for overnight shifts
         let todayAttendance = await Attendance.findOne({
-            user_id: employee._id,
-            super_admin_id: tenantOwnerId,
-            check_out: { $exists: false } // Priority 1: Currently Active
+          user_id: employee._id,
+          super_admin_id: tenantOwnerId,
+          check_out: { $exists: false } // Priority 1: Currently Active
         });
 
         // If no active session, find if they attended today and left
         if (!todayAttendance) {
-            todayAttendance = await Attendance.findOne({
-                user_id: employee._id,
-                super_admin_id: tenantOwnerId,
-                date: { $gte: today }
-            }).sort({ createdAt: -1 });
+          todayAttendance = await Attendance.findOne({
+            user_id: employee._id,
+            super_admin_id: tenantOwnerId,
+            date: { $gte: today }
+          }).sort({ createdAt: -1 });
         }
 
         const [totalShifts, recentShifts] = await Promise.all([
@@ -553,7 +553,7 @@ export const updateEmployeeProfile = async (req, res) => {
     const adminId = req.user._id;
     const tenantOwnerId = getTenantOwnerId(req.user); // ISOLATION KEY
     const { employeeId } = req.params;
-    const { name, email, phone, position, department, is_active } = req.body;
+    const { name, email, phone, position, department, is_active, hourly_rate, currency } = req.body;
 
     // Verify employee belongs to this branch AND tenant
     const employee = await User.findOne({
@@ -588,6 +588,8 @@ export const updateEmployeeProfile = async (req, res) => {
     if (position !== undefined) employee.position = position;
     if (department !== undefined) employee.department = department;
     if (is_active !== undefined) employee.is_active = is_active;
+    if (hourly_rate !== undefined) employee.hourly_rate = hourly_rate;
+    if (currency !== undefined) employee.currency = currency;
 
     await employee.save();
 

@@ -119,20 +119,20 @@ export const clockIn = async (req, res) => {
     // ✅ NEW FIX: PREVENT EARLY CLOCK-IN
     // ============================================================
     const shiftStartTime = new Date(selectedShift.start_date_time);
-    
+
     // Check if user is clocking in BEFORE the shift starts
     if (now < shiftStartTime) {
-        const diffMs = shiftStartTime - now;
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      const diffMs = shiftStartTime - now;
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-        // If trying to clock in earlier than allowed limit
-        if (diffMinutes > EARLY_CLOCK_IN_MINUTES) {
-            return res.status(400).json({
-                message: `Too early! You can only clock in ${EARLY_CLOCK_IN_MINUTES} minutes before your shift starts.`,
-                shift_start: selectedShift.start_date_time,
-                allowed_early_minutes: EARLY_CLOCK_IN_MINUTES
-            });
-        }
+      // If trying to clock in earlier than allowed limit
+      if (diffMinutes > EARLY_CLOCK_IN_MINUTES) {
+        return res.status(400).json({
+          message: `Too early! You can only clock in ${EARLY_CLOCK_IN_MINUTES} minutes before your shift starts.`,
+          shift_start: selectedShift.start_date_time,
+          allowed_early_minutes: EARLY_CLOCK_IN_MINUTES
+        });
+      }
     }
     // ============================================================
 
@@ -431,7 +431,7 @@ export const getBranchAttendance = async (req, res) => {
 
     const targetDate = date ? new Date(date) : new Date();
     targetDate.setHours(0, 0, 0, 0);
-    
+
     // Create Next Day object for comparison
     const nextDay = new Date(targetDate);
     nextDay.setDate(targetDate.getDate() + 1);
@@ -455,14 +455,14 @@ export const getBranchAttendance = async (req, res) => {
     };
 
     if (isRequestingToday) {
-        // ✅ FIX: If requesting today, get today's records OR any active record (Overnight)
-        query.$or = [
-            { date: { $gte: targetDate, $lt: nextDay } }, // Records created today
-            { check_out: { $exists: false } } // Active records (even from yesterday)
-        ];
+      // ✅ FIX: If requesting today, get today's records OR any active record (Overnight)
+      query.$or = [
+        { date: { $gte: targetDate, $lt: nextDay } }, // Records created today
+        { check_out: { $exists: false } } // Active records (even from yesterday)
+      ];
     } else {
-        // For past dates, strictly use the date
-        query.date = { $gte: targetDate, $lt: nextDay };
+      // For past dates, strictly use the date
+      query.date = { $gte: targetDate, $lt: nextDay };
     }
 
     const attendance = await Attendance.find(query)
@@ -473,10 +473,10 @@ export const getBranchAttendance = async (req, res) => {
       (a) => a.status === "present" || a.status === "late"
     ).length;
     const lateCount = attendance.filter((a) => a.status === "late").length;
-    
+
     // Calculate active now count
     const activeCount = attendance.filter((a) => !a.check_out).length;
-    
+
     const absentCount = Math.max(0, employees.length - presentCount);
 
     return res.json({
@@ -583,8 +583,8 @@ export const getAttendanceSummary = async (req, res) => {
         user_id: { $in: employees.map((emp) => emp._id) },
         super_admin_id: tenantOwnerId,
         $or: [
-            { date: { $gte: today, $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) } },
-            { check_out: { $exists: false } }
+          { date: { $gte: today, $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) } },
+          { check_out: { $exists: false } }
         ]
       });
 
@@ -674,7 +674,105 @@ export const getEmployeeAttendance = async (req, res) => {
       ),
     });
   } catch (err) {
-    console.error("getEmployeeAttendance error:", err);
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+// ===========================================
+// 💰 PAYROLL: Calculate Wages (Smart Estimator)
+// ===========================================
+export const getPayrollReport = async (req, res) => {
+  try {
+    const adminId = req.user._id;
+    const tenantOwnerId = req.user.role === 'super_admin' ? adminId : req.user.super_admin_id;
+    const { start_date, end_date } = req.query;
+
+    // 1. Determine Date Range
+    // Default: Current Month (from 1st to today)
+    const now = new Date();
+    const start = start_date ? new Date(start_date) : new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = end_date ? new Date(end_date) : new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+    // 2. Fetch Employees for this Branch
+    const employees = await User.find({
+      branch_admin_id: adminId,
+      role: 'employee',
+      super_admin_id: tenantOwnerId
+    }).select('name email position hourly_rate currency avatar');
+
+    // 3. Aggregate Attendance for Each Employee
+    const payrollData = await Promise.all(employees.map(async (emp) => {
+      // Find all attendance records for this period
+      const records = await Attendance.find({
+        user_id: emp._id,
+        super_admin_id: tenantOwnerId,
+        date: { $gte: start, $lte: end },
+        status: { $in: ['present', 'late'] }
+      });
+
+      // Calculate Totals
+      let totalHours = 0;
+      let totalOvertime = 0;
+      let totalLateMinutes = 0;
+
+      records.forEach(rec => {
+        totalHours += (rec.total_hours || 0);
+        totalOvertime += (rec.overtime || 0);
+        totalLateMinutes += (rec.late_minutes || 0);
+      });
+
+      // 🧠 SMART WAGE CALCULATION LOGIC
+      const rate = emp.hourly_rate || 0;
+
+      // Base Pay: (Total Hours - Overtime) * Rate
+      // We subtract overtime from total_hours because total_hours usually includes overtime duration
+      // But we want to pay overtime at a PREMIUM rate (1.5x)
+
+      const regularHours = Math.max(0, totalHours - totalOvertime);
+
+      const basePay = regularHours * rate;
+      const overtimePay = totalOvertime * rate * 1.5; // 1.5x Premium
+
+      // Late Deduction (Straight time deduction for minutes lost? Or calculated separately?)
+      // For simplicity in this version: We don't deduct explicitly from "worked hours" because 
+      // the "total_hours" already reflects the actual time worked (late arrival = less time worked).
+      // So we just rely on actual clock-in/out duration.
+
+      const totalSalary = basePay + overtimePay;
+
+      return {
+        id: emp._id,
+        name: emp.name,
+        position: emp.position,
+        avatar: emp.avatar,
+        hourly_rate: rate,
+        currency: emp.currency || 'EGP',
+        stats: {
+          total_hours: parseFloat(totalHours.toFixed(2)),
+          regular_hours: parseFloat(regularHours.toFixed(2)),
+          overtime_hours: parseFloat(totalOvertime.toFixed(2)),
+          late_minutes: totalLateMinutes
+        },
+        financials: {
+          base_pay: Math.round(basePay),
+          overtime_pay: Math.round(overtimePay),
+          total_salary: Math.round(totalSalary)
+        }
+      };
+    }));
+
+    return res.json({
+      period: {
+        start: start,
+        end: end
+      },
+      currency: employees[0]?.currency || 'EGP',
+      total_payroll_cost: payrollData.reduce((sum, item) => sum + item.financials.total_salary, 0),
+      report: payrollData
+    });
+
+  } catch (err) {
+    console.error("getPayrollReport error:", err);
     return res.status(500).json({ message: err.message });
   }
 };

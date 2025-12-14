@@ -74,26 +74,41 @@ const userSchema = new mongoose.Schema(
     },
 
     // ================================================
+    // 💰 NEW: Payroll Information (Wage System)
+    // ================================================
+    hourly_rate: {
+      type: Number,
+      default: 0, // 0 means not set
+      min: 0
+    },
+    currency: {
+      type: String,
+      default: "EGP",
+      trim: true
+    },
+    // ================================================
+
+    // ================================================
     // 📍 NEW: Branch Location for Geofencing
     // ================================================
     branch_location: {
-      lat: { 
-        type: Number, 
-        default: null 
+      lat: {
+        type: Number,
+        default: null
       },
-      lng: { 
-        type: Number, 
-        default: null 
+      lng: {
+        type: Number,
+        default: null
       },
-      radius: { 
-        type: Number, 
+      radius: {
+        type: Number,
         default: 200, // النطاق الافتراضي 200 متر
-        min: 10 
+        min: 10
       },
-      address: { 
+      address: {
         type: String,
         trim: true,
-        default: "" 
+        default: ""
       }
     },
     // ================================================
@@ -326,7 +341,7 @@ userSchema.virtual('profile').get(function () {
   if (this.role === "admin") {
     profile.branch_name = this.branch_name;
     // ✅ إرسال الموقع مع البروفايل ليظهر في الفرونت
-    profile.branch_location = this.branch_location; 
+    profile.branch_location = this.branch_location;
   }
 
   // Add branch info for employee

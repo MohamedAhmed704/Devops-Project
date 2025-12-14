@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import {
   LayoutDashboard,
+  DollarSign, // 💰
   Users,
   UserCog,
   CalendarDays,
@@ -46,6 +47,7 @@ const A_TimeTracking = lazy(() => import("../pages/admin/TimeTracking"));
 const A_TimeOff = lazy(() => import("../pages/admin/TimeOff"));
 const A_Reports = lazy(() => import("../pages/admin/Reports"));
 const SwapApprovals = lazy(() => import("../pages/admin/SwapApprovals"));
+const PayrollPage = lazy(() => import("../pages/admin/Payroll")); // 💰 New Page (Corrected Path)
 
 // Employee Pages
 const E_Dashboard = lazy(() => import("../pages/employee/Dashboard"));
@@ -85,6 +87,7 @@ const routes = {
     { path: "/time-tracking", element: A_TimeTracking, label: "Time Tracking", icon: Clock },
     { path: "/time-off", element: A_TimeOff, label: "Time Off", icon: Plane },
     { path: "/reports", element: A_Reports, label: "Reports", icon: BarChart3 },
+    { path: "/payroll", element: PayrollPage, label: "Payroll", icon: DollarSign }, // 💰 New Route
     { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
   ],
 
