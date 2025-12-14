@@ -311,8 +311,8 @@ const MySchedule = () => {
         </div>
         
         {todayStatus && (
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="md:text-right">
+          <div className="flex items-center  gap-4 w-full sm:w-auto">
+            <div className="md:text-left">
               <p className="text-sm text-gray-500 dark:text-slate-400">{t("mySchedule.todayStatus")}</p>
               <p className={`font-semibold ${
                 todayStatus.clocked_in ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-slate-400'
@@ -320,14 +320,6 @@ const MySchedule = () => {
                 {todayStatus.clocked_in ? t("mySchedule.clockedIn") : t("mySchedule.notClockedIn")}
               </p>
             </div>
-            {todayStatus.check_in_time && (
-              <div className="text-right">
-                <p className="text-sm text-gray-500 dark:text-slate-400">{t("mySchedule.checkInTime")}</p>
-                <p className="font-semibold text-gray-900 dark:text-slate-50">
-                  {formatTime(todayStatus.check_in_time)}
-                </p>
-              </div>
-            )}
           </div>
         )}
       </div>
