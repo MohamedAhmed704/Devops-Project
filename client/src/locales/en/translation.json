@@ -458,7 +458,7 @@
     }
   },
   "myReports": {
-    "title": "My Performance Reports",
+    "title": "My Reports",
     "types": {
       "attendance": "Attendance Report",
       "performance": "Performance Report",
