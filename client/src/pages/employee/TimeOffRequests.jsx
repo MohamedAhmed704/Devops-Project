@@ -340,7 +340,7 @@ const TimeOffRequests = () => {
               className="mx-auto text-gray-300 dark:text-slate-600 mb-3"
             />
             <p className="text-gray-500 dark:text-slate-400 mb-4">
-              {t("timeOffRequests.noRequests")}
+              No requests found.
             </p>
             <Button
               variant="outline"
