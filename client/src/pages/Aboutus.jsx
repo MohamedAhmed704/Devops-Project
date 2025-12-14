@@ -19,19 +19,19 @@ const About = () => {
       image: "/images/about/medo-Img.jpg",
     },
     {
-      name: t("about.team.member3.name"),
-      role: t("about.team.member3.role"),
-      image: "/images/team/member3.jpg",
+      name: "Ahmed abdalla beltagy",
+      role: "Frontend Engineer",
+      image: "/images/about/beltagy.jpeg",
     },
     {
-      name: t("about.team.member4.name"),
-      role: t("about.team.member4.role"),
-      image: "/images/team/member4.jpg",
+      name: "Mohamed ahmed diab",
+      role: "Frontend Engineer",
+      image: "/images/about/diab.jpeg",
     },
     {
-      name: t("about.team.member5.name"),
-      role: t("about.team.member5.role"),
-      image: "/images/team/member5.jpg",
+      name: "Hossam Islam",
+      role: "Backend Developer",
+      image: "/images/about/hossam.jpeg",
     },
   ];
 
