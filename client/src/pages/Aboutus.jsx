@@ -14,9 +14,9 @@ const About = () => {
       image: "/images/about/my-img.jpg",
     },
     {
-      name: t("about.team.member2.name"),
-      role: t("about.team.member2.role"),
-      image: "/images/team/member2.jpg",
+      name: t("Ahmed Hussein Mahmoud"),
+      role: t("Full Stack Developer"),
+      image: "/images/about/medo-Img.jpg",
     },
     {
       name: t("about.team.member3.name"),
