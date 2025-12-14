@@ -3,7 +3,8 @@ import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
 import { calculateDistance } from "../utils/geoUtils.js";
 
-const GRACE_PERIOD_MINUTES = 15;
+const GRACE_PERIOD_MINUTES = 15;      // سماحية التأخير (Late)
+const EARLY_CLOCK_IN_MINUTES = 15;    // ✅ سماحية الحضور المبكر (Early)
 
 // CLOCK IN (start shift) - Create attendance record
 export const clockIn = async (req, res) => {
@@ -113,6 +114,27 @@ export const clockIn = async (req, res) => {
       const closestDiff = Math.abs(now - new Date(closest.start_date_time));
       return currentDiff < closestDiff ? current : closest;
     });
+
+    // ============================================================
+    // ✅ NEW FIX: PREVENT EARLY CLOCK-IN
+    // ============================================================
+    const shiftStartTime = new Date(selectedShift.start_date_time);
+    
+    // Check if user is clocking in BEFORE the shift starts
+    if (now < shiftStartTime) {
+        const diffMs = shiftStartTime - now;
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+        // If trying to clock in earlier than allowed limit
+        if (diffMinutes > EARLY_CLOCK_IN_MINUTES) {
+            return res.status(400).json({
+                message: `Too early! You can only clock in ${EARLY_CLOCK_IN_MINUTES} minutes before your shift starts.`,
+                shift_start: selectedShift.start_date_time,
+                allowed_early_minutes: EARLY_CLOCK_IN_MINUTES
+            });
+        }
+    }
+    // ============================================================
 
     // 3. Calculate Late Minutes with Grace Period
     let late_minutes = 0;
@@ -480,6 +502,7 @@ export const getBranchAttendance = async (req, res) => {
 };
 
 // GET ATTENDANCE SUMMARY (for dashboard)
+// ✅ FIXED: Now checks active sessions first to show correct "Clocked In" status for overnight
 export const getAttendanceSummary = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -496,15 +519,27 @@ export const getAttendanceSummary = async (req, res) => {
     let summary = {};
 
     if (userRole === "employee") {
-      const todayAttendance = await Attendance.findOne({
+      // ✅ FIX: 1. Check for Active Session FIRST (Overnight support)
+      let currentSession = await Attendance.findOne({
         user_id: userId,
         super_admin_id: tenantOwnerId,
-        date: {
-          $gte: today,
-          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
+        check_out: { $exists: false },
       });
 
+      // 2. If no active session, check for any completed session today
+      let todayRecord = currentSession;
+      if (!todayRecord) {
+        todayRecord = await Attendance.findOne({
+          user_id: userId,
+          super_admin_id: tenantOwnerId,
+          date: {
+            $gte: today,
+            $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+          },
+        }).sort({ check_in: -1 });
+      }
+
+      // 3. Get Weekly Stats
       const weekAttendance = await Attendance.find({
         user_id: userId,
         super_admin_id: tenantOwnerId,
@@ -516,10 +551,10 @@ export const getAttendanceSummary = async (req, res) => {
 
       summary = {
         today: {
-          clocked_in: !!todayAttendance?.check_in,
-          check_in_time: todayAttendance?.check_in,
-          status: todayAttendance?.status || "absent",
-          worked_hours: todayAttendance?.total_hours || 0,
+          clocked_in: !!currentSession, // True ONLY if currently active
+          check_in_time: todayRecord?.check_in,
+          status: todayRecord?.status || "absent",
+          worked_hours: todayRecord?.total_hours || 0,
         },
         this_week: {
           total_days: weekAttendance.length,
@@ -543,13 +578,14 @@ export const getAttendanceSummary = async (req, res) => {
         super_admin_id: tenantOwnerId,
       });
 
+      // For admin dashboard, include active overnight sessions
       const todayAttendance = await Attendance.find({
         user_id: { $in: employees.map((emp) => emp._id) },
         super_admin_id: tenantOwnerId,
-        date: {
-          $gte: today,
-          $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
+        $or: [
+            { date: { $gte: today, $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000) } },
+            { check_out: { $exists: false } }
+        ]
       });
 
       const presentCount = todayAttendance.filter(

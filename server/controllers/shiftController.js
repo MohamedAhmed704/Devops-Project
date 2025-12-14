@@ -1,6 +1,6 @@
 import Shift from "../models/shiftModel.js";
 import User from "../models/userModel.js";
-import { parseShiftCommand } from "../services/aiService.js"; // 1. استيراد خدمة الذكاء الاصطناعي
+import { parseShiftCommand } from "../services/aiService.js";
 
 const MS_IN_24H = 24 * 60 * 60 * 1000;
 
@@ -201,6 +201,7 @@ export const getBranchShifts = async (req, res) => {
         branch_admin_id: adminId,
         role: "employee",
         super_admin_id: tenantOwnerId,
+        is_active: true, // Only active employees
       });
       const employeeIds = employees.map((emp) => emp._id);
 
@@ -390,7 +391,7 @@ export const updateShift = async (req, res) => {
       });
     }
 
-    // Check permissions (Admin must be the creator, Super Admin passes the ownership check above)
+    // Check permissions
     if (
       userRole === "admin" &&
       shift.created_by_admin_id.toString() !== adminId.toString()
@@ -521,7 +522,7 @@ export const updateShift = async (req, res) => {
   }
 };
 
-// DELETE SHIFT (Admin only)
+// DELETE SHIFT (Admin only) - ✅ FIX: PREVENT DELETING ACTIVE SHIFTS
 export const deleteShift = async (req, res) => {
   try {
     const adminId = req.user._id;
@@ -529,6 +530,7 @@ export const deleteShift = async (req, res) => {
     const tenantOwnerId =
       userRole === "super_admin" ? adminId : req.user.super_admin_id;
     const { id } = req.params;
+
     if (!["super_admin", "admin"].includes(userRole)) {
       return res.status(403).json({
         success: false,
@@ -548,7 +550,7 @@ export const deleteShift = async (req, res) => {
       });
     }
 
-    // Check permissions (Admin must be the creator, Super Admin passes the ownership check above)
+    // Check permissions (Admin must be the creator)
     if (
       userRole === "admin" &&
       shift.created_by_admin_id.toString() !== adminId.toString()
@@ -557,6 +559,14 @@ export const deleteShift = async (req, res) => {
         success: false,
         message: "Not authorized to delete this shift",
       });
+    }
+
+    // ✅✅✅ NEW CHECK: Prevent deleting active shifts
+    if (shift.status === 'in_progress') {
+        return res.status(400).json({ 
+            success: false,
+            message: "⚠️ Cannot delete this shift! The employee is currently Clocked In." 
+        });
     }
 
     await shift.deleteOne();
@@ -743,7 +753,7 @@ export const createBulkShifts = async (req, res) => {
   }
 };
 
-// GENERATE SHIFTS FROM AI (NEW)
+// GENERATE SHIFTS FROM AI
 export const generateShiftsFromAI = async (req, res) => {
   try {
     const adminId = req.user._id;
