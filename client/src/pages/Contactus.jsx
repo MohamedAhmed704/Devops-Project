@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
 import HomeNav from "../components/Home/HomeNav";
 import { useTranslation } from "react-i18next";
 import Footer from "../components/Home/Footer";
+import apiClient from "../api/apiClient";
 
 const ContactUs = () => {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ const ContactUs = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,19 +24,27 @@ const ContactUs = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const response = await apiClient.post("/api/contact", formData);
+
       setLoading(false);
-      setSubmitted(true);
-      setFormData({ name: "", email: "", phone: "", message: "" });
+      if (response.data.success) {
+        setSubmitted(true);
+        setFormData({ name: "", email: "", phone: "", message: "" });
 
-      // Reset success message after 5 seconds
-      setTimeout(() => setSubmitted(false), 5000);
-    }, 1500);
+        // Reset success message after 5 seconds
+        setTimeout(() => setSubmitted(false), 5000);
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      setLoading(false);
+      setError(t("contact.form.errorMessage") || "Failed to send message. Please try again.");
+    }
   };
 
   const contactInfo = [
@@ -95,6 +105,15 @@ const ContactUs = () => {
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <p className="text-green-700">
                       {t("contact.form.successMessage")}
+                    </p>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                    <p className="text-red-700">
+                      {error}
                     </p>
                   </div>
                 )}
