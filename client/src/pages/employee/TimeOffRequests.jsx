@@ -304,7 +304,7 @@ const TimeOffRequests = () => {
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter size={20} className="text-gray-500 dark:text-slate-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-              {t("timeOffRequests.filter.label")}:
+              Filter :
             </span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -392,7 +392,7 @@ const TimeOffRequests = () => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      {/* <div className="flex items-center gap-2">
                         <Clock
                           size={16}
                           className="text-gray-500 dark:text-slate-400"
@@ -404,7 +404,7 @@ const TimeOffRequests = () => {
                           )}{" "}
                           {t("timeOffRequests.days")}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {request.reason && (
