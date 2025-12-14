@@ -55,7 +55,6 @@ export default function SystemReports() {
   const getStatusColor = (type) => {
     switch (type) {
       case 'attendance': return 'text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400';
-      case 'performance': return 'text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-400';
       case 'shift': return 'text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400';
       default: return 'text-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-slate-400';
     }
@@ -64,7 +63,6 @@ export default function SystemReports() {
   const getReportTypeLabel = (type) => {
     switch (type) {
       case 'attendance': return t("systemReports.types.attendance");
-      case 'performance': return t("systemReports.types.performance");
       case 'shift': return t("systemReports.types.shift");
       default: return t("systemReports.types.other");
     }
@@ -106,17 +104,6 @@ export default function SystemReports() {
         </div>
       );
     }
-
-    if (report.type === 'performance') {
-      return (
-        <div className="flex gap-4 mt-3 mb-2">
-          <div className="text-center">
-            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.avgScore")}</p>
-            <p className="text-sm font-bold text-purple-600 dark:text-purple-400">{data.averages?.avg_performance || 0}%</p>
-          </div>
-        </div>
-      );
-    }
     return null;
   };
 
@@ -138,7 +125,6 @@ export default function SystemReports() {
             <option value="">{t("systemReports.filters.allTypes")}</option>
             <option value="attendance">{t("systemReports.types.attendance")}</option>
             <option value="shift">{t("systemReports.types.shift")}</option>
-            <option value="performance">{t("systemReports.types.performance")}</option>
           </select>
         </div>
       </div>
