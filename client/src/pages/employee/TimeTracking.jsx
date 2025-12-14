@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, Coffee, LogOut, Play, Pause, Calendar, TrendingUp, MapPin } from 'lucide-react'; // ✅ Added MapPin icon
+import { useState, useEffect } from 'react';
+import { Clock, Coffee, LogOut, Play, Pause, Calendar, TrendingUp, MapPin } from 'lucide-react';
 import Button from '../../utils/Button';
 import apiClient from '../../api/apiClient';
-import { useLoading } from '../../contexts/LoaderContext';
 import { useToast } from '../../hooks/useToast';
 import { Alert } from '../../utils/alertService'; 
 import { useTranslation } from 'react-i18next';
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 const EmployeeTimeTracking = () => {
   // --- States ---
@@ -20,7 +20,6 @@ const EmployeeTimeTracking = () => {
   const [location, setLocation] = useState('Office');
 
   // --- Hooks ---
-  const { show: showGlobalLoading, hide: hideGlobalLoading } = useLoading();
   const { success, error: showError } = useToast();
   const { t, i18n } = useTranslation();
 
@@ -36,10 +35,13 @@ const EmployeeTimeTracking = () => {
   // --- Fetch Functions ---
   const fetchTodayStatus = async () => {
     try {
+      setLoading(true);
       const response = await apiClient.get('/api/employee/attendance/today-status');
       setTodayStatus(response.data.data);
     } catch (error) {
       console.error(t('employeeTimeTracking.errors.fetchTodayStatus'), error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -90,16 +92,14 @@ const EmployeeTimeTracking = () => {
         setLoading(false);
       }
     };
-    
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // --- Action Handlers ---
 
-  // ✅ UPDATED: Handle Clock In with Geofencing
+  // UPDATED: Handle Clock In with Geofencing
   const handleClockIn = async () => {
-    // 1. Check if Geolocation is supported
+    // Check if Geolocation is supported
     if (!navigator.geolocation) {
       Alert.error(
         "Geolocation is not supported by your browser.", 
@@ -107,21 +107,19 @@ const EmployeeTimeTracking = () => {
       );
       return;
     }
-
-    showGlobalLoading();
-
+    setLoading(true);
     // 2. Get Current Position
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
         
         try {
-          // 3. Send coordinates to backend
+          // Send coordinates to backend
           await apiClient.post('/api/attendance/clock-in', { 
             location, 
             notes: "",
-            userLat: latitude, // 📍 Sending Latitude
-            userLng: longitude // 📍 Sending Longitude
+            userLat: latitude, 
+            userLng: longitude 
           });
           
           await Promise.all([
@@ -134,12 +132,12 @@ const EmployeeTimeTracking = () => {
           const errorMsg = error.response?.data?.message || t('employeeTimeTracking.alerts.clockInFailed');
           Alert.error(errorMsg, t('employeeTimeTracking.alerts.clockInFailedTitle'));
         } finally {
-          hideGlobalLoading();
+          setLoading(false)
         }
       },
       (error) => {
         // 5. Handle GPS Errors
-        hideGlobalLoading();
+        setLoading(false);
         console.error("Geolocation Error:", error);
         let msg = "Unable to retrieve your location.";
         if (error.code === 1) msg = "Please allow location access to clock in."; // User denied
@@ -154,7 +152,7 @@ const EmployeeTimeTracking = () => {
 
   const handleClockOut = async () => {
     try {
-      showGlobalLoading();
+      setLoading(true);
       await apiClient.post('/api/attendance/clock-out', { notes: clockOutNotes });
       await Promise.all([
         fetchTodayStatus(), 
@@ -166,13 +164,13 @@ const EmployeeTimeTracking = () => {
     } catch (error) {
       showError(error.response?.data?.message || t('employeeTimeTracking.alerts.clockOutFailed'));
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   };
 
   const handleStartBreak = async () => {
     try {
-      showGlobalLoading();
+      setLoading(true);
       await apiClient.post('/api/attendance/break/start', { notes: breakNotes });
       
       await Promise.all([
@@ -185,13 +183,13 @@ const EmployeeTimeTracking = () => {
     } catch (error) {
       showError(error.response?.data?.message || t('employeeTimeTracking.alerts.breakStartFailed'));
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   };
 
   const handleEndBreak = async () => {
     try {
-      showGlobalLoading();
+      setLoading(true);
       await apiClient.post('/api/attendance/break/end', { notes: breakNotes });
       
       await Promise.all([
@@ -204,7 +202,7 @@ const EmployeeTimeTracking = () => {
     } catch (error) {
       showError(error.response?.data?.message || t('employeeTimeTracking.alerts.breakEndFailed'));
     } finally {
-      hideGlobalLoading();
+      setLoading(false);
     }
   };
 
@@ -229,10 +227,8 @@ const EmployeeTimeTracking = () => {
     }
   };
 
-  // --- Derived State Logic ---
   
-  // ✅ FIX: Use backend status for break (handles overnight shifts correctly)
-  // ده بيخلي الزرار يقلب "End Break" حتى لو السجل بتاريخ إمبارح
+  // Use backend status for break (handles overnight shifts correctly)
   const isOnBreak = todayStatus?.is_on_break;
 
   const todayRecord = attendanceHistory.find(r => 
@@ -257,6 +253,8 @@ const EmployeeTimeTracking = () => {
     return t('employeeTimeTracking.currentStatus.notClockedIn');
   };
 
+  if(loading) return <DashboardSkeleton />;
+  
   return (
     <div className="p-10 dark:bg-slate-900 dark:text-slate-50 min-h-screen">
       {/* Header */}

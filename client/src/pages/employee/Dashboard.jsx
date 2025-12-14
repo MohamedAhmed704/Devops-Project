@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { employeeService } from "../../api/services/employeeService";
-import { useLoading } from "../../contexts/LoaderContext";
 import {
   Clock,
   Calendar,
   TrendingUp,
-  User,
   MapPin,
   Briefcase,
-  CheckCircle2,
   AlertCircle,
-  Moon,
-  Sun
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function EmployeeDashboard() {
   const [data, setData] = useState(null);
-  const { show, hide } = useLoading();
   const { t, i18n } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        show();
+        setLoading(true);
         const res = await employeeService.getDashboard();
         setData(res.data.data);
       } catch (err) {
         console.error(err);
       } finally {
-        hide();
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  
+  if(loading) return <DashboardSkeleton />
 
   if (!data) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
