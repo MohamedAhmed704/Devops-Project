@@ -14,6 +14,49 @@
     "noAccount": "ليس لديك حساب؟",
     "signUpHere": "سجل هنا"
   },
+  "admines": {
+    "employees": {
+      "form": {
+        "addTitle": "إضافة موظف",
+        "addSubtitle": "إنشاء حساب موظف جديد",
+        "editTitle": "تعديل الموظف",
+        "editSubtitle": "تحديث بيانات الموظف",
+
+        "labels": {
+          "fullName": "الاسم الكامل",
+          "email": "البريد الإلكتروني",
+          "password": "كلمة المرور",
+          "phone": "رقم الهاتف",
+          "position": "الوظيفة"
+        },
+
+        "placeholders": {
+          "name": "أدخل الاسم الكامل",
+          "email": "أدخل البريد الإلكتروني",
+          "password": "أدخل كلمة المرور",
+          "phone": "أدخل رقم الهاتف",
+          "position": "أدخل المسمى الوظيفي"
+        },
+
+        "buttons": {
+          "cancel": "إلغاء",
+          "add": "إضافة موظف",
+          "update": "تحديث الموظف"
+        },
+
+        "errors": {
+          "nameRequired": "الاسم الكامل مطلوب",
+          "emailRequired": "البريد الإلكتروني مطلوب",
+          "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
+          "passwordRequired": "كلمة المرور مطلوبة",
+          "passwordLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+          "phoneRequired": "رقم الهاتف مطلوب",
+          "phoneInvalid": "يرجى إدخال رقم هاتف صحيح",
+          "positionRequired": "الوظيفة مطلوبة"
+        }
+      }
+    }
+  },
   "email": "البريد الإلكتروني",
   "password": "كلمة المرور",
   "ready to transform your workforce management": "هل أنت مستعد لتحويل إدارة القوى العاملة لديك",

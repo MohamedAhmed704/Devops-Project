@@ -14,6 +14,49 @@
     "noAccount": "Don't have an account?",
     "signUpHere": "Sign up here"
   },
+  "admines": {
+    "employees": {
+      "form": {
+        "addTitle": "Add Employee",
+        "addSubtitle": "Create a new employee account",
+        "editTitle": "Edit Employee",
+        "editSubtitle": "Update employee information",
+
+        "labels": {
+          "fullName": "Full Name",
+          "email": "Email Address",
+          "password": "Password",
+          "phone": "Phone Number",
+          "position": "Position"
+        },
+
+        "placeholders": {
+          "name": "Enter full name",
+          "email": "Enter email address",
+          "password": "Enter password",
+          "phone": "Enter phone number",
+          "position": "Enter job position"
+        },
+
+        "buttons": {
+          "cancel": "Cancel",
+          "add": "Add Employee",
+          "update": "Update Employee"
+        },
+
+        "errors": {
+          "nameRequired": "Full name is required",
+          "emailRequired": "Email is required",
+          "emailInvalid": "Please enter a valid email address",
+          "passwordRequired": "Password is required",
+          "passwordLength": "Password must be at least 6 characters",
+          "phoneRequired": "Phone number is required",
+          "phoneInvalid": "Please enter a valid phone number",
+          "positionRequired": "Position is required"
+        }
+      }
+    }
+  },
   "email": "Email Address",
   "password": "Password",
   "ready to transform your workforce management": "Ready to transform your workforce management",
