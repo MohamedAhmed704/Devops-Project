@@ -63,12 +63,26 @@ export const getMessages = async (req, res) => {
             filter.status = status;
         }
 
-        const messages = await Message.find(filter).sort({ createdAt: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const messages = await Message.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Message.countDocuments(filter);
 
         return res.json({
             success: true,
-            count: messages.length,
             data: messages,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit),
+                limit
+            }
         });
     } catch (error) {
         console.error("getMessages error:", error);

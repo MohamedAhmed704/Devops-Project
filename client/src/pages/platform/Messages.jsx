@@ -9,7 +9,9 @@ import {
     Trash2,
     X,
     Send,
-    Loader
+    Loader,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { useLoading } from "../../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
@@ -22,6 +24,12 @@ const Messages = () => {
     const [filter, setFilter] = useState("all");
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Pagination State
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalMessages, setTotalMessages] = useState(0);
+    const limit = 10;
+
     // Reply Modal State
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [replyMessage, setReplyMessage] = useState("");
@@ -29,14 +37,26 @@ const Messages = () => {
 
     useEffect(() => {
         fetchMessages();
-    }, []);
+    }, [page, filter]); // Refetch on page or filter change
 
     const fetchMessages = async () => {
         try {
             show();
-            const { data } = await apiClient.get("/api/contact");
+            // Construct query params
+            const query = new URLSearchParams({
+                page,
+                limit,
+                ...(filter !== 'all' && { status: filter })
+            });
+
+            const { data } = await apiClient.get(`/api/contact?${query}`);
             if (data.success) {
                 setMessages(data.data);
+                // Update pagination info if available
+                if (data.pagination) {
+                    setTotalPages(data.pagination.pages);
+                    setTotalMessages(data.pagination.total);
+                }
             }
         } catch (error) {
             console.error("Failed to fetch messages", error);
@@ -123,7 +143,7 @@ const Messages = () => {
                     {['all', 'unread', 'replied'].map((f) => (
                         <button
                             key={f}
-                            onClick={() => setFilter(f)}
+                            onClick={() => { setFilter(f); setPage(1); }}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === f
                                 ? "bg-sky-600 text-white"
                                 : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-gray-50"
@@ -232,6 +252,34 @@ const Messages = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+                        <div className="text-sm text-slate-500 dark:text-slate-400">
+                            {t("common.pagination.showing")} <span className="font-medium">{(page - 1) * limit + 1}</span> {t("common.pagination.to")} <span className="font-medium">{Math.min(page * limit, totalMessages)}</span> {t("common.pagination.of")} <span className="font-medium">{totalMessages}</span> {t("common.pagination.results")}
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400"
+                            >
+                                <ChevronLeft className="w-5 h-5" />
+                            </button>
+                            <span className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center">
+                                {page} / {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400"
+                            >
+                                <ChevronRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Reply Modal */}
