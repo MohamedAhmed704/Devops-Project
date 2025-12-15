@@ -76,14 +76,14 @@ const ContactUs = () => {
   return (
     <>
       <HomeNav />
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         {/* HERO SECTION */}
-        <section className="bg-gradient-to-r from-sky-200 to-sky-50 py-20 px-6">
+        <section className="bg-linear-to-r from-sky-200 to-sky-50 dark:from-gray-800 dark:to-gray-900 py-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="font-bold text-4xl md:text-5xl text-slate-900 mb-6">
+            <h1 className="font-bold text-4xl md:text-5xl text-slate-900 dark:text-white mb-6">
               {t("contact.hero.title")}
             </h1>
-            <p className="text-lg text-gray-600 leading-relaxed">
+            <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
               {t("contact.hero.description")}
             </p>
           </div>
@@ -95,24 +95,24 @@ const ContactUs = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
 
               {/* CONTACT FORM */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-                <h2 className="font-bold text-2xl md:text-3xl text-slate-900 mb-6">
+              <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+                <h2 className="font-bold text-2xl md:text-3xl text-slate-900 dark:text-white mb-6">
                   {t("contact.form.title")}
                 </h2>
 
                 {submitted && (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    <p className="text-green-700">
+                    <p className="text-green-700 dark:text-green-300">
                       {t("contact.form.successMessage")}
                     </p>
                   </div>
                 )}
 
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg flex items-center gap-3">
                     <AlertCircle className="w-5 h-5 text-red-600" />
-                    <p className="text-red-700">
+                    <p className="text-red-700 dark:text-red-300">
                       {error}
                     </p>
                   </div>
@@ -123,7 +123,7 @@ const ContactUs = () => {
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       {t("contact.form.name.label")}
                     </label>
@@ -134,7 +134,7 @@ const ContactUs = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
                       placeholder={t("contact.form.name.placeholder")}
                     />
                   </div>
@@ -143,7 +143,7 @@ const ContactUs = () => {
                   <div>
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       {t("contact.form.email.label")}
                     </label>
@@ -154,7 +154,7 @@ const ContactUs = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
                       placeholder={t("contact.form.email.placeholder")}
                     />
                   </div>
@@ -163,7 +163,7 @@ const ContactUs = () => {
                   <div>
                     <label
                       htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       {t("contact.form.phone.label")}
                     </label>
@@ -174,7 +174,7 @@ const ContactUs = () => {
                       value={formData.phone}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-600 focus:border-transparent transition"
                       placeholder={t("contact.form.phone.placeholder")}
                     />
                   </div>
@@ -183,7 +183,7 @@ const ContactUs = () => {
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-gray-700 mb-2"
+                      className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                     >
                       {t("contact.form.message.label")}
                     </label>
@@ -194,7 +194,7 @@ const ContactUs = () => {
                       onChange={handleChange}
                       required
                       rows="5"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-900 focus:ring-2 focus:ring-sky-600 focus:border-transparent transition resize-none"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-sky-600 focus:border-transparent transition resize-none"
                       placeholder={t("contact.form.message.placeholder")}
                     ></textarea>
                   </div>
@@ -204,7 +204,7 @@ const ContactUs = () => {
                     type="button"
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full bg-slate-900 text-white py-3 px-6 rounded-lg font-semibold hover:bg-slate-800 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-slate-900 dark:bg-gray-700 text-white py-3 px-6 rounded-lg font-semibold hover:bg-slate-800 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -224,10 +224,10 @@ const ContactUs = () => {
               {/* CONTACT INFO */}
               <div className="space-y-8">
                 <div>
-                  <h2 className="font-bold text-2xl md:text-3xl text-slate-900 mb-6">
+                  <h2 className="font-bold text-2xl md:text-3xl text-slate-900 dark:text-white mb-6">
                     {t("contact.contactInfo.title")}
                   </h2>
-                  <p className="text-gray-600 leading-relaxed mb-8">
+                  <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
                     {t("contact.contactInfo.description")}
                   </p>
                 </div>
@@ -238,25 +238,25 @@ const ContactUs = () => {
                     return (
                       <div
                         key={index}
-                        className="bg-gray-50 p-6 rounded-2xl border border-gray-200 hover:shadow-lg transition-shadow duration-300"
+                        className="bg-gray-50 dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
                       >
                         <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-sky-700 to-sky-800 flex items-center justify-center shadow-md flex-shrink-0">
+                          <div className="w-12 h-12 rounded-xl bg-linear-to-r from-sky-700 to-sky-800 flex items-center justify-center shadow-md shrink-0">
                             <Icon className="text-white" size={24} />
                           </div>
                           <div>
-                            <h3 className="font-semibold text-lg text-slate-900 mb-1">
+                            <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-1">
                               {info.title}
                             </h3>
                             {info.link ? (
                               <a
                                 href={info.link}
-                                className="text-gray-600 hover:text-sky-600 transition"
+                                className="text-gray-600 dark:text-gray-300 hover:text-sky-600 dark:hover:text-sky-400 transition"
                               >
                                 {info.value}
                               </a>
                             ) : (
-                              <p className="text-gray-600">
+                              <p className="text-gray-600 dark:text-gray-300">
                                 {info.value}
                               </p>
                             )}
@@ -268,11 +268,11 @@ const ContactUs = () => {
                 </div>
 
                 {/* BUSINESS HOURS */}
-                <div className="bg-gradient-to-r from-sky-950 via-sky-900 to-sky-800 p-8 rounded-2xl">
+                <div className="bg-linear-to-r from-sky-950 via-sky-900 to-sky-800 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 p-8 rounded-2xl">
                   <h3 className="font-bold text-xl text-white mb-4">
                     {t("contact.businessHours.title")}
                   </h3>
-                  <div className="space-y-2 text-gray-200">
+                  <div className="space-y-2 text-gray-200 dark:text-gray-300">
                     {businessHours.map((hours, index) => (
                       <p key={index}>
                         <span className="font-medium">{hours.days}: </span>
