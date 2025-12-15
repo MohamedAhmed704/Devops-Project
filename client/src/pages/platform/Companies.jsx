@@ -148,8 +148,17 @@ export default function Companies() {
 
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
-                                    {company.name.charAt(0)}
+                                <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg overflow-hidden shrink-0">
+                                    {company.superAdmin?.avatar ? (
+                                        <img
+                                            src={company.superAdmin.avatar}
+                                            alt={company.name}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => { e.target.style.display = 'none'; e.target.parentElement.innerText = company.name.charAt(0); }}
+                                        />
+                                    ) : (
+                                        company.name.charAt(0)
+                                    )}
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-800 dark:text-slate-100">{company.name}</h3>

@@ -100,7 +100,7 @@ export const getAllCompanies = async (req, res) => {
                 },
               },
             },
-            { $project: { name: 1, email: 1 } },
+            { $project: { name: 1, email: 1, avatar: 1 } },
             { $limit: 1 },
           ],
           as: "superAdmin",
