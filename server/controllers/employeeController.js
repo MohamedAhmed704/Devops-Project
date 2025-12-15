@@ -111,6 +111,7 @@ export const getEmployeeDashboard = async (req, res) => {
           .reduce((sum, a) => sum + (a.overtime || 0), 0)
           .toFixed(2)
       ),
+      late_days: weeklyAttendance.filter((a) => a.status === "late").length,
     };
 
     // ✅ FIX: Enhanced logic to find the "current" shift even if not started yet
