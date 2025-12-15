@@ -116,14 +116,12 @@ export const sendOTPEmail = async (email, otpCode, type = "email_verification") 
         const logoPath = path.join(__dirname, '..', 'assets', 'logo.png')
         const logoExists = fs.existsSync(logoPath)
 
-        // تحديد الـ Subject حسب نوع الـ OTP
         const subjectMap = {
             email_verification: "Email Verification - Tadber Shift Planner",
             password_reset: "Password Reset OTP - Tadber Shift Planner",
             phone_verification: "Phone Verification - Tadber Shift Planner"
         };
 
-        // تحديد الـ Title حسب نوع الـ OTP
         const titleMap = {
             email_verification: "Verify Your Email Address",
             password_reset: "Password Reset Verification",

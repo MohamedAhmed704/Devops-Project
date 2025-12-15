@@ -170,7 +170,7 @@ export default function SwapApprovals() {
                                     </h3>
                                     
                                     <div className="text-sm text-gray-600 dark:text-slate-300 mt-1 space-y-1">
-                                        {/* ✅ FIX: Check if shift_id exists before accessing properties */}
+                                        {/* FIX: Check if shift_id exists before accessing properties */}
                                         {req.shift_id ? (
                                             <p className="flex items-center gap-1 font-medium">
                                                 <Calendar size={14} className="text-gray-400"/> 

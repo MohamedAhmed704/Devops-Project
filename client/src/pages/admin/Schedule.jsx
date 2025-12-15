@@ -226,16 +226,16 @@ export default function Schedule() {
         if (formData.employee_ids.length === 1) {
           await shiftService.createShift({
             ...formData,
-            start_date_time: start, // ✅ Send Date object
-            end_date_time: end,     // ✅ Send Date object
+            start_date_time: start,
+            end_date_time: end,    
             employee_id: formData.employee_ids[0]
           });
         } else {
           const shiftsArray = formData.employee_ids.map(empId => ({
             employee_id: empId,
             title: formData.title,
-            start_date_time: start, // ✅ Send Date object
-            end_date_time: end,     // ✅ Send Date object
+            start_date_time: start,
+            end_date_time: end,    
             shift_type: formData.shift_type,
             location: formData.location,
             notes: formData.notes
@@ -275,7 +275,7 @@ export default function Schedule() {
 
   // --- AI HANDLERS ---
 
-  // ✅ Voice Input Logic
+  // Voice Input Logic
   const toggleListening = () => {
     if (isListening) {
       if (recognitionRef.current) {
@@ -292,7 +292,7 @@ export default function Schedule() {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = micLang; // ✅ Use selected language
+    recognition.lang = micLang; // Use selected language
     recognition.interimResults = true;
     recognition.continuous = true;
 
@@ -694,7 +694,7 @@ export default function Schedule() {
         </div>
       )}
 
-      {/* ✅ AI Assistant Modal (Enhanced UX + Voice) */}
+      {/* AI Assistant Modal (Enhanced UX + Voice) */}
       {showAIModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[70] p-4 animate-fadeIn">
           <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
@@ -729,7 +729,7 @@ export default function Schedule() {
                       disabled={isGenerating}
                     ></textarea>
 
-                    {/* ✅ Language Toggle */}
+                    {/* Language Toggle */}
                     <button
                       onClick={() => setMicLang(prev => prev === 'ar-EG' ? 'en-US' : 'ar-EG')}
                       className="absolute bottom-3 right-14 h-9 px-3 rounded-full flex items-center gap-1.5 text-xs font-bold transition-all duration-200 border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 shadow-sm"
@@ -739,7 +739,7 @@ export default function Schedule() {
                       {micLang === 'ar-EG' ? 'AR' : 'EN'}
                     </button>
 
-                    {/* ✅ Microphone Button */}
+                    {/* Microphone Button */}
                     <button
                       onClick={toggleListening}
                       className={`absolute bottom-3 right-3 h-9 w-9 flex items-center justify-center rounded-full transition-all duration-300 shadow-md ${isListening
@@ -814,7 +814,7 @@ export default function Schedule() {
                   </div>
 
                   <div className="flex gap-3 pt-2">
-                    {/* ✅ Improved Discard Button */}
+                    {/* Improved Discard Button */}
                     <button
                       onClick={() => setAiPreview(null)}
                       className="flex-1 py-3 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20 font-semibold flex items-center justify-center gap-2 transition"

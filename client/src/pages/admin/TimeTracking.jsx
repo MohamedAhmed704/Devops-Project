@@ -447,10 +447,10 @@ export default function TimeTracking() {
                   {t("timeTracking.modal.date")}:{" "}
                   {new Date(selectedRecord.date).toLocaleDateString()}
                 </p>
-                <p className="text-gray-900 dark:text-slate-100 text-sm">
+                {/* <p className="text-gray-900 dark:text-slate-100 text-sm">
                   {t("timeTracking.modal.total")}:{" "}
                   {selectedRecord.total_hours || 0} {t("timeTracking.hours")}
-                </p>
+                </p> */}
               </div>
             </div>
 
