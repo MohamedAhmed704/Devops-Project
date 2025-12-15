@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import Company from "../models/companyModel.js";
 import Revenue from "../models/revenueModel.js";
-import Plan from "../models/planModel.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 
 // @desc    Get Platform Dashboard Stats
 // @route   GET /api/platform/dashboard
@@ -80,29 +80,11 @@ export const getAllCompanies = async (req, res) => {
       matchQuery.isActive = false;
     }
 
-    // Aggregation pipeline for enriched data
+    // Aggregation pipeline for enriched data (LIGHTWEIGHT VERSION)
     const pipeline = [
       { $match: matchQuery },
       { $sort: { createdAt: -1 } },
-      {
-        $lookup: {
-          from: "revenues",
-          localField: "_id",
-          foreignField: "company_id",
-          as: "revenues",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          let: { companyId: "$_id" },
-          pipeline: [
-            { $match: { $expr: { $eq: ["$company", "$$companyId"] } } },
-            { $count: "total" },
-          ],
-          as: "userCount",
-        },
-      },
+      // Just fetcth Super Admin for the card display
       {
         $lookup: {
           from: "users",
@@ -126,48 +108,19 @@ export const getAllCompanies = async (req, res) => {
       },
       {
         $addFields: {
-          totalRevenue: {
-            $sum: {
-              $map: {
-                input: {
-                  $filter: {
-                    input: "$revenues",
-                    as: "r",
-                    cond: { $eq: ["$$r.status", "completed"] },
-                  },
-                },
-                as: "rev",
-                in: "$$rev.amount",
-              },
-            },
-          },
-          employeeCount: {
-            $ifNull: [{ $arrayElemAt: ["$userCount.total", 0] }, 0],
-          },
           superAdmin: { $arrayElemAt: ["$superAdmin", 0] },
-        },
-      },
-      {
-        $project: {
-          revenues: 0,
-          userCount: 0,
-          verificationToken: 0,
-          verificationExpires: 0,
         },
       },
       { $skip: skip },
       { $limit: limit },
     ];
 
-    // Count pipeline
-    const countPipeline = [{ $match: matchQuery }, { $count: "total" }];
-
-    const [companies, countResult] = await Promise.all([
+    const [companies, totalCount] = await Promise.all([
       Company.aggregate(pipeline),
-      Company.aggregate(countPipeline),
+      Company.countDocuments(matchQuery),
     ]);
 
-    const total = countResult[0]?.total || 0;
+    const total = totalCount || 0;
 
     // Get available plans for filter dropdown
     const availablePlans = await Company.distinct("subscription.plan_name");
@@ -187,6 +140,64 @@ export const getAllCompanies = async (req, res) => {
     });
   } catch (error) {
     console.error("[getAllCompanies] Error:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get Detailed Company Stats (Details on Demand)
+// @route   GET /api/platform/companies/:id
+// @access  Platform Owner
+export const getCompanyDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("🔍 [getCompanyDetails] Fetching details for Company ID:", id);
+
+    const company = await Company.findById(id);
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    const [
+      employeeCount,
+      adminCount,
+      totalRevenue,
+      superAdmin
+    ] = await Promise.all([
+      // 1. Actual Employee Count
+      User.countDocuments({ company: id, role: "employee" }),
+
+      // 2. Actual Branch/Admin Count
+      User.countDocuments({ company: id, role: "admin" }),
+
+      // 3. Total Revenue
+      Revenue.aggregate([
+        { $match: { company_id: company._id, status: "completed" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]),
+
+      // 4. Super Admin Info
+      User.findOne({ company: id, role: "super_admin" }).select("name email phone position avatar")
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        _id: company._id,
+        name: company.name,
+        subscription: company.subscription,
+        isActive: company.isActive,
+        createdAt: company.createdAt,
+        stats: {
+          employees: employeeCount,
+          branches: adminCount,
+          revenue: totalRevenue[0]?.total || 0
+        },
+        superAdmin: superAdmin
+      }
+    });
+
+  } catch (error) {
+    console.error("getCompanyDetails Error:", error);
     res.status(500).json({ message: error.message });
   }
 };

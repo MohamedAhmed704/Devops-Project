@@ -4,9 +4,10 @@ import { useLoading } from "../../contexts/LoaderContext";
 import { useToast } from "../../hooks/useToast";
 import {
     Search, ShieldCheck, ShieldOff,
-    Building2, Calendar, CreditCard, Users, DollarSign, Mail, User, Filter, X
+    Building2, Calendar, CreditCard, Users, DollarSign, Mail, User, Filter, X, Info
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import CompanyDetailsModal from "../../components/platform/CompanyDetailsModal";
 
 export default function Companies() {
     const [companies, setCompanies] = useState([]);
@@ -17,6 +18,7 @@ export default function Companies() {
     const [planFilter, setPlanFilter] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
     const [availablePlans, setAvailablePlans] = useState([]);
+    const [selectedCompanyId, setSelectedCompanyId] = useState(null); // For Modal
     const { show, hide } = useLoading();
     const { addToast } = useToast();
     const { t, i18n } = useTranslation();
@@ -194,35 +196,14 @@ export default function Companies() {
                                 </span>
                             </div>
 
-                            {/* Total Revenue */}
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                                    <DollarSign size={16} /> {t('platform.companies.card.revenue')}
-                                </span>
-                                <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                                    {(company.totalRevenue || 0).toLocaleString()} EGP
-                                </span>
-                            </div>
-
-                            {/* Employees Usage */}
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                                    <Users size={16} /> {t('platform.companies.card.employees')}
-                                </span>
-                                <span className="font-medium text-slate-700 dark:text-slate-200">
-                                    {company.employeeCount || 0} / {company.subscription?.maxUsers || 5}
-                                </span>
-                            </div>
-
-                            {/* Branches */}
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                                    <Building2 size={16} /> {t('platform.companies.card.maxBranches')}
-                                </span>
-                                <span className="font-medium text-slate-700 dark:text-slate-200">
-                                    {company.subscription?.maxBranches || 1}
-                                </span>
-                            </div>
+                            {/* View Details Action */}
+                            <button
+                                onClick={() => setSelectedCompanyId(company._id)}
+                                className="w-full mt-2 py-2 flex items-center justify-center gap-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded-lg transition"
+                            >
+                                <Info size={16} />
+                                {t('platform.companies.actions.viewDetails') || "View Statistics"}
+                            </button>
                         </div>
 
                         <div className="mt-4 pt-4 border-t border-slate-50 dark:border-slate-700 flex justify-between items-center">
@@ -252,7 +233,6 @@ export default function Companies() {
                 </div>
             )}
 
-            {/* Pagination Controls */}
             {totalPages > 1 && (
                 <div className="mt-8 flex justify-center items-center gap-2">
                     <button
@@ -286,6 +266,15 @@ export default function Companies() {
                         {t('calendarModal.next')}
                     </button>
                 </div>
+            )}
+
+            {/* Details Modal */}
+            {selectedCompanyId && (
+                <CompanyDetailsModal
+                    companyId={selectedCompanyId}
+                    onClose={() => setSelectedCompanyId(null)}
+                    onToggleStatus={handleToggleStatus}
+                />
             )}
         </div>
     );

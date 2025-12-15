@@ -2,7 +2,9 @@
   "welcome": "مرحبًا بعودتك",
   "common": {
     "print": "طباعة",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "loading": "جاري التحميل...",
+    "loadingDetails": "جاري تحميل التفاصيل..."
   },
   "login": {
     "welcomeBack": "مرحبًا بعودتك إلى",
@@ -1781,6 +1783,12 @@
       "title": "الشركات",
       "subtitle": "إدارة الشركات المسجلة واشتراكاتها.",
       "searchPlaceholder": "البحث عن الشركات...",
+      "details": {
+        "employees": "إجمالي الموظفين",
+        "branches": "الفروع (المسؤولين)",
+        "revenue": "إجمالي الإيرادات",
+        "subscription": "الاشتراك"
+      },
       "filters": {
         "label": "تصفية:",
         "allPlans": "جميع الخطط",
@@ -1801,7 +1809,8 @@
       },
       "actions": {
         "deactivate": "تعطيل الشركة",
-        "activate": "تفعيل الشركة"
+        "activate": "تفعيل الشركة",
+        "viewDetails": "عرض التفاصيل"
       },
       "empty": {
         "title": "لم يتم العثور على شركات",

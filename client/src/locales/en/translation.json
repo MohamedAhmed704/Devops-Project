@@ -2,7 +2,10 @@
   "welcome": "Welcome Back",
   "common": {
     "print": "Print",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading...",
+    "loadingDetails":"Loading Details"
   },
   "login": {
     "welcomeBack": "Welcome Back to",
@@ -1578,13 +1581,20 @@
       "title": "Companies",
       "subtitle": "Manage registered companies and their subscriptions.",
       "searchPlaceholder": "Search companies...",
+      "details": {
+        "employees": "Total Employees",
+        "branches": "Branches (Admins)",
+        "revenue": "Total Revenue",
+        "subscription": "Subscription"
+      },
       "filters": {
         "label": "Filters:",
         "allPlans": "All Plans",
         "allStatus": "All Status",
         "active": "Active",
         "inactive": "Inactive",
-        "clear": "Clear"
+        "clear": "Clear",
+        "status": "Status"
       },
       "card": {
         "joined": "Joined",
@@ -1598,7 +1608,8 @@
       },
       "actions": {
         "deactivate": "Deactivate Company",
-        "activate": "Activate Company"
+        "activate": "Activate Company",
+        "viewDetails": "View Details"
       },
       "empty": {
         "title": "No companies found",
