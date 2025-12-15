@@ -1,5 +1,9 @@
 {
   "welcome": "مرحبًا بعودتك",
+  "common": {
+    "print": "طباعة",
+    "cancel": "إلغاء"
+  },
   "login": {
     "welcomeBack": "مرحبًا بعودتك إلى",
     "companyName": "تدبير",
@@ -455,6 +459,14 @@
       "title": "الفرع",
       "defaultName": "الفرع الرئيسي",
       "manager": "مدير الفرع"
+    },
+    "estimatedEarnings": "الأرباح المقدرة (هذا الشهر)",
+    "achievements": "إنجازاتي",
+    "keepItUp": "استمر في العمل الجيد! هذا يعتمد على ساعات عملك الحالية.",
+    "badges": {
+      "earlyBird": "طائر مبكر",
+      "ironMan": "الرجل الحديدي",
+      "nightOwl": "بومة الليل"
     }
   },
   "myReports": {
@@ -973,9 +985,6 @@
       "noEmployees": "لم يتم العثور على موظفين.",
       "shareButton": "مشاركة مع {{count}} موظف"
     }
-  },
-  "common": {
-    "cancel": "إلغاء"
   },
   "authError": {
     "title": "فشل المصادقة",
@@ -2037,5 +2046,27 @@
     },
     "confirmDelete": "هل أنت متأكد من حذف هذه الرسالة؟",
     "replyFailed": "فشل إرسال الرد. حاول مرة أخرى."
+  },
+  "payslip": {
+    "title": "قسيمة راتبي",
+    "subtitle": "عرض أرباحك المقدرة وتفاصيل الحضور",
+    "header": "قسيمة الراتب",
+    "totalEstimated": "إجمالي الأرباح المقدرة",
+    "disclaimer": "*قبل خصم الضرائب",
+    "basePay": "الراتب الأساسي",
+    "regularHours": "ساعات عادية",
+    "overtimePay": "أجر العمل الإضافي",
+    "overtimeHours": "ساعات إضافية (1.5x)",
+    "attendanceBreakdown": "تفاصيل الحضور",
+    "generatedBy": "تم إنشاء هذا التقرير بواسطة نظام ShiftPlanner في",
+    "noRecords": "لم يتم العثور على سجلات حضور لهذه الفترة.",
+    "table": {
+      "date": "التاريخ",
+      "status": "الحالة",
+      "checkIn": "دخول",
+      "checkOut": "خروج",
+      "totalHours": "إجمالي الساعات",
+      "overtime": "إضافي"
+    }
   }
 }

@@ -56,6 +56,7 @@ const E_TimeTracking = lazy(() => import("../pages/employee/TimeTracking"));
 const E_TimeOff = lazy(() => import("../pages/employee/TimeOffRequests"));
 const E_Reports = lazy(() => import("../pages/employee/MyReports"));
 const E_SwapRequests = lazy(() => import("../pages/employee/SwapRequests"));
+const E_Payslip = lazy(() => import("../pages/employee/Payslip")); // 💰 New Page
 
 const routes = {
 
@@ -97,8 +98,9 @@ const routes = {
     { path: "/swaps", element: E_SwapRequests, label: "Shift Swaps", icon: ArrowRightLeft }, // ✅ New Route for Employee
     { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
     { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane },
-    { path: "/reports", element: E_Reports, label: "My Reports", icon: BarChart3 },
-    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
+    { path: "/reports", element: E_Reports, label: "My Reports", icon: BarChart3, translationKey: "myReports.title" },
+    { path: "/payslip", element: E_Payslip, label: "My Payslip", icon: DollarSign, translationKey: "payslip.title" }, // 💰 New Item
+    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern, translationKey: "navbar.profile" },
   ]
 };
 
