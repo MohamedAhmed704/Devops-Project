@@ -4,10 +4,8 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 export default function PublicRoute({ children }) {
   const { isAuthenticated, status, loading } = useAuth();
 
-  // ❗ Prevent ALL redirects until auth finishes
   if (loading) return null;
 
-  // ❗ If user just registered → force to OTP page
   if (status === "pending_verification") {
     if (window.location.pathname !== "/verify-otp") {
       return <Navigate to="/verify-otp" replace />;
@@ -15,8 +13,7 @@ export default function PublicRoute({ children }) {
     return children; // allow OTP page
   }
 
-  // ❗ If authenticated → dashboard
-  if (isAuthenticated) {
+  if (isAuthenticated && window.location.pathname !== "/") {
     return <Navigate to="/dashboard" replace />;
   }
 

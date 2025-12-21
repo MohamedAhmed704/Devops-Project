@@ -275,6 +275,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Refresh user data from server (useful after payment or subscription changes)
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) return { success: false, error: "No token" };
+
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const { data } = await apiClient.get("/api/auth/profile");
+      setUser(data);
+      return { success: true, user: data };
+    } catch (err) {
+      console.error("refreshUser error:", err);
+      return { success: false, error: err.message };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setAccessToken(null);
@@ -298,6 +314,7 @@ export function AuthProvider({ children }) {
         unlinkGoogleAccount,
         getGoogleStatus,
         setTokenFromCallback,
+        refreshUser,
         logout,
         loading,
         isAuthenticated: status === "authenticated",
@@ -309,8 +326,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
+export  function useAuth () {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;

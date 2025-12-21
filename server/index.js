@@ -11,12 +11,13 @@ import reportRoutes from "./routes/reportRoutes.js";
 import otpRoutes from "./routes/otpRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
-// Add to routes
-// Import the new routes
+import planRoutes from "./routes/planRoutes.js";
 import superAdminRoutes from "./routes/superAdminRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
-
+import platformRoutes from "./routes/platformRoutes.js";
+import swapRoutes from "./routes/swapRoutes.js";
+import contactRoutes from "./routes/contactRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -30,9 +31,9 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Base API routes
-app.use("/api/auth", authRoutes);      
-app.use("/api/users", userRoutes);      
-app.use("/api/shifts", shiftRoutes);   
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/shifts", shiftRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/reports", reportRoutes);
 
@@ -40,14 +41,26 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/employee", employeeRoutes);
+app.use("/api/platform", platformRoutes);
+app.use("/api/plans", planRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/swaps", swapRoutes);
+app.use("/api/contact", contactRoutes);
 app.get("/", (req, res) => {
   res.send("ShiftMind API Running - Smart Workforce Management System");
 });
 
 // payment routes
 app.use("/api", paymentRoutes);
+
+// Redirect /payment-callback to frontend (Paymob transaction response callback)
+// This route is hit by Paymob after payment, we redirect to frontend with all params
+app.get("/payment-callback", (req, res) => {
+  const queryString = new URLSearchParams(req.query).toString();
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  res.redirect(`${frontendUrl}/payment/callback?${queryString}`);
+});
 
 app.use(notFound);
 app.use(errorHandler);
@@ -58,31 +71,4 @@ app.listen(PORT, () =>
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`)
 );
 
-// 🎯 Updated Features - ShiftMind New Architecture
 
-// 🏢 New Branch-Based System
-// Super Admin → Manages entire system and all branches
-// Branch Admin → Manages their specific branch and employees  
-// Employee → Belongs to a specific branch with limited access
-
-// 🔐 Enhanced Role-Based Access
-// Super Admin: Full system access + branch management
-// Admin: Branch-specific management + employee oversight
-// Employee: Personal data + attendance + shifts
-
-// 📊 Consolidated Features
-// Attendance tracking with branch isolation
-// Shift management per branch
-// Reports with branch-level permissions
-// Employee management within branches
-
-// 🚀 Improved Security
-// Branch isolation prevents cross-branch data access
-// Granular permissions for each role
-// Automatic access control based on branch_admin_id
-
-// 💡 Key Benefits
-// Scalable multi-branch architecture
-// Secure data isolation between branches
-// Flexible role-based permissions
-// Simplified user management

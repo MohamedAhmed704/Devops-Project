@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -13,8 +13,6 @@ apiClient.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-    console.log("sending request with token:", localStorage.getItem("accessToken"));
-
   return config;
 });
 
@@ -24,11 +22,10 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/auth/refresh")) {
       originalRequest._retry = true;
 
       try {
-        // CORRECT refresh call
         const { data } = await apiClient.get("/api/auth/refresh", {
           withCredentials: true,
         });
@@ -36,16 +33,12 @@ apiClient.interceptors.response.use(
         const newToken = data?.accessToken;
         if (!newToken) throw new Error("No access token returned");
 
-        // Save new token
         localStorage.setItem("accessToken", newToken);
-        
-        // new coustom event to notify auth context 
+
         window.dispatchEvent(new CustomEvent("token-refreshed", { detail: newToken }));
 
-        // Update header for current request
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
-        // Fetch user info with CORRECT client
         try {
           const me = await apiClient.get("/api/auth/profile", {
             headers: { Authorization: `Bearer ${newToken}` }
@@ -57,11 +50,9 @@ apiClient.interceptors.response.use(
         } catch (err) {
           console.warn("Failed to refresh user data.");
         }
-
         return apiClient(originalRequest);
 
       } catch (err) {
-        // Refresh token expired → logout
         localStorage.removeItem("accessToken");
         window.location.href = "/login";
       }

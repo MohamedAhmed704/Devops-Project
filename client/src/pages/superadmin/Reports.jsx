@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { superAdminService } from "../../api/services/superAdminService";
-import { useLoading } from "../../contexts/LoaderContext";
 import { 
-  FileText, Calendar, Filter, User, Building, Eye, BarChart2, Clock, 
+  Calendar, Filter, Building, Eye, BarChart2, Clock, 
   ChevronLeft, ChevronRight 
 } from "lucide-react";
-
+import { useTranslation } from "react-i18next";
 import ReportDetailsModal from "./ReportDetailsModal"; 
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function SystemReports() {
   const [reports, setReports] = useState([]);
   const [filterType, setFilterType] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
-  
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const limit = 6; 
 
-  const { show, hide } = useLoading();
+  const { t, i18n } = useTranslation();
 
   const fetchReports = async () => {
     try {
-      show();
+      setLoading(true)
       const params = { 
         page, 
         limit,
@@ -36,9 +36,9 @@ export default function SystemReports() {
         setTotalPages(res.data.pagination.total_pages);
       }
     } catch (err) {
-      console.error("Failed to fetch reports", err);
+      console.error(t("systemReports.errors.fetchFailed"), err);
     } finally {
-      hide();
+      setLoading(false)
     }
   };
 
@@ -50,12 +50,21 @@ export default function SystemReports() {
     setPage(1);
   }, [filterType]);
 
+  if(loading) return <DashboardSkeleton />
+
   const getStatusColor = (type) => {
     switch (type) {
-      case 'attendance': return 'text-blue-600 bg-blue-50';
-      case 'performance': return 'text-purple-600 bg-purple-50';
-      case 'shift': return 'text-orange-600 bg-orange-50';
-      default: return 'text-slate-600 bg-slate-50';
+      case 'attendance': return 'text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400';
+      case 'shift': return 'text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400';
+      default: return 'text-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-slate-400';
+    }
+  };
+
+  const getReportTypeLabel = (type) => {
+    switch (type) {
+      case 'attendance': return t("systemReports.types.attendance");
+      case 'shift': return t("systemReports.types.shift");
+      default: return t("systemReports.types.other");
     }
   };
 
@@ -66,16 +75,16 @@ export default function SystemReports() {
       return (
         <div className="flex gap-4 mt-3 mb-2">
           <div className="text-center">
-            <p className="text-xs text-slate-400">Attendance</p>
-            <p className="text-sm font-bold text-blue-600">{data.attendance_rate || 0}%</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.attendanceRate")}</p>
+            <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{data.attendance_rate || 0}%</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-slate-400">Present</p>
-            <p className="text-sm font-bold text-emerald-600">{data.summary?.present || data.present_count || 0}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.present")}</p>
+            <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{data.summary?.present || data.present_count || 0}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-slate-400">Late</p>
-            <p className="text-sm font-bold text-amber-500">{data.summary?.late || data.late_count || 0}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.late")}</p>
+            <p className="text-sm font-bold text-amber-500 dark:text-amber-400">{data.summary?.late || data.late_count || 0}</p>
           </div>
         </div>
       );
@@ -85,23 +94,12 @@ export default function SystemReports() {
       return (
         <div className="flex gap-4 mt-3 mb-2">
           <div className="text-center">
-            <p className="text-xs text-slate-400">Total Shifts</p>
-            <p className="text-sm font-bold text-orange-600">{data.total_shifts || 0}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.totalShifts")}</p>
+            <p className="text-sm font-bold text-orange-600 dark:text-orange-400">{data.total_shifts || 0}</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-slate-400">Completed</p>
-            <p className="text-sm font-bold text-blue-600">{data.by_status?.completed || 0}</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (report.type === 'performance') {
-      return (
-        <div className="flex gap-4 mt-3 mb-2">
-          <div className="text-center">
-            <p className="text-xs text-slate-400">Avg Score</p>
-            <p className="text-sm font-bold text-purple-600">{data.averages?.avg_performance || 0}%</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t("systemReports.stats.completed")}</p>
+            <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{data.by_status?.completed || 0}</p>
           </div>
         </div>
       );
@@ -113,8 +111,8 @@ export default function SystemReports() {
     <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-screen">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">System Reports</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Detailed analytics from all branches.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("systemReports.title")}</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{t("systemReports.subtitle")}</p>
         </div>
         
         <div className="relative">
@@ -124,9 +122,9 @@ export default function SystemReports() {
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
           >
-            <option value="">All Report Types</option>
-            <option value="attendance">Attendance</option>
-            <option value="shift">Shift Analysis</option>
+            <option value="">{t("systemReports.filters.allTypes")}</option>
+            <option value="attendance">{t("systemReports.types.attendance")}</option>
+            <option value="shift">{t("systemReports.types.shift")}</option>
           </select>
         </div>
       </div>
@@ -147,16 +145,24 @@ export default function SystemReports() {
                   <button 
                     onClick={() => setSelectedReport(report)}
                     className="text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-3 py-1 rounded-md text-xs font-medium transition flex items-center gap-1"
+                    aria-label={t("systemReports.buttons.viewDetails")}
                   >
-                    <Eye size={14} /> View Details
+                    <Eye size={14} /> {t("systemReports.buttons.viewDetails")}
                   </button>
                 </div>
 
                 {/* Content */}
                 <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-1 line-clamp-1" title={report.title}>{report.title}</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                  Generated on {new Date(report.createdAt).toLocaleDateString()}
+                  {t("systemReports.generatedOn")} {new Date(report.createdAt).toLocaleDateString(i18n.language)}
                 </p>
+
+                {/* Report Type Badge */}
+                <div className="mb-3">
+                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(report.type)}`}>
+                    {getReportTypeLabel(report.type)}
+                  </span>
+                </div>
 
                 {/* Quick Stats */}
                 <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-3 mb-4">
@@ -167,12 +173,12 @@ export default function SystemReports() {
                 <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-700 space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                     <Building size={14} className="text-slate-400 dark:text-slate-500" />
-                    <span className="truncate text-xs">{report.generated_by_admin_id?.branch_name || "Unknown Branch"}</span>
+                    <span className="truncate text-xs">{report.generated_by_admin_id?.branch_name || t("systemReports.unknownBranch")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                     <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
                     <span className="text-xs">
-                      {new Date(report.start_date).toLocaleDateString()} - {new Date(report.end_date).toLocaleDateString()}
+                      {new Date(report.start_date).toLocaleDateString(i18n.language)} - {new Date(report.end_date).toLocaleDateString(i18n.language)}
                     </span>
                   </div>
                 </div>
@@ -180,25 +186,27 @@ export default function SystemReports() {
             ))}
           </div>
 
-          {/* ✅ Pagination Controls */}
+          {/* Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-4 mt-8 pb-4">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                aria-label={t("systemReports.pagination.previous")}
               >
                 <ChevronLeft size={20} />
               </button>
               
               <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                Page {page} of {totalPages}
+                {t("systemReports.pagination.page")} {page} {t("systemReports.pagination.of")} {totalPages}
               </span>
 
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                aria-label={t("systemReports.pagination.next")}
               >
                 <ChevronRight size={20} />
               </button>
@@ -207,7 +215,7 @@ export default function SystemReports() {
         </>
       ) : (
         <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-          No reports found matching your filters.
+          {t("systemReports.noReportsFound")}
         </div>
       )}
 
