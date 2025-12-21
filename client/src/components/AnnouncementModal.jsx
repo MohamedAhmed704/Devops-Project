@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { X, Send, Megaphone } from "lucide-react";
 import { notificationService } from "../api/services/notificationService";
-import { useLoading } from "../contexts/LoaderContext";
 import { useTranslation } from "react-i18next";
 import { Alert } from "../utils/alertService"; 
 
 export default function AnnouncementModal({ onClose }) {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const { show, hide } = useLoading();
   const { t } = useTranslation();
 
   const handleSend = async (e) => {
@@ -19,7 +17,6 @@ export default function AnnouncementModal({ onClose }) {
     }
 
     try {
-      show();
       const res = await notificationService.sendAnnouncement({ title, message });
       
       Alert.success(res.data.message);
@@ -28,7 +25,6 @@ export default function AnnouncementModal({ onClose }) {
     } catch (err) {
       Alert.error(err.response?.data?.message || t("announcementModal.errors.failedToSend"));
     } finally {
-      hide();
     }
   };
 

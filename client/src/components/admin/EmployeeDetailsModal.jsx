@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { employeesService } from "../../api/services/admin/employeesService";
+import adminService from "../../api/services/adminService.js";
 import {
   X,
   User,
@@ -29,7 +29,7 @@ const EmployeeDetailsModal = ({ employee, onClose }) => {
   const fetchEmployeeDetails = async () => {
     try {
       setLoading(true);
-      const response = await employeesService.getEmployee(employee._id);
+      const response = await adminService.employees.getEmployee(employee._id);
       setDetails(response.data.data);
     } catch (error) {
       toast.error(t("admins.employeeDetails.errors.fetchFailed"));

@@ -4,7 +4,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import ReactMarkdown from "react-markdown";
-import { reportService } from "../../api/services/admin/reportService";
+import adminService from "../../api/services/adminService.js";
 import { Alert } from "../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
 
@@ -104,7 +104,7 @@ export default function ReportDetailsModal({ report, onClose }) {
     try {
       setIsAnalyzing(true);
       const reportId = report.id || report._id;
-      const res = await reportService.generateAIAnalysis(reportId, language);
+      const res = await adminService.reports.generateAIAnalysis(reportId, language);
       setAiSummary(res.data.data.ai_summary);
     } catch (err) {
       console.error(err);

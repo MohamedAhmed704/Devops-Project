@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { swapService } from "../../api/services/admin/swapService";
+import adminService from "../../api/services/adminService.js";
 import { Alert } from "../../utils/alertService"; 
 import { 
   ArrowRightLeft, CheckCircle, XCircle, Calendar, AlertTriangle 
@@ -17,7 +17,7 @@ export default function SwapApprovals() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await swapService.getBranchRequests();
+      const res = await adminService.swaps.getBranchRequests();
       setRequests(res.data.data || []);
     } catch (err) {
       console.error(err);
@@ -51,10 +51,10 @@ export default function SwapApprovals() {
     try {
       setLoading(true);
       if (action === "approve") {
-        await swapService.approveRequest(id, adminNote); 
+        await adminService.swaps.approveRequest(id, adminNote);
         Alert.success(t("swapApprovals.approveSuccess"));
       } else {
-        await swapService.rejectRequest(id);
+        await adminService.swaps.rejectRequest(id);
         Alert.success(t("swapApprovals.rejectSuccess"));
       }
       fetchRequests();

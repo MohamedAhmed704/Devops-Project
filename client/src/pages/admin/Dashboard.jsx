@@ -1,21 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { dashboardService } from "../../api/services/admin/dashboardService";
+import React,{ useEffect, useState } from "react";
+import adminService from "../../api/services/adminService.js";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
-import {
-  Users,
-  CheckCircle2,
-  XCircle,
-  PieChart,
-  CalendarClock,
-  FileText,
-  TrendingUp,
-  Zap,
-  RotateCcw,
-  Clock,
-  UserPlus,
-  Briefcase,
-} from "lucide-react";
+import {Users,CheckCircle2,XCircle,PieChart,CalendarClock,FileText,TrendingUp,Zap,RotateCcw,Clock,UserPlus,Briefcase} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
@@ -32,8 +19,8 @@ export default function AdminDashboard() {
       setLoading(true)
       // Fetch both endpoints in parallel
       const [dashboardRes, statsRes] = await Promise.all([
-        dashboardService.getDashboard(),
-        dashboardService.getDashboardStats(),
+        adminService.dashboard.getDashboard(),
+        adminService.dashboard.getDashboardStats(),
       ]);
 
       setDashboardData(dashboardRes.data.data);
@@ -224,7 +211,6 @@ export default function AdminDashboard() {
                   className="flex items-center justify-between p-3 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    {/* ✅ Image Handling */}
                     <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-blue-50 dark:bg-slate-700 flex items-center justify-center border border-slate-100 dark:border-slate-600">
                       {employee.avatar ? (
                         <img

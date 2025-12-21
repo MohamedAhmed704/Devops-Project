@@ -1,20 +1,9 @@
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    DollarSign,
-    Calendar,
-    Printer,
-    TrendingUp,
-    Users,
-    Clock,
-    AlertCircle
-} from 'lucide-react';
-import api from '../../api/apiClient';
-import { toast } from 'react-hot-toast'; // We might replace this with Alert service if strictly following standards, but user mentioned Swal for confirmations.
-import Swal from 'sweetalert2';
+import { DollarSign, Printer, Users, Clock, AlertCircle } from 'lucide-react';
 import DashboardSkeleton from '../../utils/DashboardSkeleton';
 import { Alert } from '../../utils/alertService';
+import adminService from '../../api/services/adminService';
 
 const Payroll = () => {
     const { t, i18n } = useTranslation();
@@ -28,7 +17,10 @@ const Payroll = () => {
     const fetchPayroll = async () => {
         setLoading(true);
         try {
-            const response = await api.get(`/api/attendance/payroll?start_date=${period.start}&end_date=${period.end}`);
+            const response = await adminService.payroll.getPayroll(
+                period.start,
+                period.end
+            );
             setPayrollData(response.data);
         } catch (error) {
             console.error(error);

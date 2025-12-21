@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { employeesService } from "../../api/services/admin/employeesService";
+import adminService from "../../api/services/adminService.js";
 import {
   X,
   Clock,
@@ -20,7 +20,7 @@ const AttendanceModal = ({ employee, onClose }) => {
   const fetchAttendance = async () => {
     try {
       setLoading(true);
-      const response = await employeesService.getEmployeeAttendance(employee._id);
+      const response = await adminService.attendance.getEmployeeAttendance(employee._id);
       setAttendanceData(response.data);
     } catch (error) {
       toast.error(t("admin.employeeAttendance.loadError"));

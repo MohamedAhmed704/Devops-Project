@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { reportService } from "../../api/services/admin/reportService";
-import { useLoading } from "../../contexts/LoaderContext";
-import apiClient from "../../api/apiClient";
+import adminService from "../../api/services/adminService.js";
 import { 
   FileText, Calendar, Plus, Trash2, Eye, Share2, 
   Clock, Filter, X, ChevronLeft, ChevronRight, Check
@@ -16,14 +14,10 @@ export default function Reports() {
   const [filterType, setFilterType] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [reportToShare, setReportToShare] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 6; 
   const [loading, setLoading] = useState(true);
-  
-
-  const { show, hide } = useLoading();
   const { t } = useTranslation();
 
   const fetchData = async () => {
@@ -35,7 +29,7 @@ export default function Reports() {
         ...(filterType && { type: filterType }) 
       };
 
-      const res = await reportService.getAll(params);
+      const res = await adminService.reports.getAll(params);
       setReports(res.data.data.reports || []);
       
       if (res.data.data.pagination) {
@@ -62,7 +56,7 @@ export default function Reports() {
 
     try {
       setLoading(true);
-      await reportService.delete(id);
+      await adminService.reports.delete(id);
       fetchData();
       Alert.success(t("reports.deleteSuccess")); 
     } catch (err) {
@@ -158,9 +152,6 @@ export default function Reports() {
                       <button onClick={() => setSelectedReport(report)} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600" title={t("reports.actions.view")}>
                           <Eye size={16}/>
                       </button>
-                      <button onClick={() => setReportToShare(report)} className="p-1.5 hover:bg-green-50 rounded-lg text-slate-400 hover:text-green-600" title={t("reports.actions.share")}>
-                          <Share2 size={16}/>
-                      </button>
                       <button onClick={() => handleDelete(report.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600" title={t("reports.actions.delete")}>
                           <Trash2 size={16}/>
                       </button>
@@ -223,19 +214,10 @@ export default function Reports() {
         <ReportDetailsModal report={selectedReport} onClose={() => setSelectedReport(null)} />
       )}
 
-      {reportToShare && (
-        <ShareReportModal 
-            report={reportToShare} 
-            onClose={() => setReportToShare(null)} 
-            loadingUtils={{ show, hide }}
-        />
-      )}
-
       {isGenerateModalOpen && (
         <GenerateReportModal 
           onClose={() => setIsGenerateModalOpen(false)} 
           onSuccess={() => { setIsGenerateModalOpen(false); setPage(1); fetchData(); }}
-          loadingUtils={{ show, hide }}
         />
       )}
 
@@ -244,7 +226,7 @@ export default function Reports() {
 }
 
 // --- Generate Report Modal (Updated: Removed Performance) ---
-function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
+function GenerateReportModal({ onClose, onSuccess }) {
     const [type, setType] = useState("attendance");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -253,20 +235,25 @@ function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
     const { t } = useTranslation();
 
     useEffect(() => {
-        apiClient.get("/api/admin/employees").then(res => setEmployees(res.data.data || []));
+        adminService.employees.getEmployees({ status: "active" }).then(res => {
+            setEmployees(res.data.data || []);
+        }).catch(err => {
+            console.error("Failed to fetch employees", err);
+        });
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        loadingUtils.show();
         try {
             const payload = { start_date: startDate, end_date: endDate, employee_id: employeeId || null };
-            if (type === "attendance") await reportService.generateAttendance(payload);
-            else if (type === "shift") await reportService.generateShift(payload);            
+            if (type === "attendance") await adminService.reports.generateAttendance(payload);
+            else if (type === "shift") await adminService.reports.generateShift(payload);
             Alert.success(t("reports.generateSuccess"));
             onSuccess();
         } catch (err) { Alert.error(err.response?.data?.message || t("reports.generateFailed")); } 
-        finally { loadingUtils.hide(); }
+        finally { 
+
+         }
     };
     
     return (
@@ -319,107 +306,6 @@ function GenerateReportModal({ onClose, onSuccess, loadingUtils }) {
                       {t("reports.generateModal.generateButton")}
                     </button>
                 </form>
-            </div>
-        </div>
-    );
-}
-
-function ShareReportModal({ report, onClose, loadingUtils }) {
-    const [employees, setEmployees] = useState([]);
-    const [selectedEmployees, setSelectedEmployees] = useState([]);
-    const { t } = useTranslation();
-    
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                const res = await apiClient.get("/api/admin/employees");
-                setEmployees(res.data.data || []);
-                setSelectedEmployees(report.shared_with_users || []);
-            } catch (err) { console.error(err); }
-        };
-        loadData();
-    }, [report]);
-
-    const toggleEmployee = (id) => {
-        if (selectedEmployees.includes(id)) {
-            setSelectedEmployees(prev => prev.filter(e => e !== id));
-        } else {
-            setSelectedEmployees(prev => [...prev, id]);
-        }
-    };
-
-    const handleShare = async () => {
-        if (selectedEmployees.length === 0) return;
-
-        loadingUtils.show();
-        try {
-            await reportService.share(report.id, selectedEmployees);
-            Alert.success(t("reports.shareSuccess"));
-            onClose();
-        } catch (err) {
-            Alert.error(err.response?.data?.message || t("reports.shareFailed"));
-        } finally {
-            loadingUtils.hide();
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-60 p-4">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[80vh] dark:text-slate-100">
-                <div className="bg-slate-50 dark:bg-slate-700 px-6 py-4 border-b border-slate-100 dark:border-slate-600 flex justify-between items-center">
-                    <div>
-                        <h3 className="font-bold text-slate-800 dark:text-slate-100">
-                          {t("reports.shareModal.title")}
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[250px]">{report.title}</p>
-                    </div>
-                    <button onClick={onClose}><X size={20} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400"/></button>
-                </div>
-
-                <div className="p-4 overflow-y-auto">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                      {t("reports.shareModal.selectEmployees")}
-                    </p>
-                    <div className="space-y-2">
-                        {employees.map(emp => (
-                            <div 
-                                key={emp._id} 
-                                onClick={() => toggleEmployee(emp._id)}
-                                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                                    selectedEmployees.includes(emp._id) 
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-600' 
-                                    : 'border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-                                }`}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${selectedEmployees.includes(emp._id) ? 'bg-blue-200 dark:bg-blue-600 text-blue-700 dark:text-blue-200' : 'bg-slate-100 dark:bg-slate-600 text-slate-500 dark:text-slate-400'}`}>
-                                        {emp.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{emp.name}</p>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400">{emp.position || t("reports.shareModal.defaultPosition")}</p>
-                                    </div>
-                                </div>
-                                {selectedEmployees.includes(emp._id) && <Check size={18} className="text-blue-600 dark:text-blue-400" />}
-                            </div>
-                        ))}
-                        {employees.length === 0 && <p className="text-center text-sm text-slate-400 dark:text-slate-500 py-4">{t("reports.shareModal.noEmployees")}</p>}
-                    </div>
-                </div>
-
-                <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700">
-                    <button 
-                        onClick={handleShare} 
-                        disabled={selectedEmployees.length === 0}
-                        className={`w-full py-2.5 rounded-xl font-medium transition shadow-md flex justify-center items-center gap-2 ${
-                            selectedEmployees.length === 0 
-                            ? "bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed" 
-                            : "bg-[#112D4E] dark:bg-[#1e3a5f] text-white hover:bg-[#274b74] dark:hover:bg-[#2d5080]"
-                        }`}
-                    >
-                        <Share2 size={16} /> {t("reports.shareModal.shareButton", { count: selectedEmployees.length })}
-                    </button>
-                </div>
             </div>
         </div>
     );

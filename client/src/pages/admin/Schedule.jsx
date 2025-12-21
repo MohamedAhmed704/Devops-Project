@@ -3,8 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import shiftService from "../../api/services/admin/shiftService";
-import apiClient from "../../api/apiClient";
+import adminService from "../../api/services/adminService.js";
 import {
   Plus, X, Clock, MapPin, FileText, Trash2, Save,
   AlertCircle, Lock, CheckSquare, Square, Info,
@@ -54,8 +53,8 @@ export default function Schedule() {
     try {
       setLoading(true)
       const [shiftsRes, employeesRes] = await Promise.all([
-        shiftService.getBranchShifts({ limit: 1000 }),
-        apiClient.get("/api/admin/employees")
+        adminService.shifts.getBranchShifts({ limit: 1000 }),
+        adminService.employees.getEmployees({ status: "active" })
       ]);
       const shifts = shiftsRes.data.data || [];
       const emps = employeesRes.data.data || [];
@@ -70,8 +69,6 @@ export default function Schedule() {
 
   useEffect(() => {
     fetchData();
-
-    // Cleanup recognition on unmount
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -212,7 +209,7 @@ export default function Schedule() {
     try {
       setLoading(true)
       if (selectedShiftId) {
-        await shiftService.updateShift(selectedShiftId, {
+        await adminService.shifts.updateShift(selectedShiftId, {
           employee_id: formData.employee_ids[0],
           title: formData.title,
           start_date_time: start, // Send Date object
@@ -224,10 +221,10 @@ export default function Schedule() {
         Alert.success(t("schedule.success.updated"));
       } else {
         if (formData.employee_ids.length === 1) {
-          await shiftService.createShift({
+          await adminService.shifts.createShift({
             ...formData,
             start_date_time: start,
-            end_date_time: end,    
+            end_date_time: end,
             employee_id: formData.employee_ids[0]
           });
         } else {
@@ -235,12 +232,12 @@ export default function Schedule() {
             employee_id: empId,
             title: formData.title,
             start_date_time: start,
-            end_date_time: end,    
+            end_date_time: end,
             shift_type: formData.shift_type,
             location: formData.location,
             notes: formData.notes
           }));
-          await shiftService.createBulkShifts({ shifts: shiftsArray });
+          await adminService.shifts.createBulkShifts({ shifts: shiftsArray });
         }
         Alert.success(t("schedule.success.created"));
       }
@@ -262,7 +259,7 @@ export default function Schedule() {
 
     try {
       setLoading(true);
-      await shiftService.deleteShift(selectedShiftId);
+      await adminService.shifts.deleteShift(selectedShiftId);
       Alert.success(t("schedule.success.deleted"));
       handleCloseModal();
       fetchData();
@@ -337,12 +334,10 @@ export default function Schedule() {
     try {
       setIsGenerating(true);
       const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-      const res = await apiClient.post("/api/shifts/ai-generate", {
-        command: aiCommand,
-        timeZone: userTimeZone
-      });
-
+      const res = await adminService.shifts.generateFromAI(
+        aiCommand,
+        userTimeZone
+      );
       setAiPreview(res.data.data);
     } catch (err) {
       Alert.error(t("schedule.ai.failedToUnderstand"));
@@ -355,8 +350,8 @@ export default function Schedule() {
     if (!aiPreview || aiPreview.length === 0) return;
 
     try {
-      setLoading(true)
-      await shiftService.createBulkShifts({ shifts: aiPreview });
+      setLoading(true);
+      await adminService.shifts.createBulkShifts({ shifts: aiPreview });
       Alert.success(t("schedule.ai.shiftsCreated", { count: aiPreview.length }));
       setShowAIModal(false);
       setAiPreview(null);
@@ -743,8 +738,8 @@ export default function Schedule() {
                     <button
                       onClick={toggleListening}
                       className={`absolute bottom-3 right-3 h-9 w-9 flex items-center justify-center rounded-full transition-all duration-300 shadow-md ${isListening
-                          ? "bg-red-500 text-white animate-pulse-ring"
-                          : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50"
+                        ? "bg-red-500 text-white animate-pulse-ring"
+                        : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/50"
                         }`}
                       title={isListening ? t("schedule.voice.stopListening") : t("schedule.voice.startListening")}
                     >

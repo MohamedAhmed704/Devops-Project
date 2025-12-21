@@ -10,7 +10,7 @@ export const employeeService = {
   // Swap Shifts
   getColleagues: () => apiClient.get("/api/employee/colleagues"),
 
-  // New: Get colleague shifts for exchange (Shift-for-Shift)
+  // Get colleague shifts for exchange (Shift-for-Shift)
   getColleagueShifts: (colleagueId) => apiClient.get(`/api/employee/colleagues/${colleagueId}/shifts`),
 
   createSwapRequest: (data) => apiClient.post("/api/swaps", data),

@@ -5,7 +5,6 @@ export const initiatePayment = async (planId) => {
     return response.data;
 };
 
-// New: Get Billing History
 export const getBillingHistory = async () => {
     const response = await apiClient.get("/api/payment/history");
     return response.data;

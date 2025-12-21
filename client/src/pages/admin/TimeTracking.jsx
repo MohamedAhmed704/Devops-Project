@@ -10,8 +10,7 @@ import {
   Timer,
   Coffee,
 } from "lucide-react";
-import { attendanceService } from "../../api/services/admin/attendanceService";
-import toast, { Toaster } from "react-hot-toast";
+import adminService from "../../api/services/adminService.js";
 import * as XLSX from "xlsx";
 import { Alert } from "../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
@@ -41,7 +40,7 @@ export default function TimeTracking() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await attendanceService.getBranchAttendance(selectedDate);
+      const res = await adminService.attendance.getBranchAttendance(selectedDate);
       setRecords(res.data.records || []);
     } catch (err) {
       console.error(err);
@@ -151,8 +150,6 @@ export default function TimeTracking() {
 
   return (
     <>
-      <Toaster position="top-center" />
-
       <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6 dark:text-slate-100">
         {/* --- HEADER --- */}
         <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
@@ -447,10 +444,6 @@ export default function TimeTracking() {
                   {t("timeTracking.modal.date")}:{" "}
                   {new Date(selectedRecord.date).toLocaleDateString()}
                 </p>
-                {/* <p className="text-gray-900 dark:text-slate-100 text-sm">
-                  {t("timeTracking.modal.total")}:{" "}
-                  {selectedRecord.total_hours || 0} {t("timeTracking.hours")}
-                </p> */}
               </div>
             </div>
 

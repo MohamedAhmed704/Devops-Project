@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { leaveService } from "../../api/services/admin/leaveService";
-import { 
-  Calendar, Clock, CheckCircle, XCircle, Plus, X, History, Inbox 
-} from "lucide-react";
+import adminService from "../../api/services/adminService.js";
+import { Calendar, Clock, CheckCircle, XCircle, Plus, X, History, Inbox } from "lucide-react";
 import {Alert} from "../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function TimeOff() {
-  const [activeTab, setActiveTab] = useState("incoming"); // incoming | my_history
+  const [activeTab, setActiveTab] = useState("incoming");
   const [loading, setLoading] = useState(true);
 
   
@@ -30,10 +28,10 @@ export default function TimeOff() {
     try {
       setLoading(true);
       if (activeTab === "incoming") {
-        const res = await leaveService.getEmployeeRequests(statusFilter);
+        const res = await adminService.leave.getEmployeeRequests(statusFilter);
         setEmployeeRequests(res.data.data || []);
       } else {
-        const res = await leaveService.getMyRequests();
+        const res = await adminService.leave.getMyRequests();
         setMyRequests(res.data.data || []);
       }
     } catch (err) {
@@ -60,7 +58,7 @@ export default function TimeOff() {
 
     try {
       setLoading(true);
-      await leaveService.updateRequestStatus(id, status, note);
+      await adminService.leave.updateRequestStatus(id, status, note);
       fetchData();
       Alert.success(t("timeOff.requestStatusSuccess", { status: t(`timeOff.status.${status}`) }));
     } catch (err) {
@@ -74,7 +72,7 @@ export default function TimeOff() {
     e.preventDefault();
     try {
       setLoading(true);
-      await leaveService.submitRequest(formData);
+      await adminService.leave.submitRequest(formData);
       Alert.success(t("timeOff.requestSentSuccess"));
       setIsModalOpen(false);
       setFormData({ leave_type: "vacation", start_date: "", end_date: "", reason: "" });

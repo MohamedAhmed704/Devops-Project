@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { employeesService } from "../../api/services/admin/employeesService";
+import adminService from "../../api/services/adminService.js";
 import {
   Search,
   Filter,
@@ -57,7 +57,7 @@ const Employees = () => {
         page,
         limit: 10
       };
-      const response = await employeesService.getEmployees(params);
+      const response = await adminService.employees.getEmployees(params);
       const rawData = response.data.data || [];
       
       const normalizedData = rawData.map(emp => ({
@@ -172,7 +172,7 @@ const Employees = () => {
   const handleCreateEmployee = async (employeeData) => {
     try {
       setLoading(true);
-      await employeesService.createEmployee(employeeData);
+      await adminService.employees.createEmployee(employeeData);
       Alert.success(t("admin.employees.success.created"));
       setShowCreateModal(false);
       fetchEmployees(); 
@@ -189,7 +189,7 @@ const Employees = () => {
   const handleUpdateEmployee = async (employeeId, data) => {
     try {
       setLoading(true);
-      await employeesService.updateEmployee(employeeId, data);
+      await adminService.employees.updateEmployee(employeeId, data);
       Alert.success(t("admin.employees.success.updated"));
       setShowCreateModal(false);
       setIsEditMode(false);
@@ -225,7 +225,7 @@ const Employees = () => {
     if (result.isConfirmed) {
       try {
         setLoading(true);
-        await employeesService.toggleEmployeeStatus(employeeId, { is_active: newStatus });
+        await adminService.employees.toggleEmployeeStatus(employeeId, { is_active: newStatus });
         
         setEmployees(prev => prev.map(emp => 
           emp._id === employeeId 
@@ -261,7 +261,7 @@ const Employees = () => {
     if (result.isConfirmed) {
       try {
         setLoading(true);
-        await employeesService.deleteEmployee(employeeId);
+        await adminService.employees.deleteEmployee(employeeId);
         setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
         Alert.success(`${employeeName} Deleted Successfully`);
         applyFilters();

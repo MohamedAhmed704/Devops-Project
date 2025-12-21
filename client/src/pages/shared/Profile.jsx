@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { authService } from "../api/services/authService";
-import { dashboardService } from "../api/services/admin/dashboardService";
-import LocationMapModal from "../components/admin/LocationMapModal";
+import { authService } from "../../api/services/authService.js";
+import adminService from "../../api/services/adminService.js";
+import LocationMapModal from "../../components/admin/LocationMapModal.jsx";
 import {
   User,
   Mail,
@@ -13,9 +13,9 @@ import {
   Save,
   MapPin,
 } from "lucide-react";
-import { Alert } from "../utils/alertService.js";
+import { Alert } from "../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
-import DashboardSkeleton from "../utils/DashboardSkeleton.jsx";
+import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -68,7 +68,7 @@ export default function Profile() {
   const handleSaveLocation = async (locationData) => {
     try {
       setLoading(true);
-      await dashboardService.updateBranchLocation(locationData);
+      await adminService.dashboard.updateBranchLocation(locationData);
       
       // Update local state
       setProfile(prev => ({

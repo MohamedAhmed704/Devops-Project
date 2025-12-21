@@ -1,9 +1,5 @@
 import { Loader2 } from "lucide-react";
 
-/**
- * A simple loading spinner displayed while lazy components are loading.
- * Used as a fallback for React.Suspense.
- */
 export default function PageLoader() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">

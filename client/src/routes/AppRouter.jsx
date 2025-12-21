@@ -15,24 +15,14 @@ const ResetPassword = lazy(() => import("../pages/auth/ResetPassword.jsx"));
 const VerifyOtp = lazy(() => import("../pages/auth/VerifyOtp.jsx"));
 const AuthSuccess = lazy(() => import("../pages/auth/AuthSuccess.jsx"));
 const AuthError = lazy(() => import("../pages/auth/AuthError.jsx"));
-const PaymentForm = lazy(() => import("../pages/Payment.jsx"));
 
 import OtpRoute from "./OtpRoute.jsx";
 import ResetPasswordRoute from "./ResetPasswordRoute.jsx";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import Loader from "../components/Loader.jsx";
-import CalendarModal from "../components/CalendarModal.jsx";
 import About from "../pages/Aboutus.jsx";
 import ContactUs from "../pages/Contactus.jsx";
 
 export default function AppRouter() {
-  const { loading } = useAuth();
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
-
   return (
     <BrowserRouter>
       <RoutesWrapper />
@@ -51,7 +41,6 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
-
 
         {/* Public Routes */}
         <Route
