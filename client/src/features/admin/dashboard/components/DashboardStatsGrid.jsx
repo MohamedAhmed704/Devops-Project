@@ -1,5 +1,5 @@
 import { Users, CheckCircle2, XCircle, PieChart, CalendarClock, Clock } from "lucide-react";
-import StatCard from "../../common/StatCard.jsx";
+import StatCard from "../utils/StatCard.jsx";
 import React from "react";
 import { useTranslation } from "react-i18next";
 const DashboardStatsGrid = ({ dashboardBranch, today, upcoming}) => {

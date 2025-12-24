@@ -1,13 +1,13 @@
 import { useAuth } from "../../contexts/AuthContext";
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
-import { useAdminDashboard } from "../../hooks/admin/useAdminDashboard.js";
-import DashboardHero from "../../components/admin/dashboard/DashboardHero.jsx";
-import DashboardStatsGrid from "../../components/admin/dashboard/DashboardStatsGrid.jsx";
-import WeeklySummary from "../../components/admin/dashboard/WeeklySummary.jsx";
-import RecentEmployees from "../../components/admin/dashboard/RecentEmployees.jsx";
-import ReportsCard from "../../components/admin/dashboard/ReportsCard.jsx";
-import TodaySummary from "../../components/admin/dashboard/TodaySummary.jsx";
-import QuickActions from "../../components/admin/dashboard/QuickActions.jsx";
+import { useAdminDashboard } from "../../features/admin/dashboard/hooks/useAdminDashboard.js";
+import DashboardHero from "../../features/admin/dashboard/components/DashboardHero.jsx";
+import DashboardStatsGrid from "../../features/admin/dashboard/components/DashboardStatsGrid.jsx";
+import WeeklySummary from "../../features/admin/dashboard/components/WeeklySummary.jsx";
+import RecentEmployees from "../../features/admin/dashboard/components/RecentEmployees.jsx";
+import ReportsCard from "../../features/admin/dashboard/components/ReportsCard.jsx";
+import TodaySummary from "../../features/admin/dashboard/components/TodaySummary.jsx";
+import QuickActions from "../../features/admin/dashboard/components/QuickActions.jsx";
 import GlobalError from "../../utils/GlobalError.jsx";
 
 export default function AdminDashboard() {

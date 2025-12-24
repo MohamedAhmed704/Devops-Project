@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
-import adminService from "../../api/services/adminService.js";
+import adminService from "../../../../api/services/adminService.js";
 
 export function useAdminDashboard() {
   const [dashboard, setDashboard] = useState(null);
