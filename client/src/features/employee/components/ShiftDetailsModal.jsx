@@ -152,7 +152,7 @@ export default function ShiftDetailsModal({ shift, onClose, onSwapRequest }) {
                 <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex justify-end gap-3">
 
                     {/* Swap Button Logic */}
-                    {shift.status === 'scheduled' && isFutureShift && (
+                    {shift.status === 'scheduled' && isFutureShift && onSwapRequest && (
                         <button
                             onClick={() => onSwapRequest(shift)}
                             className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition font-medium shadow-md flex items-center gap-2"

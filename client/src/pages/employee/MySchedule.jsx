@@ -1,6 +1,7 @@
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 import CalendarModal from '../../components/CalendarModal';
-import SwapRequestModal from '../../components/employee/SwapRequestModal';
+import ShiftDetailsModal from "../../features/employee/components/ShiftDetailsModal";
+import SwapRequestModal from "../../features/employee/swap-requests/components/SwapRequestModal";
 
 // Hook
 import { useMySchedule } from '../../features/employee/my-schedule/hooks/useMySchedule.js';

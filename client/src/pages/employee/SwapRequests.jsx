@@ -1,6 +1,6 @@
 import React from 'react';
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
-import ShiftDetailsModal from '../../components/employee/ShiftDetailsModal';
+import ShiftDetailsModal from "../../features/employee/components/ShiftDetailsModal";
 
 // Hook
 import { useSwapRequests } from '../../features/employee/swap-requests/hooks/useSwapRequests.js';
