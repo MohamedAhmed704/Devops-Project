@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import adminService from "../../api/services/adminService.js";
+import adminService from "../../../../api/services/adminService.js";
 import {
   X,
   Clock,
@@ -195,10 +195,10 @@ const AttendanceModal = ({ employee, onClose }) => {
                         </td>
                         <td className="py-2 px-3">
                           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${record.status === 'present'
-                              ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                              : record.status === 'late'
-                                ? 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                                : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                            : record.status === 'late'
+                              ? 'bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                              : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                             }`}>
                             {getStatusText(record.status)}
                           </span>

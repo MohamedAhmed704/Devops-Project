@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { authService } from "../../api/services/authService.js";
 import adminService from "../../api/services/adminService.js";
-import LocationMapModal from "../../components/admin/LocationMapModal.jsx";
+import LocationMapModal from "../../features/admin/LocationMapModal.jsx";
 import {
   User,
   Mail,
