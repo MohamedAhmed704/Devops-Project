@@ -1,5 +1,5 @@
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
-import ReportDetailsModal from "../superadmin/ReportDetailsModal";
+import ReportDetailsModal from "../../features/super_admin/reports/components/ReportDetailsModal";
 import { useReportsData } from "../../features/admin/reports/hooks/useReportsData";
 import ReportsHeader from "../../features/admin/reports/components/ReportsHeader";
 import ReportsList from "../../features/admin/reports/components/ReportsList";

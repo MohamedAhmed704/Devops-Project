@@ -69,13 +69,13 @@ export default function Profile() {
     try {
       setLoading(true);
       await adminService.dashboard.updateBranchLocation(locationData);
-      
+
       // Update local state
       setProfile(prev => ({
         ...prev,
         branch_location: locationData
       }));
-      
+
       Alert.success("Branch location updated successfully");
       setIsMapOpen(false);
     } catch (err) {
@@ -117,8 +117,8 @@ export default function Profile() {
       default: return role.replace("_", " ").toUpperCase();
     }
   };
-  
-  if(loading) return <DashboardSkeleton />
+
+  if (loading) return <DashboardSkeleton />
   if (!profile) return null;
 
   return (
@@ -221,9 +221,9 @@ export default function Profile() {
                 </h3>
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
                   <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">
-                    {profile.branch_location?.lat 
-                      ? "✅ Branch location is set. Employees can only clock in within the specified radius."
-                      : "⚠️ Branch location not set. Please set it to enable geofencing attendance."}
+                    {profile.branch_location?.lat
+                      ? "Branch location is set. Employees can only clock in within the specified radius."
+                      : "Branch location not set. Please set it to enable geofencing attendance."}
                   </p>
                   <button
                     onClick={() => setIsMapOpen(true)}
@@ -280,8 +280,8 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* ✅ Map Modal */}
-      <LocationMapModal 
+      {/* Map Modal */}
+      <LocationMapModal
         isOpen={isMapOpen}
         onClose={() => setIsMapOpen(false)}
         currentLocation={profile.branch_location}

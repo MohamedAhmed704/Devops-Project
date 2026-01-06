@@ -12,7 +12,7 @@ import WeekNavigation from '../../features/employee/my-schedule/components/WeekN
 import WeekGrid from '../../features/employee/my-schedule/components/WeekGrid.jsx';
 import QuickActions from '../../features/employee/my-schedule/components/QuickActions.jsx';
 import WeeklySummary from '../../features/employee/my-schedule/components/WeeklySummary.jsx';
-import ShiftDetailsModal from '../../features/employee/my-schedule/components/ShiftDetailsModal.jsx';
+// import ShiftDetailsModal from '../../features/employee/my-schedule/components/ShiftDetailsModal.jsx';
 
 // Helpers (if needed by modals not yet refactored)
 import { useTranslation } from 'react-i18next';

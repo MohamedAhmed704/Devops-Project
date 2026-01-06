@@ -4,8 +4,8 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import ReactMarkdown from "react-markdown";
-import adminService from "../../api/services/adminService.js";
-import { Alert } from "../../utils/alertService.js";
+import adminService from "../../../../api/services/adminService.js";
+import { Alert } from "../../../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
 
 function cleanInlineMarkdown(text) {
@@ -91,7 +91,7 @@ function renderMarkdownIntoPDF(doc, blocks, xPos, yPos, align) {
 
 export default function ReportDetailsModal({ report, onClose }) {
   const { t } = useTranslation();
-  
+
   if (!report) return null;
 
   const { data, type, title } = report;
@@ -329,20 +329,20 @@ export default function ReportDetailsModal({ report, onClose }) {
   const renderAttendanceDetails = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard 
-          label={t("admin.reports.stats.totalHours")} 
-          value={data.total_worked_hours || 0} 
-          color="blue" 
+        <StatCard
+          label={t("admin.reports.stats.totalHours")}
+          value={data.total_worked_hours || 0}
+          color="blue"
         />
         <StatCard
           label={t("admin.reports.stats.present")}
           value={data.summary?.present || data.present_count || 0}
           color="emerald"
         />
-        <StatCard 
-          label={t("admin.reports.stats.late")} 
-          value={data.late_count || 0} 
-          color="amber" 
+        <StatCard
+          label={t("admin.reports.stats.late")}
+          value={data.late_count || 0}
+          color="amber"
         />
         <StatCard
           label={t("admin.reports.stats.attendanceRate")}
@@ -379,20 +379,20 @@ export default function ReportDetailsModal({ report, onClose }) {
   const renderShiftDetails = () => (
     <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
-        <StatCard 
-          label={t("admin.reports.stats.totalShifts")} 
-          value={data.total_shifts || 0} 
-          color="slate" 
+        <StatCard
+          label={t("admin.reports.stats.totalShifts")}
+          value={data.total_shifts || 0}
+          color="slate"
         />
-        <StatCard 
-          label={t("admin.reports.stats.completed")} 
-          value={data.by_status?.completed || 0} 
-          color="green" 
+        <StatCard
+          label={t("admin.reports.stats.completed")}
+          value={data.by_status?.completed || 0}
+          color="green"
         />
-        <StatCard 
-          label={t("admin.reports.stats.scheduled")} 
-          value={data.by_status?.scheduled || 0} 
-          color="blue" 
+        <StatCard
+          label={t("admin.reports.stats.scheduled")}
+          value={data.by_status?.scheduled || 0}
+          color="blue"
         />
       </div>
     </div>
@@ -515,9 +515,8 @@ export default function ReportDetailsModal({ report, onClose }) {
               ) : aiSummary ? (
                 <div
                   dir={language === "ar" ? "rtl" : "ltr"}
-                  className={`prose prose-sm text-slate-700 max-w-none bg-white/50 p-4 rounded-lg border border-indigo-50 ${
-                    language === "ar" ? "text-right" : "text-left"
-                  }`}
+                  className={`prose prose-sm text-slate-700 max-w-none bg-white/50 p-4 rounded-lg border border-indigo-50 ${language === "ar" ? "text-right" : "text-left"
+                    }`}
                 >
                   <ReactMarkdown>{aiSummary}</ReactMarkdown>
                 </div>

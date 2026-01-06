@@ -1,5 +1,5 @@
 import React from 'react';
-import ReportDetailsModal from "../superadmin/ReportDetailsModal";
+import ReportDetailsModal from "../../features/super_admin/reports/components/ReportDetailsModal";
 import { useTranslation } from "react-i18next";
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 import { useMyReports } from '../../features/employee/my-reports/hooks/useMyReports';

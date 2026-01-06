@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { X, Building2, Users, DollarSign, Calendar, Mail, Phone, MapPin, ShieldCheck, ShieldOff, Loader } from "lucide-react";
-import { platformService } from "../../api/services/platformService";
+import { X, Building2, Users, DollarSign, Mail, Phone, ShieldCheck, ShieldOff, Loader } from "lucide-react";
+import { platformService } from "../../../../api/services/platformService";
 import { useTranslation } from "react-i18next";
 
 const CompanyDetailsModal = ({ companyId, onClose, onToggleStatus }) => {
@@ -149,8 +149,8 @@ const CompanyDetailsModal = ({ companyId, onClose, onToggleStatus }) => {
                                 <button
                                     onClick={() => onToggleStatus(data._id, data.isActive)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 ${data.isActive
-                                            ? "bg-red-50 text-red-600 hover:bg-red-100"
-                                            : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                        ? "bg-red-50 text-red-600 hover:bg-red-100"
+                                        : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
                                         }`}
                                 >
                                     {data.isActive ? <ShieldOff size={16} /> : <ShieldCheck size={16} />}
