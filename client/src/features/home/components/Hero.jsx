@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import computer from "/images/home/computer.jpg";
 import { Link } from "react-router";
 import { PlayCircle, X } from "lucide-react";
@@ -6,10 +6,10 @@ import { useTranslation } from "react-i18next";
 
 const Hero = () => {
   const { t } = useTranslation();
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const videoUrl = "https://www.youtube.com/embed/YoAynDdkeCA?si=HG7Q47tEBZKp_es2"; 
+  const videoUrl = "https://www.youtube.com/embed/YoAynDdkeCA?si=HG7Q47tEBZKp_es2";
 
   return (
     <div className="flex flex-col md:flex-row items-center w-full bg-linear-to-r from-sky-200 dark:from-slate-900 to-sky-50 dark:to-slate-800 px-6 md:px-12 py-10 md:py-20">
@@ -60,11 +60,11 @@ const Hero = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div 
-            className="absolute inset-0 cursor-pointer" 
+          <div
+            className="absolute inset-0 cursor-pointer"
             onClick={() => setIsModalOpen(false)}
           ></div>
-          
+
           <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl">
             <button
               onClick={() => setIsModalOpen(false)}
@@ -72,7 +72,7 @@ const Hero = () => {
             >
               <X size={24} />
             </button>
-            
+
             <div className="aspect-video w-full">
               <iframe
                 src={videoUrl}

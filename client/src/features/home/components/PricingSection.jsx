@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
-import { planService } from "../../api/services/planService";
+import { planService } from "../../../api/services/planService";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 
 const PricingSection = () => {

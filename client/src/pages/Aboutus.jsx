@@ -1,8 +1,7 @@
-import React from "react";
 import { Users, Target, Award, TrendingUp } from "lucide-react";
-import HomeNav from "../components/Home/HomeNav";
+import HomeNav from "../features/home/components/HomeNav";
 import { useTranslation } from "react-i18next";
-import Footer from "../components/Home/Footer";
+import Footer from "../features/home/components/Footer";
 
 const About = () => {
   const { t } = useTranslation();
@@ -98,7 +97,7 @@ const About = () => {
             </div>
             <div className="flex justify-center">
               <div className="w-full max-w-md aspect-square rounded-2xl shadow-xl bg-linear-to-br from-sky-100 to-sky-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                <Users className="w-32 h-32 text-sky-700" />
+                <img src="/images/about/team.jpeg" alt="Team Pic" />
               </div>
             </div>
           </div>
@@ -186,49 +185,6 @@ const About = () => {
                 <p className="text-gray-200 dark:text-gray-300 text-lg">
                   {stat.label}
                 </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TEAM SECTION */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-bold text-3xl md:text-4xl text-slate-900 dark:text-white mb-4">
-              {t("about.team.title")}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">
-              {t("about.team.subtitle")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 dark:bg-gray-800 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="aspect-square bg-linear-to-br from-sky-200 to-sky-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative">
-                  {member.image && !member.image.includes("member") ? (
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Users className="w-20 h-20 text-sky-700" />
-                  )}
-                </div>
-                <div className="p-6 text-center">
-                  <h3 className="font-semibold text-xl text-slate-900 dark:text-white mb-2">
-                    {member.name}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {member.role}
-                  </p>
-                </div>
               </div>
             ))}
           </div>

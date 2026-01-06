@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react";
-import HomeNav from "../components/Home/HomeNav";
+import HomeNav from "../features/home/components/HomeNav";
 import { useTranslation } from "react-i18next";
-import Footer from "../components/Home/Footer";
+import Footer from "../features/home/components/Footer";
 import apiClient from "../api/apiClient";
 
 const ContactUs = () => {

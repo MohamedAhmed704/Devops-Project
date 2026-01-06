@@ -1,5 +1,4 @@
-import React, { use } from "react";
-import Button from "../../utils/Button.jsx";
+import Button from "../../../utils/Button";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
