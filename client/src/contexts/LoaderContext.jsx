@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
 
 const LoadingContext = createContext();
 
@@ -8,7 +8,7 @@ export function LoadingProvider({ children }) {
   const show = useCallback(() => setCounter((c) => c + 1), []);
   const hide = useCallback(() => setCounter((c) => Math.max(0, c - 1)), []);
   const reset = useCallback(() => setCounter(0), []);
-  
+
   const loading = counter > 0;
 
   const value = useMemo(() => ({

@@ -16,7 +16,7 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 import { notificationService } from "../api/services/notificationService";
 import AnnouncementModal from "./AnnouncementModal";
 import { ThemeContext } from "../contexts/ThemeContext.jsx";
-import PlanBadge from "./Shared/PlanBadge";
+import PlanBadge from "./PlanBadge";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -205,24 +205,21 @@ export default function Navbar({ role }) {
                       <div
                         key={notif._id}
                         onClick={() => handleNotificationClick(notif)}
-                        className={`p-3 border-b border-gray-50 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition flex gap-3 ${
-                          !notif.is_read
-                            ? "bg-blue-50/30 dark:bg-blue-900/30"
-                            : ""
-                        }`}
+                        className={`p-3 border-b border-gray-50 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition flex gap-3 ${!notif.is_read
+                          ? "bg-blue-50/30 dark:bg-blue-900/30"
+                          : ""
+                          }`}
                       >
                         <div
-                          className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${
-                            !notif.is_read ? "bg-blue-500" : "bg-transparent"
-                          }`}
+                          className={`w-2 h-2 mt-1.5 rounded-full shrink-0 ${!notif.is_read ? "bg-blue-500" : "bg-transparent"
+                            }`}
                         ></div>
                         <div>
                           <p
-                            className={`text-sm ${
-                              !notif.is_read
-                                ? "font-semibold text-gray-800 dark:text-slate-100"
-                                : "text-gray-600 dark:text-slate-400"
-                            }`}
+                            className={`text-sm ${!notif.is_read
+                              ? "font-semibold text-gray-800 dark:text-slate-100"
+                              : "text-gray-600 dark:text-slate-400"
+                              }`}
                           >
                             {notif.title}
                           </p>
@@ -320,10 +317,9 @@ export default function Navbar({ role }) {
                   <NavLink
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 text-sm font-medium transition py-1 border-b-2 ${
-                        isActive
-                          ? "text-[#BBE1FA] border-[#BBE1FA]"
-                          : "text-slate-300 border-transparent hover:text-white"
+                      `flex items-center gap-2 text-sm font-medium transition py-1 border-b-2 ${isActive
+                        ? "text-[#BBE1FA] border-[#BBE1FA]"
+                        : "text-slate-300 border-transparent hover:text-white"
                       }`
                     }
                   >
@@ -364,10 +360,9 @@ export default function Navbar({ role }) {
                       to={item.path}
                       onClick={() => setOpenMobileMenu(false)}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-3 py-3 rounded-lg transition ${
-                          isActive
-                            ? "text-[#BBE1FA] font-semibold bg-slate-800"
-                            : "text-slate-300 hover:text-[#BBE1FA] hover:bg-slate-800"
+                        `flex items-center gap-3 px-3 py-3 rounded-lg transition ${isActive
+                          ? "text-[#BBE1FA] font-semibold bg-slate-800"
+                          : "text-slate-300 hover:text-[#BBE1FA] hover:bg-slate-800"
                         }`
                       }
                     >

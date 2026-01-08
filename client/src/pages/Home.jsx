@@ -1,10 +1,10 @@
-import Hero from "../components/Home/Hero";
-import Services from "../components/Home/Services";
-import ChooseUs from "../components/Home/ChooseUs";
-import Branding from "../components/Home/Branding";
-import PricingSection from "../components/Home/PricingSection";
-import Footer from "../components/Home/Footer";
-import HomeNav from "../components/Home/HomeNav";
+import Hero from "../features/home/components/Hero";
+import Services from "../features/home/components/Services";
+import ChooseUs from "../features/home/components/ChooseUs";
+import Branding from "../features/home/components/Branding";
+import PricingSection from "../features/home/components/PricingSection";
+import Footer from "../features/home/components/Footer";
+import HomeNav from "../features/home/components/HomeNav";
 
 const Home = () => {
   return (
