@@ -8,11 +8,11 @@ const CustomTooltip = ({ active, payload, label }) => {
             <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 text-start">
                 <p className="font-bold text-slate-800 dark:text-slate-100 mb-1">{label}</p>
                 <p className="text-sm text-blue-600 dark:text-blue-400">
-                    Revenue: <span className="font-semibold">EGP {payload[0].value.toLocaleString()}</span>
+                    {t('platform.dashboard.charts.revenue')}: <span className="font-semibold">{t('common.currency')} {payload[0].value.toLocaleString()}</span>
                 </p>
                 {payload[0].payload.count !== undefined && (
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Subscribers: {payload[0].payload.count}
+                        {t('platform.dashboard.charts.subscribers')}: {payload[0].payload.count}
                     </p>
                 )}
             </div>

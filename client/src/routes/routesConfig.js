@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import {
   LayoutDashboard,
-  DollarSign, 
+  DollarSign,
   Users,
   UserCog,
   CalendarDays,
@@ -43,7 +43,7 @@ const A_TimeTracking = lazy(() => import("../pages/admin/TimeTracking"));
 const A_TimeOff = lazy(() => import("../pages/admin/TimeOff"));
 const A_Reports = lazy(() => import("../pages/admin/Reports"));
 const SwapApprovals = lazy(() => import("../pages/admin/SwapApprovals"));
-const PayrollPage = lazy(() => import("../pages/admin/Payroll")); 
+const PayrollPage = lazy(() => import("../pages/admin/Payroll"));
 
 // Employee Pages
 const E_Dashboard = lazy(() => import("../pages/employee/Dashboard"));
@@ -57,46 +57,46 @@ const E_Payslip = lazy(() => import("../pages/employee/Payslip"));
 const routes = {
 
   platform_owner: [
-    { path: "/dashboard", element: PlatformDashboard, label: "Dashboard", icon: LayoutDashboard },
-    { path: "/companies", element: CompaniesPage, label: "Companies", icon: Building2 },
-    { path: "/plans", element: PlansPage, label: "Plans", icon: FileText },
-    { path: "/messages", element: MessagesPage, label: "Messages", icon: MessageSquare },
-    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
-    { path: "/payment/callback", element: PaymentCallback, label: "Payment Verification", icon: CreditCard, hidden: true },
+    { path: "/dashboard", element: PlatformDashboard, translationKey: "sidebar.dashboard", icon: LayoutDashboard },
+    { path: "/companies", element: CompaniesPage, translationKey: "sidebar.companies", icon: Building2 },
+    { path: "/plans", element: PlansPage, translationKey: "sidebar.plans", icon: FileText },
+    { path: "/messages", element: MessagesPage, translationKey: "sidebar.messages", icon: MessageSquare },
+    { path: "/profile", element: SharedProfile, translationKey: "sidebar.profile", icon: FingerprintPattern },
+    { path: "/payment/callback", element: PaymentCallback, translationKey: "sidebar.paymentVerification", icon: CreditCard, hidden: true },
   ],
 
   super_admin: [
-    { path: "/dashboard", element: SA_Dashboard, label: "Dashboard", icon: LayoutDashboard },
-    { path: "/teams", element: SA_Teams, label: "Teams", icon: Users },
-    { path: "/employees", element: SA_Employees, label: "Employees", icon: UserCog },
-    { path: "/time-off", element: SA_TimeOffRequests, label: "Leave Requests", icon: Plane },
-    { path: "/reports", element: SA_Reports, label: "Reports", icon: BarChart3 },
-    { path: "/billing", element: BillingPage, label: "Billing", icon: CreditCard },
-    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
-    { path: "/payment/callback", element: PaymentCallback, label: "Payment Verification", icon: CreditCard, hidden: true },
+    { path: "/dashboard", element: SA_Dashboard, translationKey: "sidebar.dashboard", icon: LayoutDashboard },
+    { path: "/teams", element: SA_Teams, translationKey: "sidebar.teams", icon: Users },
+    { path: "/employees", element: SA_Employees, translationKey: "sidebar.employees", icon: UserCog },
+    { path: "/time-off", element: SA_TimeOffRequests, translationKey: "sidebar.leaveRequests", icon: Plane },
+    { path: "/reports", element: SA_Reports, translationKey: "sidebar.reports", icon: BarChart3 },
+    { path: "/billing", element: BillingPage, translationKey: "sidebar.billing", icon: CreditCard },
+    { path: "/profile", element: SharedProfile, translationKey: "sidebar.profile", icon: FingerprintPattern },
+    { path: "/payment/callback", element: PaymentCallback, translationKey: "sidebar.paymentVerification", icon: CreditCard, hidden: true },
   ],
 
   admin: [
-    { path: "/dashboard", element: A_Dashboard, label: "Dashboard", icon: LayoutDashboard },
-    { path: "/schedule", element: A_Schedule, label: "Scheduler", icon: CalendarDays },
-    { path: "/swaps", element: SwapApprovals, label: "Swap Approvals", icon: ArrowRightLeft },
-    { path: "/employees", element: A_Employees, label: "Employees", icon: Users },
-    { path: "/time-tracking", element: A_TimeTracking, label: "Time Tracking", icon: Clock },
-    { path: "/time-off", element: A_TimeOff, label: "Time Off", icon: Plane },
-    { path: "/reports", element: A_Reports, label: "Reports", icon: BarChart3 },
-    { path: "/payroll", element: PayrollPage, label: "Payroll", icon: DollarSign },
-    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern },
+    { path: "/dashboard", element: A_Dashboard, translationKey: "sidebar.dashboard", icon: LayoutDashboard },
+    { path: "/schedule", element: A_Schedule, translationKey: "sidebar.scheduler", icon: CalendarDays },
+    { path: "/swaps", element: SwapApprovals, translationKey: "sidebar.swapApprovals", icon: ArrowRightLeft },
+    { path: "/employees", element: A_Employees, translationKey: "sidebar.employees", icon: Users },
+    { path: "/time-tracking", element: A_TimeTracking, translationKey: "sidebar.timeTracking", icon: Clock },
+    { path: "/time-off", element: A_TimeOff, translationKey: "sidebar.timeOff", icon: Plane },
+    { path: "/reports", element: A_Reports, translationKey: "sidebar.reports", icon: BarChart3 },
+    { path: "/payroll", element: PayrollPage, translationKey: "sidebar.payroll", icon: DollarSign },
+    { path: "/profile", element: SharedProfile, translationKey: "sidebar.profile", icon: FingerprintPattern },
   ],
 
   employee: [
-    { path: "/dashboard", element: E_Dashboard, label: "Dashboard", icon: LayoutDashboard },
-    { path: "/schedule", element: E_Schedule, label: "My Schedule", icon: CalendarDays },
-    { path: "/swaps", element: E_SwapRequests, label: "Shift Swaps", icon: ArrowRightLeft },
-    { path: "/time-tracking", element: E_TimeTracking, label: "Time Tracking", icon: Clock },
-    { path: "/time-off", element: E_TimeOff, label: "Time Off Requests", icon: Plane },
-    { path: "/reports", element: E_Reports, label: "My Reports", icon: BarChart3, translationKey: "myReports.title" },
-    { path: "/payslip", element: E_Payslip, label: "My Payslip", icon: DollarSign, translationKey: "payslip.title" },
-    { path: "/profile", element: SharedProfile, label: "Profile", icon: FingerprintPattern, translationKey: "navbar.profile" },
+    { path: "/dashboard", element: E_Dashboard, translationKey: "sidebar.dashboard", icon: LayoutDashboard },
+    { path: "/schedule", element: E_Schedule, translationKey: "sidebar.mySchedule", icon: CalendarDays },
+    { path: "/swaps", element: E_SwapRequests, translationKey: "sidebar.shiftSwaps", icon: ArrowRightLeft },
+    { path: "/time-tracking", element: E_TimeTracking, translationKey: "sidebar.timeTracking", icon: Clock },
+    { path: "/time-off", element: E_TimeOff, translationKey: "sidebar.timeOff", icon: Plane },
+
+    { path: "/payslip", element: E_Payslip, translationKey: "sidebar.myPayslip", icon: DollarSign },
+    { path: "/profile", element: SharedProfile, translationKey: "sidebar.profile", icon: FingerprintPattern },
   ]
 };
 

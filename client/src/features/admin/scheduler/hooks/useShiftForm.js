@@ -106,10 +106,13 @@ export function useShiftForm(fetchData, employees) {
       } else {
         if (formData.employee_ids.length === 1) {
           await adminService.shifts.createShift({
-            ...formData,
+            employee_id: formData.employee_ids[0],
+            title: formData.title,
             start_date_time: start,
             end_date_time: end,
-            employee_id: formData.employee_ids[0]
+            shift_type: formData.shift_type,
+            location: formData.location,
+            notes: formData.notes
           });
         } else {
           const shiftsArray = formData.employee_ids.map(empId => ({

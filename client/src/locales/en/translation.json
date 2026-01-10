@@ -5,7 +5,9 @@
     "cancel": "Cancel",
     "close": "Close",
     "loading": "Loading...",
-    "loadingDetails":"Loading Details"
+    "loadingDetails": "Loading Details",
+    "free": "Free",
+    "currency": "EGP"
   },
   "login": {
     "welcomeBack": "Welcome Back to",
@@ -104,6 +106,27 @@
     "getStarted": "Get Started",
     "about": "About Us",
     "contact": "Contact Us"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "companies": "Companies",
+    "plans": "Plans",
+    "messages": "Messages",
+    "profile": "Profile",
+    "paymentVerification": "Payment Verification",
+    "teams": "Teams",
+    "employees": "Employees",
+    "leaveRequests": "Leave Requests",
+    "reports": "Reports",
+    "billing": "Billing",
+    "scheduler": "Scheduler",
+    "swapApprovals": "Swap Approvals",
+    "timeTracking": "Time Tracking",
+    "timeOff": "Time Off",
+    "payroll": "Payroll",
+    "mySchedule": "My Schedule",
+    "shiftSwaps": "Shift Swaps",
+    "myPayslip": "My Payslip"
   },
   "services": {
     "title": "Everything You Need for Modern Workforce Management",
@@ -1574,7 +1597,9 @@
         "revenueByPlan": "Revenue by Plan",
         "recentSignups": "Recent Signups",
         "viewAll": "View All",
-        "noCompanies": "No companies yet."
+        "noCompanies": "No companies yet.",
+        "revenue": "Revenue",
+        "subscribers": "Subscribers"
       }
     },
     "companies": {

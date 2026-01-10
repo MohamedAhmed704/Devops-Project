@@ -30,8 +30,8 @@ export function useMySchedule() {
 
             const response = await apiClient.get('/api/employee/shifts', {
                 params: {
-                    start_date: startOfWeek.toISOString().split('T')[0],
-                    end_date: endOfWeek.toISOString().split('T')[0]
+                    start_date: startOfWeek.toLocaleDateString('en-CA'),
+                    end_date: endOfWeek.toLocaleDateString('en-CA')
                 }
             });
 

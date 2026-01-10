@@ -129,7 +129,7 @@ export function useTimeTracking() {
                 else if (error.code === 3) msg = "Location request timed out.";
                 Alert.error(msg, t('employeeTimeTracking.alerts.clockInFailedTitle'));
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            { enableHighAccuracy: false, timeout: 20000, maximumAge: 0 }
         );
     };
 

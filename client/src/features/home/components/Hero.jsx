@@ -3,59 +3,92 @@ import computer from "/images/home/computer.jpg";
 import { Link } from "react-router";
 import { PlayCircle, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { motion } from "motion/react";
 
 const Hero = () => {
   const { t } = useTranslation();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const videoUrl = "https://www.youtube.com/embed/YoAynDdkeCA?si=HG7Q47tEBZKp_es2";
 
   return (
-    <div className="flex flex-col md:flex-row items-center w-full bg-linear-to-r from-sky-200 dark:from-slate-900 to-sky-50 dark:to-slate-800 px-6 md:px-12 py-10 md:py-20">
+    <div className="relative overflow-hidden bg-white dark:bg-slate-900 pt-16 pb-20 lg:pt-24 lg:pb-32">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-sky-50/50 dark:bg-slate-800/30 blur-3xl -z-10 rounded-full" />
 
-      {/* TEXT SECTION */}
-      <div className="flex-1 mb-10 md:mb-0 md:pr-10">
-        <h3 className="font-bold text-4xl md:text-5xl leading-tight text-gray-900 dark:text-white">
-          {t("hero.title.line1")}{" "}
-          <span className="text-sky-700 dark:text-sky-400">
+      <div className="max-w-7xl mx-auto px-6 text-center">
+        {/* Animated Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-slate-800 text-blue-700 dark:text-blue-300 text-sm font-medium mb-6 border border-blue-100 dark:border-slate-700"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+          </span>
+          v2.0 is now live
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white tracking-tight mb-6"
+        >
+          {t("hero.title.line1")} <br className="hidden md:block" />
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-[#112D4E] to-blue-500 dark:from-white dark:to-gray-400">
             {t("hero.title.highlight")}
           </span>
-        </h3>
+        </motion.h1>
 
-        <p className="mt-5 text-gray-600 dark:text-slate-300 text-lg leading-relaxed">
+        {/* Description */}
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-lg md:text-xl text-gray-600 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+        >
           {t("hero.description")}
-        </p>
+        </motion.p>
 
-        {/* BUTTONS */}
-        <div className="mt-8 flex flex-wrap gap-4">
-
-          {/* Primary CTA */}
+        {/* Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
+        >
           <Link
             to="/register"
-            className="px-6 py-3 rounded-xl font-medium bg-[#112D4E] dark:bg-sky-700 text-white hover:bg-[#0c2237] dark:hover:bg-sky-600 transition"
+            className="w-full sm:w-auto px-10 py-3.5 rounded-lg font-semibold bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
           >
             {t("hero.buttons.getStarted")}
           </Link>
-
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 rounded-xl font-medium border border-[#112D4E] dark:border-sky-400 text-[#112D4E] dark:text-sky-400 flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            className="w-full sm:w-auto px-10 py-3.5 rounded-lg font-semibold bg-transparent text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
           >
             <PlayCircle className="w-5 h-5" />
             {t("hero.buttons.watchDemo")}
           </button>
+        </motion.div>
 
-        </div>
-      </div>
+        {/* Dashboard Mockup */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="relative max-w-5xl mx-auto"
+        >
+          {/* Decorative Elements */}
+          <div className="absolute -inset-1 bg-linear-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-20 dark:opacity-40 animate-pulse"></div>
 
-      {/* IMAGE */}
-      <div className="flex-1 flex justify-center">
-        <img
-          src={computer}
-          alt={t("hero.imageAlt")}
-          className="w-72 md:w-96 lg:w-[460px] rounded-2xl shadow-xl"
-        />
+          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-700 aspect-[16/9] flex items-center justify-center bg-gray-50 dark:bg-slate-900 group">
+            <img src="images/home/DashboardPreview.png" alt="Dashboard Preview" />
+          </div>
+        </motion.div>
       </div>
 
       {isModalOpen && (
@@ -86,7 +119,6 @@ const Hero = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

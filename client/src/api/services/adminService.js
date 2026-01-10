@@ -106,9 +106,6 @@ const adminService = {
         createBulkShifts: (data) =>
             apiClient.post(`${SHIFT_BASE}/bulk`, data),
 
-        generateFromAI: (command) =>
-            apiClient.post(`${SHIFT_BASE}/ai-generate`, { command }),
-
         generateFromAI: (command, timeZone) =>
             apiClient.post(`${SHIFT_BASE}/ai-generate`, {
                 command,

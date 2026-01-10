@@ -1,31 +1,45 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 transition-colors duration-300 font-['Outfit'];
   }
 }
 
+/* Premium Gradients & Utilities */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-linear-to-r from-[#112D4E] to-[#3F72AF] dark:from-white dark:to-gray-400;
+}
 
+.bg-glass {
+  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 dark:border-white/10;
+}
 
 .btn {
-  @apply bg-sky-600 hover:bg-sky-900 text-white font-bold py-2 px-5 rounded;
+  @apply bg-[#112D4E] hover:bg-[#0c2237] text-white font-bold py-2 px-5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5;
 }
+
 .btn2 {
-  @apply border border-sky-600 text-sky-600 bg-white hover:bg-sky-600 hover:text-white font-bold py-2 px-5 rounded transition;
+  @apply border border-[#112D4E] text-[#112D4E] bg-white hover:bg-[#112D4E] hover:text-white font-bold py-2 px-5 rounded-xl transition-all duration-300;
 }
+
 .icon {
-  @apply bg-sky-900 w-8 h-8 flex items-center justify-center rounded;
+  @apply bg-[#112D4E] w-8 h-8 flex items-center justify-center rounded-lg text-white;
 }
+
 .paragraph {
-  @apply text-gray-400 hover:text-white cursor-pointer mb-1;
+  @apply text-gray-500 hover:text-[#112D4E] cursor-pointer mb-1 transition-colors;
 }
+
 .dashboardBtn {
-  @apply px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 flex items-center gap-1 shadow-sm;
+  @apply px-3 py-1 rounded-md text-gray-700 hover:bg-gray-100 flex items-center gap-1 shadow-sm transition;
 }
+
 .card {
-  @apply shadow-sm border-sky-100 border rounded-lg p-4 flex items-center justify-between hover:bg-blue-100;
+  @apply shadow-lg shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-slate-800 rounded-2xl p-6 hover:-translate-y-1 transition-transform duration-300 bg-white dark:bg-slate-800;
 }
 
 @keyframes shimmer {
@@ -36,4 +50,17 @@
 
 .animate-shimmer {
   animation: shimmer 1.5s infinite;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-slate-700 rounded-full hover:bg-gray-400 dark:hover:bg-slate-600;
 }

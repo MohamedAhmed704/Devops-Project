@@ -214,7 +214,7 @@ const EmployeesTable = ({
                                                     </button>
 
                                                     {showActionsMenu === employee._id && (
-                                                        <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg z-50">
+                                                        <div className="absolute end-0 mt-1 w-48 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg shadow-lg z-50">
                                                             <button
                                                                 onClick={() => onViewDetails(employee)}
                                                                 className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-600 text-left"

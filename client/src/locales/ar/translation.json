@@ -4,7 +4,9 @@
     "print": "طباعة",
     "cancel": "إلغاء",
     "loading": "جاري التحميل...",
-    "loadingDetails": "جاري تحميل التفاصيل..."
+    "loadingDetails": "جاري تحميل التفاصيل...",
+    "free": "مجاني",
+    "currency": "ج.م"
   },
   "login": {
     "welcomeBack": "مرحبًا بعودتك إلى",
@@ -19,45 +21,6 @@
     "orContinueWith": "أو تابع باستخدام",
     "noAccount": "ليس لديك حساب؟",
     "signUpHere": "سجل هنا"
-  },
-  "admines": {
-    "employees": {
-      "form": {
-        "addTitle": "إضافة موظف",
-        "addSubtitle": "إنشاء حساب موظف جديد",
-        "editTitle": "تعديل الموظف",
-        "editSubtitle": "تحديث بيانات الموظف",
-        "labels": {
-          "fullName": "الاسم الكامل",
-          "email": "البريد الإلكتروني",
-          "password": "كلمة المرور",
-          "phone": "رقم الهاتف",
-          "position": "الوظيفة"
-        },
-        "placeholders": {
-          "name": "أدخل الاسم الكامل",
-          "email": "أدخل البريد الإلكتروني",
-          "password": "أدخل كلمة المرور",
-          "phone": "أدخل رقم الهاتف",
-          "position": "أدخل المسمى الوظيفي"
-        },
-        "buttons": {
-          "cancel": "إلغاء",
-          "add": "إضافة موظف",
-          "update": "تحديث الموظف"
-        },
-        "errors": {
-          "nameRequired": "الاسم الكامل مطلوب",
-          "emailRequired": "البريد الإلكتروني مطلوب",
-          "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح",
-          "passwordRequired": "كلمة المرور مطلوبة",
-          "passwordLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-          "phoneRequired": "رقم الهاتف مطلوب",
-          "phoneInvalid": "يرجى إدخال رقم هاتف صحيح",
-          "positionRequired": "الوظيفة مطلوبة"
-        }
-      }
-    }
   },
   "email": "البريد الإلكتروني",
   "password": "كلمة المرور",
@@ -103,6 +66,27 @@
     "getStarted": "ابدأ الآن",
     "about": "من نحن",
     "contact": "اتصل بنا"
+  },
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "companies": "الشركات",
+    "plans": "الخطط",
+    "messages": "الرسائل",
+    "profile": "الملف الشخصي",
+    "paymentVerification": "التحقق من الدفع",
+    "teams": "الفرق",
+    "employees": "الموظفين",
+    "leaveRequests": "طلبات الإجازة",
+    "reports": "التقارير",
+    "billing": "الفواتير",
+    "scheduler": "الجدول الزمني",
+    "swapApprovals": "موافقات التبديل",
+    "timeTracking": "تتبع الوقت",
+    "timeOff": "الإجازات",
+    "payroll": "الرواتب",
+    "mySchedule": "جدولي",
+    "shiftSwaps": "تبديل الورديات",
+    "myPayslip": "قسيمة الراتب"
   },
   "services": {
     "title": "كل ما تحتاجه لإدارة القوى العاملة الحديثة",
@@ -1606,7 +1590,9 @@
           "revenueByPlan": "الإيرادات حسب الخطة",
           "recentSignups": "التسجيلات الأخيرة",
           "viewAll": "عرض الكل",
-          "noCompanies": "لا توجد شركات بعد."
+          "noCompanies": "لا توجد شركات بعد.",
+          "revenue": "الإيرادات",
+          "subscribers": "المشتركين"
         }
       },
       "companies": {
