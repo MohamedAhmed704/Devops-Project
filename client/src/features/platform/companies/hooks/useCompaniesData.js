@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { platformService } from "../../../../api/services/platformService";
 import { useToast } from "../../../../hooks/useToast";
 
@@ -46,7 +46,7 @@ export const useCompaniesData = () => {
         fetchCompanies();
     }, [page]);
 
-    const handleToggleStatus = async (id, currentStatus) => {
+    const handleToggleStatus = useCallback(async (id, currentStatus) => {
         try {
             await platformService.toggleCompanyStatus(id);
             addToast(`Company ${currentStatus ? 'deactivated' : 'activated'} successfully`, "success");
@@ -57,13 +57,13 @@ export const useCompaniesData = () => {
             console.error("Error toggling status:", err);
             addToast(err.response?.data?.message || "Failed to update status", "error");
         }
-    };
+    }, [addToast]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setPlanFilter("");
         setStatusFilter("");
         setSearch("");
-    };
+    }, []);
 
     const hasActiveFilters = planFilter || statusFilter || search;
 

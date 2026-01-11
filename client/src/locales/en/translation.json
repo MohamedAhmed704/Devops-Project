@@ -585,7 +585,7 @@
     },
     "adminNote": "Admin Note",
     "unknownBranch": "Unknown branch",
-    "noRequests": "No {status} requests found.",
+    "noRequests": "No requests found.",
     "buttons": {
       "newRequest": "New Request",
       "createFirstRequest": "Create Your First Request",

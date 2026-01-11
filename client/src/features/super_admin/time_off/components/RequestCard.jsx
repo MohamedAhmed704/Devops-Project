@@ -4,7 +4,7 @@ import {
     User, Calendar, FileText, CheckCircle, XCircle
 } from "lucide-react";
 
-export default function RequestCard({ req, onAction }) {
+const RequestCard = ({ req, onAction }) => {
     const { t, i18n } = useTranslation();
 
     const getStatusBadge = (status) => {
@@ -104,3 +104,4 @@ export default function RequestCard({ req, onAction }) {
         </div>
     );
 }
+export default React.memo(RequestCard);

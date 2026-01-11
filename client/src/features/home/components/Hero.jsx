@@ -1,5 +1,4 @@
 import { useState } from "react";
-import computer from "/images/home/computer.jpg";
 import { Link } from "react-router";
 import { PlayCircle, X } from "lucide-react";
 import { useTranslation } from "react-i18next";

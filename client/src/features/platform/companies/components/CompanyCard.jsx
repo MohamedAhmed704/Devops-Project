@@ -95,4 +95,4 @@ const CompanyCard = ({ company, onToggleStatus, onViewDetails }) => {
     );
 };
 
-export default CompanyCard;
+export default React.memo(CompanyCard);

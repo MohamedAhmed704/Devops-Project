@@ -545,7 +545,7 @@
     },
     "adminNote": "ملاحظة المشرف",
     "unknownBranch": "فرع غير معروف",
-    "noRequests": "لم يتم العثور على طلبات {status}.",
+    "noRequests": "لم يتم العثور على طلبات .",
     "buttons": {
       "newRequest": "طلب جديد",
       "createFirstRequest": "إنشاء طلبك الأول",

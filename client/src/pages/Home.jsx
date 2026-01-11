@@ -12,9 +12,9 @@ const Home = () => {
       <HomeNav />
       <Hero />
       <FeaturesGrid />
+      <PricingSection />
       <SocialProof />
       <Branding />
-      <PricingSection />
       <Footer />
     </div>
   );
