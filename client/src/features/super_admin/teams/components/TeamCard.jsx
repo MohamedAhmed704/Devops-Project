@@ -5,7 +5,7 @@ import {
     MoreVertical, Edit2, Trash2, Power
 } from "lucide-react";
 
-export default function TeamCard({ branch, activeMenu, setActiveMenu, onEdit, onDelete, onToggleStatus }) {
+const TeamCard = ({ branch, isMenuOpen, toggleMenu, onEdit, onDelete, onToggleStatus }) => {
     const { t, i18n } = useTranslation();
 
     return (
@@ -14,7 +14,7 @@ export default function TeamCard({ branch, activeMenu, setActiveMenu, onEdit, on
             {/* Action Menu */}
             <div className="absolute top-4 right-4 z-10">
                 <button
-                    onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === branch._id ? null : branch._id); }}
+                    onClick={toggleMenu}
                     className="p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition"
                     aria-label={t("teams.actions.menu")}
                 >
@@ -22,7 +22,7 @@ export default function TeamCard({ branch, activeMenu, setActiveMenu, onEdit, on
                 </button>
 
                 {/* Dropdown */}
-                {activeMenu === branch._id && (
+                {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-slate-700 rounded-lg shadow-xl border border-slate-100 dark:border-slate-600 overflow-hidden animate-fadeIn z-20">
                         <button onClick={() => onEdit(branch)} className="w-full text-left px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-2">
                             <Edit2 size={14} /> {t("teams.actions.edit")}
@@ -74,3 +74,5 @@ export default function TeamCard({ branch, activeMenu, setActiveMenu, onEdit, on
         </div>
     );
 }
+
+export default React.memo(TeamCard);

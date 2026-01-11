@@ -1,19 +1,19 @@
 import Hero from "../features/home/components/Hero";
-import Services from "../features/home/components/Services";
-import ChooseUs from "../features/home/components/ChooseUs";
+import HomeNav from "../features/home/components/HomeNav";
+import FeaturesGrid from "../features/home/components/FeaturesGrid";
+import SocialProof from "../features/home/components/SocialProof";
 import Branding from "../features/home/components/Branding";
 import PricingSection from "../features/home/components/PricingSection";
 import Footer from "../features/home/components/Footer";
-import HomeNav from "../features/home/components/HomeNav";
 
 const Home = () => {
   return (
-    <div>
+    <div className="bg-white dark:bg-slate-900 min-h-screen">
       <HomeNav />
       <Hero />
-      <Services />
-      <ChooseUs />
+      <FeaturesGrid />
       <PricingSection />
+      <SocialProof />
       <Branding />
       <Footer />
     </div>

@@ -30,7 +30,7 @@ export const useEmployeesData = () => {
     const [searchTimeout, setSearchTimeout] = useState(null);
 
     // Fetch employees
-    const fetchEmployees = async (page = 1) => {
+    const fetchEmployees = useCallback(async (page = 1) => {
         try {
             setLoading(true);
             const params = {
@@ -58,11 +58,11 @@ export const useEmployeesData = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t]);
 
     useEffect(() => {
         fetchEmployees();
-    }, []);
+    }, [fetchEmployees]);
 
     // Filtering
     const applyFilters = useCallback(() => {
@@ -131,7 +131,7 @@ export const useEmployeesData = () => {
     }, [showActionsMenu]);
 
     // Handlers
-    const handleSearch = (e) => {
+    const handleSearch = useCallback((e) => {
         const value = e.target.value;
         setSearchTerm(value);
 
@@ -144,9 +144,9 @@ export const useEmployeesData = () => {
                 applyFilters();
             }, 300)
         );
-    };
+    }, [searchTimeout, applyFilters]);
 
-    const handleCreateEmployee = async (employeeData) => {
+    const handleCreateEmployee = useCallback(async (employeeData) => {
         try {
             setLoading(true);
             await adminService.employees.createEmployee(employeeData);
@@ -160,9 +160,9 @@ export const useEmployeesData = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fetchEmployees, t]);
 
-    const handleUpdateEmployee = async (employeeId, data) => {
+    const handleUpdateEmployee = useCallback(async (employeeId, data) => {
         try {
             setLoading(true);
             await adminService.employees.updateEmployee(employeeId, data);
@@ -178,9 +178,9 @@ export const useEmployeesData = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fetchEmployees, currentPage, t]);
 
-    const handleToggleStatus = async (employeeId, currentStatus, employeeName) => {
+    const handleToggleStatus = useCallback(async (employeeId, currentStatus, employeeName) => {
         const newStatus = !currentStatus;
 
         const result = await Swal.fire({
@@ -216,7 +216,10 @@ export const useEmployeesData = () => {
                         : emp
                 ));
 
-                applyFilters();
+                // applyFilters(); // Dependencies causes loop if strictly followed, but setEmployees triggers effect. 
+                // Wait, applyFilters depends on employees. setEmployees updates employees. applyFilters effect runs. 
+                // So calling applyFilters here is redundant/safe? 
+                // Actually applyFilters uses [employees] dependency. So it will auto-run when employees change.
                 Alert.success(` ${employeeName} ${newStatus ? "Activated" : "Deactivated"} Successfully`);
 
                 setShowActionsMenu(null);
@@ -227,9 +230,9 @@ export const useEmployeesData = () => {
                 setLoading(false);
             }
         }
-    };
+    }, [t]);
 
-    const handleDeleteEmployee = async (employeeId, employeeName) => {
+    const handleDeleteEmployee = useCallback(async (employeeId, employeeName) => {
         const result = await Alert.confirm(`Are you sure you want to delete ${employeeName} ?`);
 
         if (result.isConfirmed) {
@@ -238,8 +241,7 @@ export const useEmployeesData = () => {
                 await adminService.employees.deleteEmployee(employeeId);
                 setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
                 Alert.success(`${employeeName} Deleted Successfully`);
-                applyFilters();
-
+                // applyFilters(); // handled by effect
             } catch (error) {
                 Alert.error(error.response?.data?.message || "Delete Failed");
             } finally {
@@ -247,34 +249,40 @@ export const useEmployeesData = () => {
             }
         }
         setShowActionsMenu(null);
-    };
+    }, []);
 
-    const handleEdit = (employee) => {
+    const handleEdit = useCallback((employee) => {
         setSelectedEmployee(employee);
         setIsEditMode(true);
         setShowCreateModal(true);
         setShowActionsMenu(null);
-    };
+    }, []);
 
-    const handleViewDetails = (employee) => {
+    const handleViewDetails = useCallback((employee) => {
         setSelectedEmployee(employee);
         setShowDetailsModal(true);
         setShowActionsMenu(null);
-    };
+    }, []);
 
-    const handleViewAttendance = (employee) => {
+    const handleViewAttendance = useCallback((employee) => {
         setSelectedEmployee(employee);
         setShowAttendanceModal(true);
         setShowActionsMenu(null);
-    };
+    }, []);
 
-    const handlePageChange = (page) => {
+    const handlePageChange = useCallback((page) => {
         if (page > 0 && page <= totalPages) {
             setCurrentPage(page);
             fetchEmployees(page);
         }
-    };
+    }, [totalPages, fetchEmployees]);
 
+    const resetFilters = useCallback(() => {
+        setSearchTerm("");
+        setFilterPosition("all");
+        setFilterStatus("all");
+        fetchEmployees(1);
+    }, [fetchEmployees]);
     return {
         employees,
         filteredEmployees,
@@ -311,11 +319,6 @@ export const useEmployeesData = () => {
         handleViewAttendance,
         handlePageChange,
         refetch: fetchEmployees,
-        resetFilters: () => {
-            setSearchTerm("");
-            setFilterPosition("all");
-            setFilterStatus("all");
-            fetchEmployees(1);
-        }
+        resetFilters
     };
 };

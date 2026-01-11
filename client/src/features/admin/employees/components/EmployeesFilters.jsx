@@ -43,7 +43,7 @@ const EmployeesFilters = ({
                                 <option key={index} value={pos}>{pos}</option>
                             ))}
                         </select>
-                        <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 pointer-events-none" size={14} />
+                        <Filter className="absolute end-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 pointer-events-none" size={14} />
                     </div>
 
                     <div className="relative">
@@ -59,7 +59,7 @@ const EmployeesFilters = ({
                             <option value="late">{t("admin.employees.filters.lateToday")}</option>
                             <option value="absent">{t("admin.employees.filters.absentToday")}</option>
                         </select>
-                        <Filter className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 pointer-events-none" size={14} />
+                        <Filter className="absolute end-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-slate-500 pointer-events-none" size={14} />
                     </div>
 
                     <button

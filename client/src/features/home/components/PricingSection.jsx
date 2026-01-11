@@ -121,10 +121,7 @@ const PricingSection = () => {
 
                             <button
                                 onClick={() => handleSubscribe(plan)}
-                                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors duration-200 mt-auto cursor-pointer ${plan.slug.includes("starter")
-                                    ? "bg-sky-600 hover:bg-sky-700 text-white shadow-md hover:shadow-lg"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
-                                    }`}
+                                className="w-full py-3 px-6 rounded-lg font-semibold bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm mt-auto"
                             >
                                 {plan.price === 0 ? t("pricing.getStartedFree") : t("pricing.subscribeNow")}
                             </button>

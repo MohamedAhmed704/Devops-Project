@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import adminService from "../../../../api/services/adminService";
 import { Alert } from "../../../../utils/alertService";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,7 @@ export const useReportsData = () => {
     const [loading, setLoading] = useState(true);
     const { t } = useTranslation();
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setLoading(true);
             const params = {
@@ -35,17 +35,17 @@ export const useReportsData = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [page, limit, filterType]);
 
     useEffect(() => {
         fetchData();
-    }, [page, filterType]);
+    }, [fetchData]);
 
     useEffect(() => {
         setPage(1);
     }, [filterType]);
 
-    const handleDelete = async (id) => {
+    const handleDelete = useCallback(async (id) => {
         const confirmResult = await Alert.confirm(t("reports.confirmDelete"));
         if (!confirmResult.isConfirmed) return;
 
@@ -59,15 +59,15 @@ export const useReportsData = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t, fetchData]);
 
-    const getReportStyle = (type) => {
+    const getReportStyle = useCallback((type) => {
         switch (type) {
             case 'attendance': return { icon: Clock, bg: 'bg-blue-50', text: 'text-blue-600' };
             case 'shift': return { icon: Calendar, bg: 'bg-orange-50', text: 'text-orange-600' };
             default: return { icon: FileText, bg: 'bg-slate-50', text: 'text-slate-600' };
         }
-    };
+    }, []);
 
     return {
         reports,

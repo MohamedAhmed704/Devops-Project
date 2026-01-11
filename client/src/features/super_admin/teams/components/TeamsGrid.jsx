@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from "react-i18next";
 import TeamCard from './TeamCard';
 
-export default function TeamsGrid({ branches, onEdit, onDelete, onToggleStatus }) {
+const TeamsGrid = ({ branches, onEdit, onDelete, onToggleStatus }) => {
     const { t } = useTranslation();
     const [activeMenu, setActiveMenu] = useState(null);
 
@@ -12,8 +12,11 @@ export default function TeamsGrid({ branches, onEdit, onDelete, onToggleStatus }
                 <TeamCard
                     key={branch._id}
                     branch={branch}
-                    activeMenu={activeMenu}
-                    setActiveMenu={setActiveMenu}
+                    isMenuOpen={activeMenu === branch._id}
+                    toggleMenu={(e) => {
+                        e.stopPropagation();
+                        setActiveMenu(activeMenu === branch._id ? null : branch._id);
+                    }}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onToggleStatus={onToggleStatus}
@@ -25,4 +28,6 @@ export default function TeamsGrid({ branches, onEdit, onDelete, onToggleStatus }
             )}
         </div>
     );
-}
+};
+
+export default React.memo(TeamsGrid);

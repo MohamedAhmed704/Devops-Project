@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Alert } from "../../../../utils/alertService.js";
 import adminService from "../../../../api/services/adminService.js";
 import { useTranslation } from "react-i18next";
@@ -28,7 +28,7 @@ export function useShiftForm(fetchData, employees) {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  const handleEventClick = (info) => {
+  const handleEventClick = useCallback((info) => {
     const event = info.event;
     const props = event.extendedProps;
     const readOnly = props.status === 'completed';
@@ -46,16 +46,16 @@ export function useShiftForm(fetchData, employees) {
 
     setSelectedShiftId(event.id);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedShiftId(null);
     setIsReadOnly(false);
     setFormData(initialForm);
-  };
+  }, []);
 
-  const toggleEmployee = (empId) => {
+  const toggleEmployee = useCallback((empId) => {
     if (isReadOnly) return;
     setFormData(prev => {
       const currentIds = prev.employee_ids;
@@ -68,18 +68,20 @@ export function useShiftForm(fetchData, employees) {
         return { ...prev, employee_ids: [...currentIds, empId] };
       }
     });
-  };
+  }, [isReadOnly, selectedShiftId]);
 
-  const toggleSelectAll = () => {
+  const toggleSelectAll = useCallback(() => {
     if (selectedShiftId || isReadOnly) return;
-    if (formData.employee_ids.length === employees.length) {
-      setFormData({ ...formData, employee_ids: [] });
-    } else {
-      setFormData({ ...formData, employee_ids: employees.map(e => e._id) });
-    }
-  };
+    setFormData(prev => {
+      if (prev.employee_ids.length === employees.length) {
+        return { ...prev, employee_ids: [] };
+      } else {
+        return { ...prev, employee_ids: employees.map(e => e._id) };
+      }
+    });
+  }, [selectedShiftId, isReadOnly, employees]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (isReadOnly) return;
 
@@ -106,10 +108,13 @@ export function useShiftForm(fetchData, employees) {
       } else {
         if (formData.employee_ids.length === 1) {
           await adminService.shifts.createShift({
-            ...formData,
+            employee_id: formData.employee_ids[0],
+            title: formData.title,
             start_date_time: start,
             end_date_time: end,
-            employee_id: formData.employee_ids[0]
+            shift_type: formData.shift_type,
+            location: formData.location,
+            notes: formData.notes
           });
         } else {
           const shiftsArray = formData.employee_ids.map(empId => ({
@@ -134,9 +139,9 @@ export function useShiftForm(fetchData, employees) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, isReadOnly, selectedShiftId, t, handleCloseModal, fetchData]);
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (isReadOnly) return;
     const confirmResult = await Alert.confirm(t("schedule.confirm.delete"));
     if (!confirmResult.isConfirmed) return;
@@ -152,7 +157,7 @@ export function useShiftForm(fetchData, employees) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [isReadOnly, selectedShiftId, t, handleCloseModal, fetchData]);
 
   return {
     formData,

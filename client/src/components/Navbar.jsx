@@ -100,7 +100,6 @@ export default function Navbar({ role }) {
   return (
     <div
       className="w-full shadow bg-white dark:bg-slate-900 sticky top-0 z-50 transition-colors animate-fadeIn"
-      dir="ltr"
     >
       {/* Top Bar - Force LTR for layout consistency, but inner components handle RTL */}
       <div className="w-full flex items-center justify-between gap-4 px-4 md:px-10 py-3 border-b border-gray-200 dark:border-slate-700">
@@ -114,13 +113,13 @@ export default function Navbar({ role }) {
           {theme === "light" ? (
             <img
               src="/icons/lightLogo.png"
-              alt="Logo"
+              alt={t('nav.logoAlt')}
               className="lg:w-32 w-28 object-contain"
             />
           ) : (
             <img
               src="/icons/darkLogo.png"
-              alt="Logo"
+              alt={t('nav.logoAlt')}
               className="lg:w-32 w-28 object-contain"
             />
           )}
@@ -183,7 +182,7 @@ export default function Navbar({ role }) {
             {openNotificationMenu && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 mt-2 md:w-80 w-72 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn text-start"
+                className="absolute end-0 mt-2 md:w-80 w-72 bg-white dark:bg-slate-800 shadow-xl rounded-xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden animate-fadeIn text-start"
               >
                 <div className="p-3 border-b border-gray-50 dark:border-slate-700 flex justify-between items-center bg-gray-50/50 dark:bg-slate-700/50">
                   <h3 className="font-semibold text-gray-700 dark:text-slate-200 text-sm">
@@ -258,7 +257,7 @@ export default function Navbar({ role }) {
                   <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-300">
                     <User size={18} />
                   </div>
-                  <span className="hidden md:inline text-sm font-medium pr-2">
+                  <span className="hidden md:inline text-sm font-medium pe-2">
                     {user?.name || t("navbar.profile")}
                   </span>
                 </div>
@@ -276,7 +275,7 @@ export default function Navbar({ role }) {
             {openProfileMenu && (
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 shadow-lg rounded-xl border border-slate-100 dark:border-slate-700 z-50 text-start overflow-hidden"
+                className="absolute end-0 mt-2 w-48 bg-white dark:bg-slate-800 shadow-lg rounded-xl border border-slate-100 dark:border-slate-700 z-50 text-start overflow-hidden"
               >
                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100">

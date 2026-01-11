@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { superAdminService } from "../../../../api/services/superAdminService";
 import { Alert } from "../../../../utils/alertService";
@@ -13,7 +13,7 @@ export const useTimeOffRequests = () => {
 
     const { t, i18n } = useTranslation();
 
-    const fetchRequests = async () => {
+    const fetchRequests = useCallback(async () => {
         try {
             setLoading(true);
             const res = await superAdminService.getLeaveRequests(statusFilter, page, limit);
@@ -27,7 +27,7 @@ export const useTimeOffRequests = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [statusFilter, page, limit, t]);
 
     useEffect(() => {
         fetchRequests();
@@ -37,7 +37,7 @@ export const useTimeOffRequests = () => {
         setPage(1);
     }, [statusFilter]);
 
-    const handleAction = async (requestId, newStatus) => {
+    const handleAction = useCallback(async (requestId, newStatus) => {
         const { value: note, isConfirmed } = await Alert.prompt({
             title: newStatus === "approved"
                 ? t("timeOffRequests.alerts.approvalTitle")
@@ -61,7 +61,7 @@ export const useTimeOffRequests = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [t, fetchRequests]);
 
     return {
         requests,

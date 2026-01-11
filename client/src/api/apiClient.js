@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken, setToken, removeToken } from "../utils/tokenUtils";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -9,7 +10,7 @@ const apiClient = axios.create({
 
 // Add access token to all requests
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -22,39 +23,42 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/auth/refresh")) {
+    // 401 and not a refresh attempt
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/refresh")
+    ) {
       originalRequest._retry = true;
 
       try {
-        const { data } = await apiClient.get("/api/auth/refresh", {
-          withCredentials: true,
-        });
-
+        // Attempt to refresh
+        const { data } = await apiClient.get("/api/auth/refresh");
         const newToken = data?.accessToken;
+
         if (!newToken) throw new Error("No access token returned");
 
-        localStorage.setItem("accessToken", newToken);
+        // Save new token
+        setToken(newToken);
 
-        window.dispatchEvent(new CustomEvent("token-refreshed", { detail: newToken }));
-
+        // Update default header for future requests
+        apiClient.defaults.headers.Authorization = `Bearer ${newToken}`;
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
-        try {
-          const me = await apiClient.get("/api/auth/profile", {
-            headers: { Authorization: `Bearer ${newToken}` }
-          });
+        // Notify app (AuthContext will listen to this)
+        window.dispatchEvent(
+          new CustomEvent("token-refreshed", { detail: newToken })
+        );
 
-          window.dispatchEvent(
-            new CustomEvent("auth-update", { detail: me.data })
-          );
-        } catch (err) {
-          console.warn("Failed to refresh user data.");
-        }
+        // Retry original request
         return apiClient(originalRequest);
 
       } catch (err) {
-        localStorage.removeItem("accessToken");
+        // Refresh failed -> logout
+        removeToken();
+        // Redirect to login or dispatch session-expired
         window.location.href = "/login";
+        return Promise.reject(err);
       }
     }
 

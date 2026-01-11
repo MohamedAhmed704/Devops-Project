@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AlertCircle } from "lucide-react";
 import RequestCard from './RequestCard';
 
-export default function TimeOffList({ requests, statusFilter, onAction }) {
+const TimeOffList = ({ requests, statusFilter, onAction }) => {
     const { t } = useTranslation();
 
     const getStatusTranslation = (status) => {
@@ -21,7 +21,7 @@ export default function TimeOffList({ requests, statusFilter, onAction }) {
                 <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-full mb-3">
                     <AlertCircle size={32} />
                 </div>
-                <p>{t("timeOffRequests.noRequests", { status: getStatusTranslation(statusFilter) })}</p>
+                <p>{t("timeOffRequests.noRequests")}</p>
             </div>
         );
     }
@@ -34,3 +34,4 @@ export default function TimeOffList({ requests, statusFilter, onAction }) {
         </div>
     );
 }
+export default React.memo(TimeOffList);

@@ -5,7 +5,7 @@ import { Link } from "react-router";
 const Branding = () => {
   const { t } = useTranslation();
   return (
-    <section className="w-full bg-linear-to-r from-sky-200 dark:from-sky-950 to-sky-100 dark:to-sky-900 py-20">
+    <section className="w-full bg-linear-to-r from-sky-100 dark:from-sky-950 to-sky-100 dark:to-sky-900 py-20">
       <div className="text-center px-6 max-w-4xl mx-auto">
         {/* TITLE */}
         <h2 className="text-3xl md:text-4xl font-bold text-[#112D4E] dark:text-sky-200 leading-tight">
@@ -19,21 +19,15 @@ const Branding = () => {
 
         {/* BUTTONS */}
         <div className="mt-8 flex justify-center flex-wrap gap-4">
-          <Link to={"/register"}>
-            <Button
-              variant="primary"
-              className="px-6 py-3 rounded-xl font-medium"
-            >
-              {t("startFreeTrial")}
-            </Button>
+          <Link to={"/register"}
+            className="w-full sm:w-auto px-10 py-3.5 rounded-lg font-semibold bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+          >
+            {t("startFreeTrial")}
           </Link>
-          <Link to={"/contact"}>
-            <Button
-              variant="outline"
-              className="px-6 py-3 rounded-xl font-medium"
-            >
-              {t("scheduleDemo")}
-            </Button>
+          <Link to={"/contact"}
+            className="w-full sm:w-auto px-10 py-3.5 rounded-lg font-semibold bg-transparent text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
+          >
+            {t("scheduleDemo")}
           </Link>
 
         </div>
