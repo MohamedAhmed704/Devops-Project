@@ -1,24 +1,3 @@
-import {
-    MoreVertical,
-    Eye,
-    BarChart3,
-    Edit2,
-    Trash2,
-    UserCog,
-    Briefcase,
-    Phone,
-    Mail,
-    CheckCircle,
-    Clock,
-    XCircle,
-    PauseCircle,
-    UserPlus,
-    Plus,
-    ChevronLeft,
-    ChevronRight
-} from "lucide-react";
-import { useTranslation } from "react-i18next";
-
 import React from "react";
 import {
     UserPlus,
