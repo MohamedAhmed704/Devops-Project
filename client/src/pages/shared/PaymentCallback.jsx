@@ -17,62 +17,42 @@ const PaymentCallback = () => {
 
     useEffect(() => {
         const verifyPayment = async () => {
-            console.log("👉 [Frontend Callback] URL Search Params:", searchParams.toString());
-            // Paymob sends parameters: success (true/false), id (transaction), order (id), etc.
             const success = searchParams.get("success");
             const orderId = searchParams.get("order"); // Paymob uses 'order' or 'order_id' depending on integration, usually 'id' is transaction, 'order' is order id.
             const transactionId = searchParams.get("id"); // Transaction ID
 
-            // If query params are missing, it might be a direct access or different format
-            // Paymob v2/v3 might differ. Assuming standard redirection query params.
-            // Documentation usually says: ?success=true&pending=false&id=123&order=456...
-            console.log("👉 [Frontend Callback] Parsed - Success:", success, "OrderID:", orderId, "Match ID:", transactionId);
 
             if (!orderId) {
-                console.error("❌ [Frontend Callback] Missing Order ID");
                 setStatus("failed");
                 setMessage(t("paymentCallback.errors.missingOrderId"));
                 return;
             }
 
             if (success === "false") {
-                console.warn("⚠️ [Frontend Callback] Payment declined/cancelled");
                 setStatus("failed");
                 setMessage(t("paymentCallback.errors.paymentDeclined"));
                 return;
             }
 
             try {
-                // Call verification endpoint
-                // We reuse the existing endpoint: GET /api/paymentStatus/:orderId
-                // This endpoint checks if 'completed', if not, it calls Paymob to verify and updates DB.
-                console.log("👉 [Frontend Callback] Verifying status with backend for Order:", orderId);
                 const response = await paymentService.checkPaymentStatus(orderId);
-                console.log("👉 [Frontend Callback] Verification Response:", response);
 
                 if (response.success) {
                     setStatus("success");
                     setMessage(t("paymentCallback.messages.verificationSuccess"));
                     addToast(t("paymentCallback.toasts.subscriptionActivated"), "success");
-
                     // Refresh user data to update the plan badge in navbar
-                    console.log("👉 [Frontend Callback] Refreshing user data...");
                     await refreshUser();
-                    console.log("✅ [Frontend Callback] User data refreshed");
                 } else {
-                    console.error("❌ [Frontend Callback] Backend returned success: false");
                     setStatus("failed");
                     setMessage(t("paymentCallback.errors.verificationFailed"));
                 }
             } catch (error) {
-                console.error("❌ [Frontend Callback] Verification error:", error);
                 setStatus("failed");
                 setMessage(error.response?.data?.message || t("paymentCallback.errors.serverError"));
             }
         };
-
         verifyPayment();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleContinue = () => {

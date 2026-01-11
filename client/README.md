@@ -1,73 +1,83 @@
-# ShiftMind Frontend Client
 
-This is the frontend client for the ShiftMind application, built with **React 19**, **Vite**, and **Tailwind CSS v4**.
+This is the frontend client for the **Tadbir** application, a modern workforce management platform. It is built with **React 19**, **Vite**, and **Tailwind CSS v4**.
 
-## 🚀 Project Structure
+##  Getting Started
+
+### Prerequisites
+-   Node.js (v18+ recommended)
+-   npm or yarn
+
+### Installation
+
+1.  Navigate to the client directory:
+    ```bash
+    cd client
+    ```
+
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+
+3.  Set up Environment Variables:
+    -   Create a `.env` file in the `client` root.
+    -   Add: `VITE_API_URL=http://localhost:5000` (or your backend URL).
+
+### Development
+
+Start the development server:
+```bash
+npm run dev
+```
+The app will run at `http://localhost:5173` (by default).
+
+### Production Build
+
+To build the application for production:
+```bash
+npm run build
+```
+This generates a `dist` folder. You can preview it locally using:
+```bash
+npm run preview
+```
+
+---
+
+##  Project Architecture
+
+We follow a **Feature-Sliced** inspired architecture to keep the codebase scalable.
 
 ```
-client/
-├── public/              # Static assets
-├── src/
-│   ├── api/             # API configuration & services
-│   │   ├── apiClient.js # Axios instance with interceptors
-│   │   └── services/    # API service functions
-│   ├── components/      # Reusable UI components
-│   ├── contexts/        # Global state (Auth, Loader, Theme)
-│   ├── hooks/           # Custom React hooks
-│   ├── pages/           # Page components (Views)
-│   ├── routes/          # Routing configuration
-│   │   ├── AppRouter.jsx # Main router logic
-│   │   └── routesConfig.js # Role-based route definitions
-│   ├── shared/          # Shared constants/utils
-│   ├── utils/           # Helper functions
-│   ├── App.jsx          # Main App component
-│   ├── main.jsx         # Entry point (Providers)
-│   └── index.css        # Global styles & Tailwind setup
-├── index.html           # HTML entry point
-├── package.json         # Dependencies & scripts
-└── vite.config.js       # Vite configuration
+client/src/
+├── api/             # Centralized API layer (Axios services)
+├── components/      # Shared/Generic UI components (Buttons, Inputs)
+├── contexts/        # Global State (Auth, Theme)
+├── features/        # Business Logic & Scoped Components
+│   ├── admin/       # Modules specific to Admin role
+│   ├── employee/    # Modules specific to Employee role
+│   ├── platform/    # Modules specific to Platform Owner
+│   └── super_admin/ # Modules specific to Super Admin
+├── hooks/           # Shared Custom Hooks
+├── pages/           # Route Views (Thin wrappers around features)
+├── routes/          # Router Configuration & Guards
+├── utils/           # Helper functions (Token management, Formatting)
+└── main.jsx         # Application Entry Point
 ```
 
-## 🛠️ Key Technologies
+##  Tech Stack
 
--   **Framework:** React 19 + Vite
--   **Styling:** Tailwind CSS v4 (configured in `src/index.css`)
--   **Routing:** React Router v7
--   **State Management:** React Context API (`AuthContext`, `LoaderContext`)
--   **HTTP Client:** Axios (with interceptors for JWT)
--   **UI Libraries:**
-    -   `lucide-react`: Icons
-    -   `sweetalert2`: Alert modals
-    -   `react-hot-toast`: Toast notifications
-    -   `framer-motion`: Animations
-    -   `@fullcalendar/*`: Calendar functionality
+-   **Core**: React 19, Vite
+-   **Styling**: Tailwind CSS v4, Lucide React (Icons)
+-   **State**: Context API (Global), Local State (Features)
+-   **Routing**: React Router v7
+-   **HTTP**: Axios
+-   **Utils**: i18next (Localization), Day.js/FullCalendar
 
-## 🔐 Authentication & Security
+##  Authentication
 
-Authentication is handled via `AuthContext` and `apiClient.js`.
+Authentication is fully centralized:
+-   **`api/services/authService.js`**: Handles all auth API calls.
+-   **`utils/tokenUtils.js`**: Manages secure storage of JWT tokens.
+-   **`AuthContext.jsx`**: Provides user state and auth methods to the app.
 
-1.  **JWT Handling:** Access tokens are stored in `localStorage`.
-2.  **Interceptors:** `apiClient.js` automatically attaches the token to requests.
-3.  **Refresh Logic:** If a 401 response is received, the interceptor attempts to refresh the token via `/api/auth/refresh` and retries the original request.
-4.  **Protected Routes:** `ProtectedRoute` and `VerifiedRoute` components ensure only authenticated and verified users can access specific pages.
-
-## 🎨 Styling
-
-We use **Tailwind CSS v4**. Custom utility classes are defined in `src/index.css` for consistency:
-
--   `.btn`: Standard primary button.
--   `.btn2`: Secondary/Outline button.
--   `.card`: Standard card container with shadow and hover effect.
--   `.dashboardBtn`: Dashboard action button.
-
-## 🚦 Routing
-
-Routing is centralized in `src/routes/AppRouter.jsx`.
-Routes are defined based on user roles (`super_admin`, `admin`, `employee`) in `src/routes/routesConfig.js`.
-
-## 📦 Scripts
-
--   `npm run dev`: Start development server.
--   `npm run build`: Build for production.
--   `npm run preview`: Preview production build.
--   `npm run lint`: Run ESLint.

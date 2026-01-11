@@ -5,7 +5,6 @@ export default function ResetPasswordRoute({ children }) {
   const searchParams = new URLSearchParams(location.search);
   const token = searchParams.get("token");
 
-  // Only allow if token exists
   if (!token) {
     return <Navigate to="/login" replace />;
   }

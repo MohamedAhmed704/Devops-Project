@@ -1,106 +1,127 @@
-import { createContext, useState, useContext, useEffect } from "react";
-import apiClient from "../api/apiClient";
-import { googleAuthService } from "../api/services/googleAuthService";
+import { createContext, useContext, useEffect, useReducer } from "react";
+import { authService } from "../api/services/authService";
+import { getToken, setToken, removeToken, getPendingEmail, setPendingEmail, removePendingEmail } from "../utils/tokenUtils";
 
 const AuthContext = createContext();
 
+const initialState = {
+  user: null,
+  status: "unauthenticated", // unauthenticated | pending_verification | authenticated
+  loading: true,
+};
+
+function authReducer(state, action) {
+  switch (action.type) {
+    case "INIT_LOADING":
+      return { ...state, loading: true };
+    case "INIT_SUCCESS":
+      return {
+        ...state,
+        user: action.payload.user,
+        status: "authenticated",
+        loading: false,
+      };
+    case "INIT_PENDING":
+      return {
+        ...state,
+        status: "pending_verification",
+        loading: false,
+      };
+    case "INIT_FAILURE":
+      return {
+        ...state,
+        user: null,
+        status: "unauthenticated",
+        loading: false, // Stop loading even if auth failed
+      };
+    case "LOGIN_SUCCESS":
+      return {
+        ...state,
+        user: action.payload.user,
+        status: "authenticated",
+      };
+    case "REGISTER_SUCCESS":
+      return {
+        ...state,
+        user: action.payload.user,
+        status: "pending_verification",
+      };
+    case "LOGOUT":
+      return {
+        ...state,
+        user: null,
+        status: "unauthenticated",
+      };
+    case "UPDATE_USER":
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload },
+      };
+    default:
+      return state;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [accessToken, setAccessToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState("unauthenticated");
-  // unauthenticated | pending_verification | authenticated
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // Load user on app start
+  // --- Initialization ---
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const pendingEmail = localStorage.getItem("pendingEmail");
+    const initAuth = async () => {
+      const token = getToken();
+      const pendingEmail = getPendingEmail();
 
-    // Case 1 — pending registration (OTP)
-    if (pendingEmail && !token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStatus("pending_verification");
-      setLoading(false);
-      return;
-    }
-
-    // Case 2 — not logged in
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
-    // Case 3 — logged in: we MUST fetch user before loading=false
-    setLoading(true);
-    apiClient.defaults.headers.Authorization = `Bearer ${token}`;
-
-    apiClient
-      .get("/api/auth/profile")
-      .then(({ data }) => {
-        setUser(data);
-        setStatus("authenticated");
-      })
-      .catch(() => {
-        localStorage.removeItem("accessToken");
-        setStatus("unauthenticated");
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  // Listen for auth-update fired by interceptor
-  useEffect(() => {
-    function handleAuthUpdate(e) {
-      if (e.detail) {
-        setUser(e.detail);
-        setStatus("authenticated");
-
-        // Remove pendingEmail when user becomes verified/authenticated
-        localStorage.removeItem("pendingEmail");
+      // Case 1: Pending Verification
+      if (pendingEmail && !token) {
+        dispatch({ type: "INIT_PENDING" });
+        return;
       }
-    }
 
-    window.addEventListener("auth-update", handleAuthUpdate);
-    return () => window.removeEventListener("auth-update", handleAuthUpdate);
+      // Case 2: No token
+      if (!token) {
+        dispatch({ type: "INIT_FAILURE" });
+        return;
+      }
+
+      // Case 3: We have a token, fetch profile
+      try {
+        const { data } = await authService.getProfile();
+        dispatch({ type: "INIT_SUCCESS", payload: { user: data } });
+      } catch (err) {
+        // If profile fetch fails, token is likely invalid
+        removeToken();
+        dispatch({ type: "INIT_FAILURE" });
+      }
+    };
+
+    initAuth();
   }, []);
 
-
+  // --- Event Listeners ---
   useEffect(() => {
-    function handleTokenRefreshed(e) {
-      const newToken = e.detail;
-
-      // Update AuthContext state immediately
-      setAccessToken(newToken);
-
-      // Update Authorization header
-      apiClient.defaults.headers.Authorization = `Bearer ${newToken}`;
-    }
+    // Listen for token refresh from apiClient
+    const handleTokenRefreshed = () => {
+      // Optional: We could refetch user here, but usually just keeping the session alive is enough.
+      // The apiClient has already updated localStorage.
+      // If we want to be super safe:
+      // authService.getProfile().then(({data}) => dispatch({ type: 'UPDATE_USER', payload: data }));
+    };
 
     window.addEventListener("token-refreshed", handleTokenRefreshed);
-    return () =>
-      window.removeEventListener("token-refreshed", handleTokenRefreshed);
+    return () => window.removeEventListener("token-refreshed", handleTokenRefreshed);
   }, []);
 
+  // --- Actions ---
 
-  // Register → pending verification
   const register = async (companyName, name, email, password) => {
     try {
-      const { data } = await apiClient.post("/api/auth/register-super-admin", {
-        companyName,
-        name,
-        email,
-        password,
-      });
+      const { data } = await authService.registerSuperAdmin({ companyName, name, email, password });
 
       if (data.success) {
-        setUser(data.data);
-        setStatus("pending_verification");
-        localStorage.setItem("pendingEmail", email);
+        setPendingEmail(email);
+        dispatch({ type: "REGISTER_SUCCESS", payload: { user: data.data } });
         return { success: true, message: data.message };
       }
-
       return { success: false, error: data.message || "Registration failed" };
     } catch (err) {
       const backendMessage = err.response?.data?.message || "";
@@ -111,200 +132,133 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // OTP verification
   const verifyOtp = async (email, otp) => {
     try {
-      const { data } = await apiClient.post("/api/auth/verify-email", { email, otp });
+      const { data } = await authService.verifyEmail({ email, otp });
 
       if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        setAccessToken(data.accessToken);
-        apiClient.defaults.headers.Authorization = `Bearer ${data.accessToken}`;
-        setUser(data.user);
-        setStatus("authenticated");
-
-        // Remove pending email after success
-        localStorage.removeItem("pendingEmail");
-
+        setToken(data.accessToken);
+        removePendingEmail();
+        dispatch({ // We assume verify returns user object too, otherwise we might need to fetch it
+          type: "LOGIN_SUCCESS",
+          payload: { user: data.user }
+        });
         return { success: true, message: "Account verified!" };
       }
-
       return { success: false, error: data.message || "OTP verification failed" };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "OTP verification failed",
-      };
+      return { success: false, error: err.response?.data?.message || "OTP verification failed" };
     }
   };
 
-  // Resend OTP
   const resendOtp = async (email) => {
     try {
-      const { data } = await apiClient.post("/api/auth/resend-verification", { email });
+      const { data } = await authService.resendVerification({ email });
       return { success: true, message: data.message || "OTP sent!" };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Failed to resend OTP",
-      };
+      return { success: false, error: err.response?.data?.message || "Failed to resend OTP" };
     }
   };
 
-  // Login
   const login = async (email, password) => {
     try {
-      const { data } = await apiClient.post("/api/auth/login", { email, password });
+      const { data } = await authService.login({ email, password });
 
       if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        setAccessToken(data.accessToken);
-        apiClient.defaults.headers.Authorization = `Bearer ${data.accessToken}`;
-        setUser(data.user);
-        setStatus("authenticated");
-
+        setToken(data.accessToken);
+        dispatch({ type: "LOGIN_SUCCESS", payload: { user: data.user } });
         return { success: true, message: data.message };
       }
-
       return { success: false, error: data.message || "Login failed" };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Login failed",
-      };
+      return { success: false, error: err.response?.data?.message || "Login failed" };
     }
   };
 
-  // Google Sign-In
   const loginWithGoogle = async (idToken) => {
     try {
-      const { data } = await googleAuthService.signInWithGoogle(idToken);
-
+      const { data } = await authService.signInWithGoogle(idToken);
       if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        setAccessToken(data.accessToken);
-        apiClient.defaults.headers.Authorization = `Bearer ${data.accessToken}`;
-        setUser(data.user);
-        setStatus("authenticated");
-
+        setToken(data.accessToken);
+        dispatch({ type: "LOGIN_SUCCESS", payload: { user: data.user } });
         return { success: true, message: data.message };
       }
-
       return { success: false, error: data.message || "Google login failed" };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Google login failed",
-      };
+      return { success: false, error: err.response?.data?.message || "Google login failed" };
     }
   };
 
-  // Link Google account
   const linkGoogleAccount = async (idToken) => {
     try {
-      const { data } = await googleAuthService.linkGoogleAccount(idToken);
-
-      // Update user data with Google info
-      setUser(prevUser => ({
-        ...prevUser,
-        authProvider: 'google',
-        googleProfilePicture: data.user?.googleProfilePicture,
-        emailVerified: true
-      }));
-
+      const { data } = await authService.linkGoogleAccount(idToken);
+      // Optimistically update user
+      dispatch({
+        type: "UPDATE_USER",
+        payload: {
+          authProvider: 'google',
+          googleProfilePicture: data.user?.googleProfilePicture,
+          emailVerified: true
+        }
+      });
       return { success: true, message: data.message };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Failed to link Google account",
-      };
+      return { success: false, error: err.response?.data?.message || "Failed to link" };
     }
   };
 
-  // Unlink Google account
   const unlinkGoogleAccount = async () => {
     try {
-      const { data } = await googleAuthService.unlinkGoogleAccount();
-
-      // Update user data
-      setUser(prevUser => ({
-        ...prevUser,
-        authProvider: 'local',
-        googleProfilePicture: null
-      }));
-
+      const { data } = await authService.unlinkGoogleAccount();
+      dispatch({
+        type: "UPDATE_USER",
+        payload: {
+          authProvider: 'local',
+          googleProfilePicture: null
+        }
+      });
       return { success: true, message: data.message };
     } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Failed to unlink Google account",
-      };
+      return { success: false, error: err.response?.data?.message || "Failed to unlink" };
     }
   };
 
-  // Set token from OAuth callback
-  const setTokenFromCallback = (token) => {
-    localStorage.setItem('accessToken', token);
-    setAccessToken(token);
-    apiClient.defaults.headers.Authorization = `Bearer ${token}`;
-
-    // Fetch user profile to update state
-    apiClient
-      .get("/api/auth/profile")
-      .then(({ data }) => {
-        setUser(data);
-        setStatus("authenticated");
-      })
-      .catch(() => {
-        localStorage.removeItem("accessToken");
-        setStatus("unauthenticated");
-        setUser(null);
-      });
-  };
-
-  // Get Google status
-  const getGoogleStatus = async () => {
-    try {
-      const { data } = await googleAuthService.getGoogleStatus();
-      return { success: true, data: data.data };
-    } catch (err) {
-      return {
-        success: false,
-        error: err.response?.data?.message || "Failed to get Google status",
-      };
-    }
-  };
-
-  // Refresh user data from server (useful after payment or subscription changes)
+  // Called to manually refresh user data
   const refreshUser = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return { success: false, error: "No token" };
-
-      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
-      const { data } = await apiClient.get("/api/auth/profile");
-      setUser(data);
+      const { data } = await authService.getProfile();
+      dispatch({ type: "UPDATE_USER", payload: data });
       return { success: true, user: data };
     } catch (err) {
-      console.error("refreshUser error:", err);
       return { success: false, error: err.message };
     }
   };
 
   const logout = () => {
-    setUser(null);
-    setAccessToken(null);
-    setStatus("unauthenticated");
-    localStorage.removeItem("accessToken");
-    window.location.href = "/login";
+    authService.logout().finally(() => {
+      removeToken();
+      dispatch({ type: "LOGOUT" });
+      window.location.href = "/login";
+    });
   };
+
+  const setTokenFromCallback = (token) => {
+    setToken(token);
+    // Trigger profile fetch to sync state
+    authService.getProfile()
+      .then(({ data }) => dispatch({ type: "LOGIN_SUCCESS", payload: { user: data } }))
+      .catch(() => {
+        removeToken();
+        dispatch({ type: "INIT_FAILURE" });
+      });
+  };
+
+  const getGoogleStatus = authService.getGoogleStatus;
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        accessToken,
-        status,
+        ...state,
         register,
         verifyOtp,
         resendOtp,
@@ -312,13 +266,12 @@ export function AuthProvider({ children }) {
         loginWithGoogle,
         linkGoogleAccount,
         unlinkGoogleAccount,
-        getGoogleStatus,
-        setTokenFromCallback,
         refreshUser,
         logout,
-        loading,
-        isAuthenticated: status === "authenticated",
-        userRole: user?.role,
+        setTokenFromCallback,
+        getGoogleStatus,
+        isAuthenticated: state.status === "authenticated",
+        userRole: state.user?.role,
       }}
     >
       {children}
@@ -326,7 +279,7 @@ export function AuthProvider({ children }) {
   );
 }
 
-export  function useAuth () {
+export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
