@@ -1,26 +1,21 @@
-import { useState, useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
 import { platformService } from "../../../../api/services/platformService";
 
 export const useDashboardData = () => {
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(false);
-
-    const fetchStats = async () => {
-        try {
-            setLoading(true);
+    const {
+        data,
+        isLoading: loading,
+        error
+    } = useQuery({
+        queryKey: ['platform-dashboard'],
+        queryFn: async () => {
             const res = await platformService.getDashboardStats();
-            setStats(res.data.data);
-        } catch (err) {
-            console.error("Error fetching platform stats:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
+            return res.data.data;
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
 
-    useEffect(() => {
-        fetchStats();
-        // eslint-disable-next-line
-    }, []);
+    const stats = data;
 
     // Prepare chart data
     const chartData = stats?.revenue_by_plan.map(item => ({
@@ -34,6 +29,7 @@ export const useDashboardData = () => {
         loading,
         chartData,
         overview: stats?.overview,
-        recentCompanies: stats?.recent_companies || []
+        recentCompanies: stats?.recent_companies || [],
+        error: error?.message || null
     };
 };

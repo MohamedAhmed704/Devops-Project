@@ -5,8 +5,7 @@ import { paymentService } from "../../../../api/services/paymentService";
 import { useToast } from "../../../../hooks/useToast";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+
 
 export const useBilling = () => {
     const [plans, setPlans] = useState([]);
@@ -89,6 +88,9 @@ export const useBilling = () => {
     };
 
     const handleDownloadInvoice = async (record) => {
+        const { default: jsPDF } = await import("jspdf");
+        const { default: autoTable } = await import("jspdf-autotable");
+
         const doc = new jsPDF();
         const issueDate = new Date();
 
@@ -102,7 +104,7 @@ export const useBilling = () => {
         };
 
         try {
-            const logoUrl = "/icons/lightLogo.png";
+            const logoUrl = "/icons/lightLogo.webp";
             const logoImg = await loadImage(logoUrl);
             doc.addImage(logoImg, "PNG", 14, 15, 30, 20);
         } catch (err) {

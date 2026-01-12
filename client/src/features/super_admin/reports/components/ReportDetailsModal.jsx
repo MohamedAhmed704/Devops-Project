@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { X, Calendar, FileSpreadsheet, FileText, Sparkles, Loader2, Languages } from "lucide-react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
+
 import ReactMarkdown from "react-markdown";
 import adminService from "../../../../api/services/adminService.js";
 import { Alert } from "../../../../utils/alertService.js";
@@ -114,7 +112,7 @@ export default function ReportDetailsModal({ report, onClose }) {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     let sheetData = [];
 
     if (type === "attendance" && data.by_employee) {
@@ -142,6 +140,7 @@ export default function ReportDetailsModal({ report, onClose }) {
       ];
     }
 
+    const XLSX = await import("xlsx");
     const worksheet = XLSX.utils.json_to_sheet(sheetData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, t("admin.reports.sheetName"));
@@ -151,6 +150,9 @@ export default function ReportDetailsModal({ report, onClose }) {
   const handleExportPDF = async () => {
     try {
       document.body.style.cursor = "wait";
+
+      const { jsPDF } = await import("jspdf");
+      const { default: autoTable } = await import("jspdf-autotable");
 
       const doc = new jsPDF();
 

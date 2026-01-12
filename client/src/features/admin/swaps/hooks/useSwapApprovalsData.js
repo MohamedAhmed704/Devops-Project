@@ -1,29 +1,49 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import adminService from "../../../../api/services/adminService";
 import { Alert } from "../../../../utils/alertService";
 import { useTranslation } from "react-i18next";
 
 export const useSwapApprovalsData = () => {
-    const [requests, setRequests] = useState([]);
+    const queryClient = useQueryClient();
     const [filter, setFilter] = useState("pending");
-    const [loading, setLoading] = useState(true);
     const { t } = useTranslation();
 
-    const fetchRequests = async () => {
-        try {
-            setLoading(true);
+    // Fetch Requests using React Query
+    const {
+        data: requests = [],
+        isLoading: loading,
+        refetch: fetchRequests
+    } = useQuery({
+        queryKey: ['swap-requests'],
+        queryFn: async () => {
             const res = await adminService.swaps.getBranchRequests();
-            setRequests(res.data.data || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+            return res.data.data || [];
+        },
+        staleTime: 2 * 60 * 1000, // 2 minutes
+    });
 
-    useEffect(() => {
-        fetchRequests();
-    }, []);
+    // Action Mutation (Approve/Reject)
+    const actionMutation = useMutation({
+        mutationFn: async ({ id, action, adminNote }) => {
+            if (action === "approve") {
+                return await adminService.swaps.approveRequest(id, adminNote);
+            } else {
+                return await adminService.swaps.rejectRequest(id);
+            }
+        },
+        onSuccess: (_, { action }) => {
+            Alert.success(action === "approve" ? t("swapApprovals.approveSuccess") : t("swapApprovals.rejectSuccess"));
+
+            // Invalidate all related caches
+            queryClient.invalidateQueries({ queryKey: ['swap-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-schedule'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] });
+        },
+        onError: (err) => {
+            Alert.error(err.response?.data?.message || t("swapApprovals.actionFailed"));
+        }
+    });
 
     const handleAction = async (id, action) => {
         if (action === "reject") {
@@ -42,21 +62,7 @@ export const useSwapApprovalsData = () => {
             adminNote = promptResult.value;
         }
 
-        try {
-            setLoading(true);
-            if (action === "approve") {
-                await adminService.swaps.approveRequest(id, adminNote);
-                Alert.success(t("swapApprovals.approveSuccess"));
-            } else {
-                await adminService.swaps.rejectRequest(id);
-                Alert.success(t("swapApprovals.rejectSuccess"));
-            }
-            fetchRequests();
-        } catch (err) {
-            Alert.error(err.response?.data?.message || t("swapApprovals.actionFailed"));
-        } finally {
-            setLoading(false);
-        }
+        actionMutation.mutate({ id, action, adminNote });
     };
 
     const filteredRequests = requests.filter(r => {
@@ -94,7 +100,7 @@ export const useSwapApprovalsData = () => {
         requests,
         filter,
         setFilter,
-        loading,
+        loading: loading || actionMutation.isPending,
         handleAction,
         filteredRequests,
         getStatusInfo,

@@ -157,8 +157,19 @@ export default function AIModal({
                 >
                   <RotateCcw size={18} /> {t("schedule.ai.discard")}
                 </button>
-                <Button onClick={confirmAI_Shifts} className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-semibold">
-                  {t("schedule.ai.confirmSave")}
+                <Button
+                  onClick={confirmAI_Shifts}
+                  disabled={isGenerating}
+                  className={`flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white py-3 font-semibold flex items-center justify-center gap-2 ${isGenerating ? 'opacity-70 cursor-not-allowed' : ''}`}
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      {t("schedule.ai.saving")}
+                    </>
+                  ) : (
+                    t("schedule.ai.confirmSave")
+                  )}
                 </Button>
               </div>
             </div>
