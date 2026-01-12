@@ -1,28 +1,21 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from "react";
 import { employeeService } from "../../../../api/services/employeeService";
 
 export function useEmployeeDashboard() {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const fetchDashboard = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
+    const {
+        data,
+        isLoading: loading,
+        error,
+        refetch
+    } = useQuery({
+        queryKey: ['employee-dashboard'],
+        queryFn: async () => {
             const res = await employeeService.getDashboard();
-            setData(res.data.data);
-        } catch (err) {
-            console.error(err);
-            setError(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchDashboard();
-    }, [fetchDashboard]);
+            return res.data.data;
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes cache
+    });
 
     const { today, weekly, branch, upcoming, currency, user_rate } = useMemo(() => {
         if (!data) return {};
@@ -39,8 +32,8 @@ export function useEmployeeDashboard() {
     return {
         loading,
         error,
-        refetch: fetchDashboard,
-        data, // keeping raw data just in case, but focusing on normalized below
+        refetch,
+        data,
         today,
         weekly,
         branch,

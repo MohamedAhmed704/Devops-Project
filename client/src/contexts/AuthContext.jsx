@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { createContext, useContext, useEffect, useReducer, useCallback, useMemo } from "react";
 import { authService } from "../api/services/authService";
 import { getToken, setToken, removeToken, getPendingEmail, setPendingEmail, removePendingEmail } from "../utils/tokenUtils";
 
@@ -99,21 +99,16 @@ export function AuthProvider({ children }) {
 
   // --- Event Listeners ---
   useEffect(() => {
-    // Listen for token refresh from apiClient
     const handleTokenRefreshed = () => {
-      // Optional: We could refetch user here, but usually just keeping the session alive is enough.
-      // The apiClient has already updated localStorage.
-      // If we want to be super safe:
-      // authService.getProfile().then(({data}) => dispatch({ type: 'UPDATE_USER', payload: data }));
+      // Optional: Logic for re-fetching user if needed
     };
 
     window.addEventListener("token-refreshed", handleTokenRefreshed);
     return () => window.removeEventListener("token-refreshed", handleTokenRefreshed);
   }, []);
 
-  // --- Actions ---
-
-  const register = async (companyName, name, email, password) => {
+  // --- Actions (Memoized) ---
+  const register = useCallback(async (companyName, name, email, password) => {
     try {
       const { data } = await authService.registerSuperAdmin({ companyName, name, email, password });
 
@@ -130,16 +125,16 @@ export function AuthProvider({ children }) {
       }
       return { success: false, error: backendMessage || "Registration failed" };
     }
-  };
+  }, []);
 
-  const verifyOtp = async (email, otp) => {
+  const verifyOtp = useCallback(async (email, otp) => {
     try {
       const { data } = await authService.verifyEmail({ email, otp });
 
       if (data.accessToken) {
         setToken(data.accessToken);
         removePendingEmail();
-        dispatch({ // We assume verify returns user object too, otherwise we might need to fetch it
+        dispatch({
           type: "LOGIN_SUCCESS",
           payload: { user: data.user }
         });
@@ -149,18 +144,18 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "OTP verification failed" };
     }
-  };
+  }, []);
 
-  const resendOtp = async (email) => {
+  const resendOtp = useCallback(async (email) => {
     try {
       const { data } = await authService.resendVerification({ email });
       return { success: true, message: data.message || "OTP sent!" };
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "Failed to resend OTP" };
     }
-  };
+  }, []);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     try {
       const { data } = await authService.login({ email, password });
 
@@ -173,9 +168,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "Login failed" };
     }
-  };
+  }, []);
 
-  const loginWithGoogle = async (idToken) => {
+  const loginWithGoogle = useCallback(async (idToken) => {
     try {
       const { data } = await authService.signInWithGoogle(idToken);
       if (data.accessToken) {
@@ -187,12 +182,11 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "Google login failed" };
     }
-  };
+  }, []);
 
-  const linkGoogleAccount = async (idToken) => {
+  const linkGoogleAccount = useCallback(async (idToken) => {
     try {
       const { data } = await authService.linkGoogleAccount(idToken);
-      // Optimistically update user
       dispatch({
         type: "UPDATE_USER",
         payload: {
@@ -205,9 +199,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "Failed to link" };
     }
-  };
+  }, []);
 
-  const unlinkGoogleAccount = async () => {
+  const unlinkGoogleAccount = useCallback(async () => {
     try {
       const { data } = await authService.unlinkGoogleAccount();
       dispatch({
@@ -221,10 +215,9 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.response?.data?.message || "Failed to unlink" };
     }
-  };
+  }, []);
 
-  // Called to manually refresh user data
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const { data } = await authService.getProfile();
       dispatch({ type: "UPDATE_USER", payload: data });
@@ -232,48 +225,58 @@ export function AuthProvider({ children }) {
     } catch (err) {
       return { success: false, error: err.message };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     authService.logout().finally(() => {
       removeToken();
       dispatch({ type: "LOGOUT" });
       window.location.href = "/login";
     });
-  };
+  }, []);
 
-  const setTokenFromCallback = (token) => {
+  const setTokenFromCallback = useCallback((token) => {
     setToken(token);
-    // Trigger profile fetch to sync state
     authService.getProfile()
       .then(({ data }) => dispatch({ type: "LOGIN_SUCCESS", payload: { user: data } }))
       .catch(() => {
         removeToken();
         dispatch({ type: "INIT_FAILURE" });
       });
-  };
+  }, []);
 
-  const getGoogleStatus = authService.getGoogleStatus;
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    ...state,
+    register,
+    verifyOtp,
+    resendOtp,
+    login,
+    loginWithGoogle,
+    linkGoogleAccount,
+    unlinkGoogleAccount,
+    refreshUser,
+    logout,
+    setTokenFromCallback,
+    getGoogleStatus: authService.getGoogleStatus,
+    isAuthenticated: state.status === "authenticated",
+    userRole: state.user?.role,
+  }), [
+    state,
+    register,
+    verifyOtp,
+    resendOtp,
+    login,
+    loginWithGoogle,
+    linkGoogleAccount,
+    unlinkGoogleAccount,
+    refreshUser,
+    logout,
+    setTokenFromCallback
+  ]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        register,
-        verifyOtp,
-        resendOtp,
-        login,
-        loginWithGoogle,
-        linkGoogleAccount,
-        unlinkGoogleAccount,
-        refreshUser,
-        logout,
-        setTokenFromCallback,
-        getGoogleStatus,
-        isAuthenticated: state.status === "authenticated",
-        userRole: state.user?.role,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

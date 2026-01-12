@@ -85,7 +85,7 @@ const Hero = () => {
           <div className="absolute -inset-1 bg-linear-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-20 dark:opacity-40 animate-pulse"></div>
 
           <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-slate-700 aspect-[16/9] flex items-center justify-center bg-gray-50 dark:bg-slate-900 group">
-            <img src="images/home/DashboardPreview.png" alt="Dashboard Preview" />
+            <img src="images/home/DashboardPreview.webp" alt="Dashboard Preview" />
           </div>
         </motion.div>
       </div>

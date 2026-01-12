@@ -191,6 +191,9 @@ export const getBranchShifts = async (req, res) => {
       status,
     } = req.query;
 
+    console.log(`[getBranchShifts] Request params:`, { startISO, endISO, page, limit, employee_id, status });
+    console.log(`[getBranchShifts] Admin context:`, { adminId, tenantOwnerId, userRole });
+
     // Build query based on user role
     let query = {
       super_admin_id: tenantOwnerId,
@@ -201,15 +204,17 @@ export const getBranchShifts = async (req, res) => {
         branch_admin_id: adminId,
         role: "employee",
         super_admin_id: tenantOwnerId,
-        is_active: true, // Only active employees
+        is_active: { $ne: false }, // Only active employees (lenient check)
       });
       const employeeIds = employees.map((emp) => emp._id);
+      console.log(`[getBranchShifts] Found ${employeeIds.length} employees for admin ${adminId}`);
 
       query.employee_id = { $in: employeeIds };
     }
 
     // Add employee filter if specified
     if (employee_id) {
+      console.log(`[getBranchShifts] Filtering for employee: ${employee_id}`);
       if (userRole === "admin") {
         // Verify employee belongs to this admin
         const employee = await User.findOne({
@@ -218,6 +223,7 @@ export const getBranchShifts = async (req, res) => {
           super_admin_id: tenantOwnerId,
         });
         if (!employee) {
+          console.warn(`[getBranchShifts] Employee ${employee_id} not found in admin's branch`);
           return res.status(403).json({
             success: false,
             message: "Employee not found in your branch",
@@ -240,13 +246,17 @@ export const getBranchShifts = async (req, res) => {
 
         query.start_date_time = { $lt: end };
         query.end_date_time = { $gt: start };
+        console.log(`[getBranchShifts] Date filter added:`, query.start_date_time, query.end_date_time);
       } catch (error) {
+        console.error(`[getBranchShifts] Date validation error:`, error.message);
         return res.status(400).json({
           success: false,
           message: error.message,
         });
       }
     }
+
+    console.log(`[getBranchShifts] Final query:`, JSON.stringify(query));
 
     const shifts = await Shift.find(query)
       .populate("employee_id", "name email position")
@@ -563,10 +573,10 @@ export const deleteShift = async (req, res) => {
 
     // ✅✅✅ NEW CHECK: Prevent deleting active shifts
     if (shift.status === 'in_progress') {
-        return res.status(400).json({ 
-            success: false,
-            message: "⚠️ Cannot delete this shift! The employee is currently Clocked In." 
-        });
+      return res.status(400).json({
+        success: false,
+        message: "⚠️ Cannot delete this shift! The employee is currently Clocked In."
+      });
     }
 
     await shift.deleteOne();

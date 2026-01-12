@@ -19,7 +19,7 @@ const HomeNav = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <img
-            src={theme === "light" ? "/icons/lightLogo.png" : "/icons/darkLogo.png"}
+            src={theme === "light" ? "/icons/lightLogo.webp" : "/icons/darkLogo.webp"}
             alt={t("nav.logoAlt")}
             className="lg:w-32 w-24 object-contain transition-transform duration-300 group-hover:scale-105"
           />

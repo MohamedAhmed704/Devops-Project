@@ -136,7 +136,14 @@ export const getBranchEmployees = async (req, res) => {
 
     // Add filters
     if (is_active !== undefined) {
-      query.is_active = is_active === "true";
+      if (is_active === "true") {
+        query.is_active = { $ne: false }; // Lenient check even if true is requested
+      } else {
+        query.is_active = is_active === "true";
+      }
+    } else {
+      // Default behavior for listing employees: include those where is_active is not explicitly false
+      query.is_active = { $ne: false };
     }
 
     if (position) {

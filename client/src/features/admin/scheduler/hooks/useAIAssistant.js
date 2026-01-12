@@ -1,47 +1,54 @@
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import adminService from "../../../../api/services/adminService.js";
 import { Alert } from "../../../../utils/alertService.js";
 import { useTranslation } from "react-i18next";
 
-export function useAIAssistant(fetchData) {
+export function useAIAssistant() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [command, setCommand] = useState("");
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [showAIModal, setShowAIModal] = useState(false);
+
+  // loading state is now derived from mutations, but we have two distinct async actions:
+  // 1. generate (fetch logic, but essentially a mutation of local state)
+  // 2. confirm (actual mutation)
+  // We'll keep a local loading for `generate` since it's "reading" from AI which is a POST
+
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const generate = async (e) => {
     if (e) e.preventDefault();
     if (!command.trim()) return;
 
     try {
-      setLoading(true);
+      setIsGenerating(true);
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const res = await adminService.shifts.generateFromAI(command, tz);
       setPreview(res.data.data);
     } catch (err) {
       Alert.error(t("schedule.ai.failedToUnderstand"));
     } finally {
-      setLoading(false);
+      setIsGenerating(false);
     }
   };
 
-  const confirm = async () => {
-    if (!preview || preview.length === 0) return;
-
-    try {
-      setLoading(true);
-      await adminService.shifts.createBulkShifts({ shifts: preview });
-      Alert.success(t("schedule.ai.shiftsCreated", { count: preview.length }));
+  const confirmMutation = useMutation({
+    mutationFn: (shifts) => adminService.shifts.createBulkShifts({ shifts }),
+    onSuccess: (data, variables) => { // variables is the `shifts` array
+      Alert.success(t("schedule.ai.shiftsCreated", { count: variables.length }));
       setShowAIModal(false);
       setPreview(null);
       setCommand("");
-      if (fetchData) fetchData();
-    } catch (err) {
-      Alert.error(t("schedule.ai.failedToSave"));
-    } finally {
-      setLoading(false);
-    }
+      queryClient.invalidateQueries({ queryKey: ['admin-schedule'] });
+    },
+    onError: () => Alert.error(t("schedule.ai.failedToSave")),
+  });
+
+  const confirm = () => {
+    if (!preview || preview.length === 0) return;
+    confirmMutation.mutate(preview);
   };
 
   const reset = () => {
@@ -54,7 +61,7 @@ export function useAIAssistant(fetchData) {
     setCommand,
     preview,
     setPreview,
-    loading,
+    loading: isGenerating || confirmMutation.isPending,
     generate,
     confirm,
     reset,

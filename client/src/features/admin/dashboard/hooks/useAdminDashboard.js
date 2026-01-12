@@ -1,39 +1,29 @@
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useQuery } from '@tanstack/react-query';
 import adminService from "../../../../api/services/adminService.js";
+import { useMemo } from 'react';
 
 export function useAdminDashboard() {
-  const [dashboard, setDashboard] = useState(null);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchDashboard = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
+  const {
+    data,
+    isLoading: loading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['admin-dashboard'],
+    queryFn: async () => {
       const [dashboardRes, statsRes] = await Promise.all([
         adminService.dashboard.getDashboard(),
         adminService.dashboard.getDashboardStats(),
       ]);
+      return {
+        dashboard: dashboardRes.data.data,
+        stats: statsRes.data.data
+      };
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
-      setDashboard(dashboardRes.data.data);
-      setStats(statsRes.data.data);
-    } catch (err) {
-      setError({
-        message:
-          err?.response?.data?.message ||
-          "Failed to load dashboard data",
-        status: err?.response?.status,
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchDashboard();
-  }, [fetchDashboard]);
+  const { dashboard, stats } = data || {};
 
   const mergedBranch = useMemo(() => {
     if (!dashboard?.branch || !stats?.branch) return null;
@@ -45,8 +35,8 @@ export function useAdminDashboard() {
 
   return {
     loading,
-    error,
-    refetch: fetchDashboard,
+    error: error ? { message: error.message || "Failed to load dashboard data" } : null,
+    refetch,
 
     // normalized data
     branch: mergedBranch,

@@ -1,25 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { superAdminService } from '../../../../api/services/superAdminService';
 
 export const useSuperAdminDashboard = () => {
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    const fetchStats = async () => {
-        try {
-            setLoading(true);
+    const {
+        data: stats,
+        isLoading: loading,
+        refetch: fetchStats
+    } = useQuery({
+        queryKey: ['super-admin-dashboard'],
+        queryFn: async () => {
             const res = await superAdminService.getDashboardStats();
-            setStats(res.data.data);
-        } catch (err) {
-            console.error("Error fetching stats:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchStats();
-    }, []);
+            return res.data.data;
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const healthPercentage = stats?.overview?.total_branches > 0
         ? Math.round((stats.overview.active_branches / stats.overview.total_branches) * 100)

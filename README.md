@@ -1,6 +1,5 @@
 # Tadbir - AI-Powered Workforce Management System
 
-![Project Banner](client/public/images/home/computer.jpg) 
 > **Tadbir** is a comprehensive SaaS solution designed to streamline workforce management. It combines intelligent scheduling, automated time tracking, and AI-driven insights to boost productivity and reduce administrative overhead.
 
 ---

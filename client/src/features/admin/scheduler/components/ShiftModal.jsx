@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { AlertCircle, X, Lock,Square ,Clock,MapPin,FileText,CheckSquare,Info,Trash2,Save} from "lucide-react";
+import { Plus, AlertCircle, X, Lock, Square, Clock, MapPin, FileText, CheckSquare, Info, Trash2, Save } from "lucide-react";
 const ShiftModal = ({
   formData,
   setFormData,
@@ -11,11 +11,13 @@ const ShiftModal = ({
   handleDelete,
   toggleSelectAll,
   toggleEmployee,
-  employees
+  employees,
+  loading = false
 }) => {
   const { t } = useTranslation();
 
   if (!isModalOpen) return null;
+  console.log(employees);
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -226,11 +228,23 @@ const ShiftModal = ({
             </button>
 
             {!isReadOnly && (
-              <button type="submit" className="flex-1 py-2.5 bg-[#112D4E] dark:bg-[#1e3a5f] text-white rounded-xl hover:bg-[#274b74] dark:hover:bg-[#2d5080] font-medium transition shadow-md flex items-center justify-center gap-2">
-                {selectedShiftId ? (
-                  <><Save size={18} /> {t("schedule.modal.updateShift")}</>
+              <button
+                type="submit"
+                disabled={loading}
+                className={`flex-1 py-2.5 bg-[#112D4E] dark:bg-[#1e3a5f] text-white rounded-xl font-medium transition shadow-md flex items-center justify-center gap-2
+                  ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#274b74] dark:hover:bg-[#2d5080]'}`}
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {selectedShiftId ? "updating" : "creating"}
+                  </>
                 ) : (
-                  t("schedule.modal.createShift")
+                  selectedShiftId ? (
+                    <><Save size={18} /> updating</>
+                  ) : (
+                    <><Plus size={18} /> creating</>
+                  )
                 )}
               </button>
             )}

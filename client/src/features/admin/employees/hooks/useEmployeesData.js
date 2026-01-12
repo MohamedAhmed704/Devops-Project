@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import adminService from "../../../../api/services/adminService";
 import { Alert } from "../../../../utils/alertService";
 import Swal from "sweetalert2";
@@ -6,16 +7,14 @@ import { useTranslation } from "react-i18next";
 
 export const useEmployeesData = () => {
     const { t } = useTranslation();
+    const queryClient = useQueryClient();
 
     // State
-    const [employees, setEmployees] = useState([]);
     const [filteredEmployees, setFilteredEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterPosition, setFilterPosition] = useState("all");
     const [filterStatus, setFilterStatus] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const [positions, setPositions] = useState([]);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
 
@@ -29,12 +28,16 @@ export const useEmployeesData = () => {
     const actionsMenuRef = useRef({});
     const [searchTimeout, setSearchTimeout] = useState(null);
 
-    // Fetch employees
-    const fetchEmployees = useCallback(async (page = 1) => {
-        try {
-            setLoading(true);
+    // --- React Query: Fetch Employees ---
+    const {
+        data: fetchedData,
+        isLoading: loading,
+        refetch
+    } = useQuery({
+        queryKey: ['employees', currentPage],
+        queryFn: async () => {
             const params = {
-                page,
+                page: currentPage,
                 limit: 10
             };
             const response = await adminService.employees.getEmployees(params);
@@ -45,24 +48,29 @@ export const useEmployeesData = () => {
                 isActive: emp.isActive !== undefined ? emp.isActive : (emp.is_active !== undefined ? emp.is_active : true)
             }));
 
-            setEmployees(normalizedData);
-            setFilteredEmployees(normalizedData);
-            setTotalPages(response.data.pagination?.total_pages || 1);
-            setCurrentPage(response.data.pagination?.page || 1);
+            return {
+                employees: normalizedData,
+                totalPages: response.data.pagination?.total_pages || 1,
+                page: response.data.pagination?.page || 1
+            };
+        },
+        keepPreviousData: true,
+        staleTime: 5 * 60 * 1000,
+    });
 
-            const uniquePositions = [...new Set(normalizedData.map(emp => emp.position))];
-            setPositions(uniquePositions);
+    const employees = fetchedData?.employees || [];
+    const totalPages = fetchedData?.totalPages || 1;
 
-        } catch (error) {
-            Alert.error(t("admin.employees.errors.fetchFailed"));
-        } finally {
-            setLoading(false);
-        }
-    }, [t]);
-
+    // Update positions & filteredEmployees when data changes
     useEffect(() => {
-        fetchEmployees();
-    }, [fetchEmployees]);
+        if (employees.length > 0) {
+            const uniquePositions = [...new Set(employees.map(emp => emp.position))];
+            setPositions(uniquePositions);
+            applyFilters();
+        } else {
+            setFilteredEmployees([]);
+        }
+    }, [employees, searchTerm, filterPosition, filterStatus]); // Re-run when filters or data change
 
     // Filtering
     const applyFilters = useCallback(() => {
@@ -107,9 +115,6 @@ export const useEmployeesData = () => {
         setFilteredEmployees(filtered);
     }, [employees, searchTerm, filterPosition, filterStatus]);
 
-    useEffect(() => {
-        applyFilters();
-    }, [applyFilters]);
 
     // Click outside handler for menu
     useEffect(() => {
@@ -141,46 +146,69 @@ export const useEmployeesData = () => {
 
         setSearchTimeout(
             setTimeout(() => {
-                applyFilters();
+                // Triggering state update will automatically re-run effect
             }, 300)
         );
-    }, [searchTimeout, applyFilters]);
+    }, [searchTimeout]);
 
-    const handleCreateEmployee = useCallback(async (employeeData) => {
-        try {
-            setLoading(true);
-            await adminService.employees.createEmployee(employeeData);
+    // Mutations
+    const createMutation = useMutation({
+        mutationFn: (data) => adminService.employees.createEmployee(data),
+        onSuccess: () => {
             Alert.success(t("admin.employees.success.created"));
             setShowCreateModal(false);
-            fetchEmployees();
-        } catch (error) {
+            queryClient.invalidateQueries(['employees']);
+        },
+        onError: (error) => {
             const errorMsg = error.response?.data?.message || t("admin.employees.errors.createFailed");
             Alert.error(errorMsg);
-            console.error("Create error:", error);
-        } finally {
-            setLoading(false);
         }
-    }, [fetchEmployees, t]);
+    });
 
-    const handleUpdateEmployee = useCallback(async (employeeId, data) => {
-        try {
-            setLoading(true);
-            await adminService.employees.updateEmployee(employeeId, data);
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }) => adminService.employees.updateEmployee(id, data),
+        onSuccess: () => {
             Alert.success(t("admin.employees.success.updated"));
             setShowCreateModal(false);
             setIsEditMode(false);
             setSelectedEmployee(null);
-            fetchEmployees(currentPage);
-        } catch (error) {
+            queryClient.invalidateQueries(['employees']);
+        },
+        onError: (error) => {
             const errorMsg = error.response?.data?.message || t("admin.employees.errors.updateFailed");
             Alert.error(errorMsg);
-            console.error("Update error:", error);
-        } finally {
-            setLoading(false);
         }
-    }, [fetchEmployees, currentPage, t]);
+    });
 
-    const handleToggleStatus = useCallback(async (employeeId, currentStatus, employeeName) => {
+    const deleteMutation = useMutation({
+        mutationFn: (id) => adminService.employees.deleteEmployee(id),
+        onSuccess: () => {
+            Alert.success("Deleted Successfully");
+            queryClient.invalidateQueries(['employees']);
+        },
+        onError: (error) => Alert.error(error.response?.data?.message || "Delete Failed")
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ id, newStatus }) => adminService.employees.toggleEmployeeStatus(id, { is_active: newStatus }),
+        onSuccess: (_, { id, newStatus, employeeName }) => {
+            Alert.success(` ${employeeName} ${newStatus ? "Activated" : "Deactivated"} Successfully`);
+            queryClient.invalidateQueries(['employees']);
+            setShowActionsMenu(null);
+        },
+        onError: (error) => Alert.error(error.response?.data?.message || "Change Status Failed")
+    });
+
+
+    const handleCreateEmployee = async (employeeData) => {
+        createMutation.mutate(employeeData);
+    };
+
+    const handleUpdateEmployee = async (employeeId, data) => {
+        updateMutation.mutate({ id: employeeId, data });
+    };
+
+    const handleToggleStatus = async (employeeId, currentStatus, employeeName) => {
         const newStatus = !currentStatus;
 
         const result = await Swal.fire({
@@ -198,58 +226,17 @@ export const useEmployeesData = () => {
         });
 
         if (result.isConfirmed) {
-            try {
-                setLoading(true);
-                await adminService.employees.toggleEmployeeStatus(employeeId, { is_active: newStatus });
-
-                setEmployees(prev => prev.map(emp =>
-                    emp._id === employeeId
-                        ? {
-                            ...emp,
-                            isActive: newStatus,
-                            is_active: newStatus,
-                            stats: {
-                                ...emp.stats,
-                                today_status: newStatus ? (emp.stats?.today_status || "absent") : "absent"
-                            }
-                        }
-                        : emp
-                ));
-
-                // applyFilters(); // Dependencies causes loop if strictly followed, but setEmployees triggers effect. 
-                // Wait, applyFilters depends on employees. setEmployees updates employees. applyFilters effect runs. 
-                // So calling applyFilters here is redundant/safe? 
-                // Actually applyFilters uses [employees] dependency. So it will auto-run when employees change.
-                Alert.success(` ${employeeName} ${newStatus ? "Activated" : "Deactivated"} Successfully`);
-
-                setShowActionsMenu(null);
-            } catch (error) {
-                Alert.error(error.response?.data?.message || "  Change Status Failed");
-                console.error("Toggle status error:", error);
-            } finally {
-                setLoading(false);
-            }
+            statusMutation.mutate({ id: employeeId, newStatus, employeeName });
         }
-    }, [t]);
+    };
 
-    const handleDeleteEmployee = useCallback(async (employeeId, employeeName) => {
+    const handleDeleteEmployee = async (employeeId, employeeName) => {
         const result = await Alert.confirm(`Are you sure you want to delete ${employeeName} ?`);
-
         if (result.isConfirmed) {
-            try {
-                setLoading(true);
-                await adminService.employees.deleteEmployee(employeeId);
-                setEmployees(prev => prev.filter(emp => emp._id !== employeeId));
-                Alert.success(`${employeeName} Deleted Successfully`);
-                // applyFilters(); // handled by effect
-            } catch (error) {
-                Alert.error(error.response?.data?.message || "Delete Failed");
-            } finally {
-                setLoading(false);
-            }
+            deleteMutation.mutate(employeeId);
         }
         setShowActionsMenu(null);
-    }, []);
+    };
 
     const handleEdit = useCallback((employee) => {
         setSelectedEmployee(employee);
@@ -273,20 +260,20 @@ export const useEmployeesData = () => {
     const handlePageChange = useCallback((page) => {
         if (page > 0 && page <= totalPages) {
             setCurrentPage(page);
-            fetchEmployees(page);
         }
-    }, [totalPages, fetchEmployees]);
+    }, [totalPages]);
 
     const resetFilters = useCallback(() => {
         setSearchTerm("");
         setFilterPosition("all");
         setFilterStatus("all");
-        fetchEmployees(1);
-    }, [fetchEmployees]);
+        setCurrentPage(1);
+    }, []);
+
     return {
         employees,
         filteredEmployees,
-        loading,
+        loading: loading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending || statusMutation.isPending,
         searchTerm,
         filterPosition,
         filterStatus,
@@ -318,7 +305,7 @@ export const useEmployeesData = () => {
         handleViewDetails,
         handleViewAttendance,
         handlePageChange,
-        refetch: fetchEmployees,
+        refetch,
         resetFilters
     };
 };
