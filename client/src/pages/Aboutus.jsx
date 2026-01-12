@@ -99,7 +99,7 @@ const About = () => {
             >
               <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-3xl blur-xl opacity-20 transform rotate-3"></div>
               <div className="relative aspect-square rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-slate-700">
-                <img src="/images/about/team.jpeg" alt="Team" className="w-full h-full object-cover" />
+                <img src="/images/about/team.webp" alt="Team" className="w-full h-full object-cover" />
               </div>
             </motion.div>
           </div>

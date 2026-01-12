@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import DashboardSkeleton from "../../utils/DashboardSkeleton.jsx";
 import "../../styles/fullcalendar.css";
 import ScheduleHeader from "../../features/admin/scheduler/components/ScheduleHeader.jsx";
@@ -12,13 +12,26 @@ import { useSpeechRecognition } from "../../features/admin/scheduler/hooks/useSp
 
 export default function Schedule() {
   const [micLang, setMicLang] = useState('ar-EG');
-  const { events, employees, loading, refetch } = useScheduleData();
-  const shiftForm = useShiftForm(refetch, employees);
-  const aiAssistant = useAIAssistant(refetch);
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
+
+  const { events, employees, loading, refetch } = useScheduleData(dateRange.start, dateRange.end);
+  const shiftForm = useShiftForm(employees);
+  const aiAssistant = useAIAssistant();
 
   const { isListening, toggleListening } = useSpeechRecognition((text) => {
     aiAssistant.setCommand(prev => prev + (prev ? " " : "") + text);
   });
+
+  const handleDatesSet = useCallback((arg) => {
+    // FullCalendar passes start/end as Date objects
+    const newStart = arg.start.toISOString();
+    const newEnd = arg.end.toISOString();
+
+    setDateRange((prev) => {
+      if (prev.start === newStart && prev.end === newEnd) return prev;
+      return { start: newStart, end: newEnd };
+    });
+  }, []);
 
   if (loading && events.length === 0 && employees.length === 0) return <DashboardSkeleton />
 
@@ -53,6 +66,7 @@ export default function Schedule() {
       <ScheduleCalendar
         events={events}
         handleEventClick={shiftForm.handleEventClick}
+        onDatesSet={handleDatesSet}
       />
 
       {/* Add/Edit Shift Modal */}

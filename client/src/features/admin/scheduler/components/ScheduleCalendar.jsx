@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
-const ScheduleCalendar = ({ events, handleEventClick }) => {
+const ScheduleCalendar = ({ events, handleEventClick, onDatesSet }) => {
   return (
     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
       <FullCalendar
@@ -21,6 +21,7 @@ const ScheduleCalendar = ({ events, handleEventClick }) => {
         slotMaxTime="24:00:00"
         allDaySlot={false}
         eventClick={handleEventClick}
+        datesSet={onDatesSet}
         slotLabelFormat={{
           hour: '2-digit',
           minute: '2-digit',

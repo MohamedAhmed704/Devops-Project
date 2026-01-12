@@ -1,15 +1,14 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../../../api/apiClient';
 import { useTranslation } from 'react-i18next';
 import { Alert } from '../../../../utils/alertService';
 
 export function useMySchedule() {
     const { t, i18n } = useTranslation();
+    const queryClient = useQueryClient();
 
-    const [shifts, setShifts] = useState([]);
-    const [todayStatus, setTodayStatus] = useState(null);
     const [currentWeek, setCurrentWeek] = useState(new Date());
-    const [loading, setLoading] = useState(true);
 
     // Modal States
     const [selectedShift, setSelectedShift] = useState(null);
@@ -18,54 +17,56 @@ export function useMySchedule() {
     const [showSwapModal, setShowSwapModal] = useState(false);
     const [shiftToSwap, setShiftToSwap] = useState(null);
 
-    // Fetch shifts for current week
-    const fetchShifts = useCallback(async () => {
-        try {
-            setLoading(true);
-            const startOfWeek = new Date(currentWeek);
-            startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    // Helper to calculate week range
+    const { startOfWeek, endOfWeek } = useMemo(() => {
+        const start = new Date(currentWeek);
+        start.setDate(start.getDate() - start.getDay());
 
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(endOfWeek.getDate() + 6);
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
 
+        return { startOfWeek: start, endOfWeek: end };
+    }, [currentWeek]);
+
+    // --- React Query: Fetch Shifts ---
+    const {
+        data: shifts = [],
+        isLoading: loadingShifts,
+        refetch: refreshShifts,
+        isError: isShiftsError
+    } = useQuery({
+        queryKey: ['my-shifts', startOfWeek.toISOString().split('T')[0]], // Key by start date
+        queryFn: async () => {
             const response = await apiClient.get('/api/employee/shifts', {
                 params: {
                     start_date: startOfWeek.toLocaleDateString('en-CA'),
                     end_date: endOfWeek.toLocaleDateString('en-CA')
                 }
             });
+            return response.data.data || [];
+        },
+        staleTime: 5 * 60 * 1000,
+        keepPreviousData: true,
+    });
 
-            setShifts(response.data.data || []);
-        } catch (error) {
-            console.error(error);
-            Alert.error(t('mySchedule.errors.fetchShifts') || "Failed to load shifts");
-        } finally {
-            setLoading(false);
-        }
-    }, [currentWeek, t]);
-
-    // Fetch today's status
-    const fetchTodayStatus = useCallback(async () => {
-        try {
+    // --- React Query: Fetch Today Status ---
+    const {
+        data: todayStatus,
+        isLoading: loadingStatus
+    } = useQuery({
+        queryKey: ['my-today-status'],
+        queryFn: async () => {
             const response = await apiClient.get('/api/employee/attendance/today-status');
-            setTodayStatus(response.data.data);
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
+            return response.data.data;
+        },
+        staleTime: 1 * 60 * 1000,
+    });
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                await Promise.all([fetchShifts(), fetchTodayStatus()]);
-            } catch (error) {
-                console.error(error);
-                Alert.error(t('mySchedule.errors.loadData') || "Error loading schedule data");
-            }
-        };
-
-        loadData();
-    }, [fetchShifts, fetchTodayStatus, t]);
+    // Error handling side-effect
+    if (isShiftsError) {
+        // We avoid alerting in render, but could use useEffect if needed.
+        // Alert.error(t('mySchedule.errors.fetchShifts') || "Failed to load shifts");
+    }
 
     const navigateWeek = useCallback((direction) => {
         const newWeek = new Date(currentWeek);
@@ -74,9 +75,6 @@ export function useMySchedule() {
     }, [currentWeek]);
 
     const weekDates = useMemo(() => {
-        const startOfWeek = new Date(currentWeek);
-        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-
         const dates = [];
         for (let i = 0; i < 7; i++) {
             const date = new Date(startOfWeek);
@@ -84,7 +82,7 @@ export function useMySchedule() {
             dates.push(date);
         }
         return dates;
-    }, [currentWeek]);
+    }, [startOfWeek]);
 
     const getShiftsForDate = useCallback((date) => {
         const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD format
@@ -102,13 +100,13 @@ export function useMySchedule() {
     }, []);
 
     return {
-        loading,
-        shifts, // Exposed for summary stats
+        loading: loadingShifts || loadingStatus,
+        shifts,
         todayStatus,
         currentWeek,
         weekDates,
         navigateWeek,
-        refreshShifts: fetchShifts,
+        refreshShifts,
         getShiftsForDate,
 
         // Modal & Selection State

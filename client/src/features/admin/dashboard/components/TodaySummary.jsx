@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import React from "react";
-const TodaySummary = ({ today, dashboardBranch}) => {
+const TodaySummary = ({ today, dashboardBranch }) => {
     const { t } = useTranslation();
 
     return (
@@ -14,11 +14,6 @@ const TodaySummary = ({ today, dashboardBranch}) => {
                     label={t("dashboard.todaysSummary.attendance")}
                     value={today?.attendance || 0}
                     color="blue"
-                />
-                <SummaryItem
-                    label={t("dashboard.todaysSummary.pendingShifts")}
-                    value={today?.pending_shifts || 0}
-                    color="orange"
                 />
                 <SummaryItem
                     label={t("dashboard.todaysSummary.activeEmployees")}

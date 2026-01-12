@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import adminService from "../../../../api/services/adminService";
 import { Alert } from "../../../../utils/alertService";
 import { useTranslation } from "react-i18next";
-import * as XLSX from "xlsx";
+
 import { Timer, Coffee } from "lucide-react";
 
 export const useTimeTrackingData = () => {
@@ -99,10 +99,11 @@ export const useTimeTrackingData = () => {
         };
     };
 
-    const handleExport = () => {
+    const handleExport = async () => {
         if (filteredRecords.length === 0)
             return Alert.error(t("timeTracking.noDataToExport"));
         try {
+            const XLSX = await import("xlsx");
             const data = filteredRecords.map((r) => ({
                 [t("timeTracking.exportColumns.name")]: r.user_id?.name,
                 [t("timeTracking.exportColumns.date")]: new Date(
@@ -123,6 +124,7 @@ export const useTimeTrackingData = () => {
             );
             Alert.success(t("timeTracking.exportSuccess"));
         } catch (e) {
+            console.error(e);
             Alert.error(t("timeTracking.exportFailed"));
         }
     };

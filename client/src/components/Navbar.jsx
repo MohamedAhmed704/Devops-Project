@@ -112,13 +112,13 @@ export default function Navbar({ role }) {
           </button>
           {theme === "light" ? (
             <img
-              src="/icons/lightLogo.png"
+              src="/icons/lightLogo.webp"
               alt={t('nav.logoAlt')}
               className="lg:w-32 w-28 object-contain"
             />
           ) : (
             <img
-              src="/icons/darkLogo.png"
+              src="/icons/darkLogo.webp"
               alt={t('nav.logoAlt')}
               className="lg:w-32 w-28 object-contain"
             />
