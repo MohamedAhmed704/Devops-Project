@@ -4,8 +4,7 @@ import routesConfig from "./routesConfig";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
 import Navbar from "../components/Navbar.jsx";
-import PageLoader from "../components/PageLoader.jsx";
-
+import Loader from "../components/Loader.jsx";
 // Lazy load auth pages too for better initial load
 const Home = lazy(() => import("../pages/Home"));
 const Login = lazy(() => import("../pages/auth/login"));
@@ -35,7 +34,7 @@ function AppRoutes() {
   const roleRoutes = routesConfig[userRole] || [];
 
   return (
-    <Suspense fallback={<PageLoader />}>
+    <Suspense fallback={<Loader />}>
       <Routes>
 
         {/* Public Routes */}
