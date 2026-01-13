@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useCallback, useMemo } from "react";
 import { authService } from "../api/services/authService";
 import { getToken, setToken, removeToken, getPendingEmail, setPendingEmail, removePendingEmail } from "../utils/tokenUtils";
-
+import { useNavigate } from 'react-router-dom';
 const AuthContext = createContext();
 
 const initialState = {
@@ -64,6 +64,7 @@ function authReducer(state, action) {
 
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const navigate = useNavigate();
 
   // --- Initialization ---
   useEffect(() => {
@@ -97,15 +98,7 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
-  // --- Event Listeners ---
-  useEffect(() => {
-    const handleTokenRefreshed = () => {
-      // Optional: Logic for re-fetching user if needed
-    };
 
-    window.addEventListener("token-refreshed", handleTokenRefreshed);
-    return () => window.removeEventListener("token-refreshed", handleTokenRefreshed);
-  }, []);
 
   // --- Actions (Memoized) ---
   const register = useCallback(async (companyName, name, email, password) => {
@@ -231,7 +224,7 @@ export function AuthProvider({ children }) {
     authService.logout().finally(() => {
       removeToken();
       dispatch({ type: "LOGOUT" });
-      window.location.href = "/login";
+      navigate("/login");
     });
   }, []);
 

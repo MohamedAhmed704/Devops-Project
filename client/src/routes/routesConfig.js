@@ -50,7 +50,6 @@ const E_Dashboard = lazy(() => import("../pages/employee/Dashboard"));
 const E_Schedule = lazy(() => import("../pages/employee/MySchedule"));
 const E_TimeTracking = lazy(() => import("../pages/employee/TimeTracking"));
 const E_TimeOff = lazy(() => import("../pages/employee/TimeOffRequests"));
-const E_Reports = lazy(() => import("../pages/employee/MyReports"));
 const E_SwapRequests = lazy(() => import("../pages/employee/SwapRequests"));
 const E_Payslip = lazy(() => import("../pages/employee/Payslip"));
 
