@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 import routesConfig from "./routesConfig";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicRoute from "./PublicRoute";
@@ -23,11 +23,7 @@ import About from "../pages/Aboutus.jsx";
 import ContactUs from "../pages/Contactus.jsx";
 
 export default function AppRouter() {
-  return (
-    <BrowserRouter>
-      <RoutesWrapper />
-    </BrowserRouter>
-  );
+  return <RoutesWrapper />;
 }
 
 function RoutesWrapper() {
