@@ -1901,5 +1901,41 @@
       "totalHours": "Total Hours",
       "overtime": "Overtime"
     }
+  },
+  "home": {
+    "features": {
+      "tagline": "Features",
+      "headline": "What sets us apart from the rest",
+      "subheadline": "We combine thoughtful design with powerful functionality. Each feature is built to solve your problems.",
+      "integration": {
+        "title": "Seamless integration across platforms",
+        "desc": "Connect everything you use in one unified workspace."
+      },
+      "interface": {
+        "title": "Intuitive interface for every user",
+        "desc": "No learning curve - just immediate productivity and clarity."
+      },
+      "security": {
+        "title": "Security built into every layer",
+        "desc": "Your data is protected with enterprise-grade encryption."
+      }
+    },
+    "social": {
+      "tagline": "Benefits",
+      "headline": "Why businesses choose Tadbir",
+      "subheadline": "We deliver more than software. We deliver peace of mind and measurable results that matter.",
+      "benefit1": {
+        "title": "Save time and reduce complexity",
+        "desc": "Streamline operations and focus on what truly drives growth."
+      },
+      "benefit2": {
+        "title": "Scale with confidence and ease",
+        "desc": "Grow your business without infrastructure headaches."
+      },
+      "benefit3": {
+        "title": "Expert support when you need it most",
+        "desc": "Our team stands ready to help you succeed."
+      }
+    }
   }
 }
