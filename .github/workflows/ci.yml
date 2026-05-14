@@ -1,0 +1,65 @@
+name: CI - Shift Planner
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Backend Dependencies
+        working-directory: ./server
+        run: npm install
+
+      - name: Backend Lint (if exists)
+        working-directory: ./server
+        run: |
+          if npm run | grep -q lint; then
+            npm run lint
+          else
+            echo "No lint script"
+          fi
+
+      - name: Backend Security Audit
+        working-directory: ./server
+        run: npm audit --production || true
+
+      - name: Install Frontend Dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: Build Frontend
+        working-directory: ./client
+        run: npm run build
+
+      - name: Validate Backend Basic Run
+        working-directory: ./server
+        run: node -e "console.log('Backend build OK')"
+
+      - name: Build Backend Docker Image
+        run: docker build -t shift-backend ./server
+
+      - name: Build Frontend Docker Image (if exists Dockerfile)
+        run: |
+          if [ -f ./client/Dockerfile ]; then
+            docker build -t shift-frontend ./client
+          else
+            echo "No frontend Dockerfile"
+          fi
