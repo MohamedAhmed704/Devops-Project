@@ -80,3 +80,5 @@ POSTMAN_TESTING.md
 .augment/rules/byterover-rules.mdserver/.env
 .env
 server/.env
+.env
+server/.env
