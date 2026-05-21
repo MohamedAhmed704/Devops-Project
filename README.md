@@ -67,7 +67,7 @@ Follow these steps to run the project locally.
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/mohameddiab17/shift-planner.git](https://github.com/mohameddiab17/shift-planner.git)
+git clone 
 cd shift-planner
 ```
 ## 2. Backend Setup
