@@ -33,16 +33,16 @@ jobs:
       # =========================
       - name: Build Backend Image
         run: |
-          docker build -t ghcr.io/$OWNER/shift-backend:latest ./server
-          docker push ghcr.io/$OWNER/shift-backend:latest
+          docker build -t ghcr.io/$OWNER/backend-app:latest ./server
+          docker push ghcr.io/$OWNER/backend-app:latest
 
       # =========================
       # Build & Push Frontend
       # =========================
       - name: Build Frontend Image
         run: |
-          docker build -t ghcr.io/$OWNER/shift-frontend:latest ./client
-          docker push ghcr.io/$OWNER/shift-frontend:latest
+          docker build -t ghcr.io/$OWNER/frontend-app:latest ./client
+          docker push ghcr.io/$OWNER/frontend-app:latest
 
       # =========================
       # AWS AUTH (OIDC)
