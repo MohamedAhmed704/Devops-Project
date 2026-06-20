@@ -14,6 +14,13 @@ on:
           - deploy
           - all
 
+# =========================
+#  IMPORTANT FIX (GHCR PERMISSIONS)
+# =========================
+permissions:
+  contents: read
+  packages: write
+
 jobs:
 
 # =========================
@@ -57,9 +64,7 @@ jobs:
             server/package-lock.json
             client/package-lock.json
 
-      # =========================
       # BACKEND
-      # =========================
       - name: Install Backend Dependencies
         working-directory: ./server
         run: npm ci
@@ -68,9 +73,7 @@ jobs:
         working-directory: ./server
         run: npm test || true
 
-      # =========================
       # FRONTEND
-      # =========================
       - name: Install Frontend Dependencies
         working-directory: ./client
         run: npm ci
@@ -98,23 +101,17 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # =========================
-      # LOWERCASE FIX ONLY
-      # =========================
-      - name: Set lowercase owner
-        run: echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      # =========================
       # BUILD & PUSH IMAGES
       # =========================
       - name: Build & Push Backend
         run: |
-          docker build -t ghcr.io/$OWNER/backend:latest ./server
-          docker push ghcr.io/$OWNER/backend:latest
+          docker build -t ghcr.io/${{ github.repository_owner }}/backend:latest ./server
+          docker push ghcr.io/${{ github.repository_owner }}/backend:latest
 
       - name: Build & Push Frontend
         run: |
-          docker build -t ghcr.io/$OWNER/frontend:latest ./client
-          docker push ghcr.io/$OWNER/frontend:latest
+          docker build -t ghcr.io/${{ github.repository_owner }}/frontend:latest ./client
+          docker push ghcr.io/${{ github.repository_owner }}/frontend:latest
 
       # =========================
       # AWS AUTH (OIDC)
