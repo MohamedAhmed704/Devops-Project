@@ -1,4 +1,4 @@
-name: CI-CD Deploy to EKS
+name: Shift Planner DevOps Pipeline
 
 on:
   push:
@@ -11,35 +11,41 @@ jobs:
 
     steps:
       # =========================
-      # 1. Checkout Code
+      # Checkout Code
       # =========================
       - name: Checkout Code
         uses: actions/checkout@v4
 
       # =========================
-      # 2. Login to GHCR
+      # Login to GHCR
       # =========================
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # =========================
-      # 3. Build Backend Image
+      # Convert OWNER to lowercase (IMPORTANT FIX)
       # =========================
-      - name: Build Backend
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/shift-backend:latest ./server
-          docker push ghcr.io/${{ github.repository_owner }}/shift-backend:latest
+      - name: Set lowercase owner
+        run: echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       # =========================
-      # 4. Build Frontend Image
+      # Build & Push Backend
       # =========================
-      - name: Build Frontend
+      - name: Build Backend Image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/shift-frontend:latest ./client
-          docker push ghcr.io/${{ github.repository_owner }}/shift-frontend:latest
+          docker build -t ghcr.io/$OWNER/shift-backend:latest ./server
+          docker push ghcr.io/$OWNER/shift-backend:latest
 
       # =========================
-      # 5. AWS Auth (OIDC)
+      # Build & Push Frontend
+      # =========================
+      - name: Build Frontend Image
+        run: |
+          docker build -t ghcr.io/$OWNER/shift-frontend:latest ./client
+          docker push ghcr.io/$OWNER/shift-frontend:latest
+
+      # =========================
+      # AWS AUTH (OIDC)
       # =========================
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -48,25 +54,25 @@ jobs:
           role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
 
       # =========================
-      # 6. Install kubectl
+      # Setup kubectl
       # =========================
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
 
       # =========================
-      # 7. Install Helm
+      # Setup Helm
       # =========================
       - name: Setup Helm
         uses: azure/setup-helm@v4
 
       # =========================
-      # 8. Update kubeconfig
+      # Update kubeconfig
       # =========================
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name mern-cluster --region us-east-1
 
       # =========================
-      # 9. Deploy using Helm
+      # Deploy with Helm
       # =========================
       - name: Deploy with Helm
         run: |
