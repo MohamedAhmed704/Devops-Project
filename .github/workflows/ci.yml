@@ -1,65 +1,127 @@
-name: CI - Shift Planner
+name: Shift Planner DevOps Pipeline
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Select pipeline stage"
+        required: true
+        type: choice
+        default: all
+        options:
+          - build
+          - test
+          - deploy
+          - all
 
 jobs:
-  build-test:
+
+# =========================
+# 1. BUILD STAGE
+# =========================
+  build:
+    if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [20.x]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Image
+        run: |
+          docker build -t backend:latest ./server
+
+      - name: Build Frontend Image
+        run: |
+          docker build -t frontend:latest ./client
+
+
+# =========================
+# 2. TEST STAGE
+# =========================
+  test:
+    if: ${{ github.event.inputs.stage == 'test' || github.event.inputs.stage == 'all' }}
+    runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
+          cache: npm
 
-      - name: Install Backend Dependencies
+      # Backend tests
+      - name: Install Backend
         working-directory: ./server
-        run: npm install
+        run: npm ci
 
-      - name: Backend Lint (if exists)
+      - name: Backend Tests
         working-directory: ./server
-        run: |
-          if npm run | grep -q lint; then
-            npm run lint
-          else
-            echo "No lint script"
-          fi
+        run: npm test || true
 
-      - name: Backend Security Audit
-        working-directory: ./server
-        run: npm audit --production || true
-
-      - name: Install Frontend Dependencies
+      # Frontend tests/build
+      - name: Install Frontend
         working-directory: ./client
-        run: npm install
+        run: npm ci
 
-      - name: Build Frontend
+      - name: Frontend Build
         working-directory: ./client
         run: npm run build
 
-      - name: Validate Backend Basic Run
-        working-directory: ./server
-        run: node -e "console.log('Backend build OK')"
 
-      - name: Build Backend Docker Image
-        run: docker build -t shift-backend ./server
+# =========================
+# 3. DEPLOY STAGE
+# =========================
+  deploy:
+    if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
+    runs-on: ubuntu-latest
 
-      - name: Build Frontend Docker Image (if exists Dockerfile)
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # =========================
+      # GHCR LOGIN
+      # =========================
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # =========================
+      # BUILD + PUSH IMAGES
+      # =========================
+      - name: Build & Push Backend
         run: |
-          if [ -f ./client/Dockerfile ]; then
-            docker build -t shift-frontend ./client
-          else
-            echo "No frontend Dockerfile"
-          fi
+          docker build -t ghcr.io/${{ github.repository_owner }}/shift-backend:latest ./server
+          docker push ghcr.io/${{ github.repository_owner }}/shift-backend:latest
+
+      - name: Build & Push Frontend
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/shift-frontend:latest ./client
+          docker push ghcr.io/${{ github.repository_owner }}/shift-frontend:latest
+
+      # =========================
+      # AWS AUTH (OIDC)
+      # =========================
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::ACCOUNT_ID:role/github-actions-role
+
+      # =========================
+      # CONNECT TO EKS
+      # =========================
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name mern-cluster
+
+      # =========================
+      # DEPLOY TO K8S
+      # =========================
+      - name: Deploy to EKS
+        run: kubectl apply -f k8s/
