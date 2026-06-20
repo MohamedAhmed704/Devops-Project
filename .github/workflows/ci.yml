@@ -112,7 +112,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::ACCOUNT_ID:role/github-actions-role
+          role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
 
       # =========================
       # CONNECT TO EKS
