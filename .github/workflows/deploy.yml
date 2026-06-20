@@ -1,0 +1,73 @@
+name: CI-CD Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # =========================
+      # 1. Checkout Code
+      # =========================
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # =========================
+      # 2. Login to GHCR
+      # =========================
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # =========================
+      # 3. Build Backend Image
+      # =========================
+      - name: Build Backend
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/shift-backend:latest ./server
+          docker push ghcr.io/${{ github.repository_owner }}/shift-backend:latest
+
+      # =========================
+      # 4. Build Frontend Image
+      # =========================
+      - name: Build Frontend
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/shift-frontend:latest ./client
+          docker push ghcr.io/${{ github.repository_owner }}/shift-frontend:latest
+
+      # =========================
+      # 5. AWS Auth (OIDC)
+      # =========================
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
+
+      # =========================
+      # 6. Install kubectl
+      # =========================
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      # =========================
+      # 7. Install Helm
+      # =========================
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+
+      # =========================
+      # 8. Update kubeconfig
+      # =========================
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name mern-cluster --region us-east-1
+
+      # =========================
+      # 9. Deploy using Helm
+      # =========================
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install shift-planner ./shift-planner
