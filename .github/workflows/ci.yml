@@ -1,122 +1,126 @@
 name: Shift Planner DevOps Pipeline
 
 on:
-  workflow_dispatch:
-    inputs:
-      stage:
-        description: "Select pipeline stage"
-        required: true
-        type: choice
-        default: all
-        options:
-          - build
-          - test
-          - deploy
-          - all
+workflow_dispatch:
+inputs:
+stage:
+description: "Select pipeline stage"
+required: true
+type: choice
+default: all
+options:
+- build
+- test
+- deploy
+- all
 
 permissions:
-  contents: read
-  packages: write
-  id-token: write
+contents: read
+packages: write
+id-token: write
 
 jobs:
 
-  # =========================
-  # 1. BUILD STAGE
-  # =========================
-  build:
-    if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
-    runs-on: ubuntu-latest
+build:
+if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+```
+steps:
+  - name: Checkout Code
+    uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
 
-      - name: Build Backend Image
-        run: docker build -t backend:latest ./server
+  - name: Build Backend Image
+    run: docker build -t backend:latest ./server
 
-      - name: Build Frontend Image
-        run: docker build -t frontend:latest ./client
+  - name: Build Frontend Image
+    run: docker build -t frontend:latest ./client
+```
 
-  # =========================
-  # 2. TEST STAGE
-  # =========================
-  test:
-    if: ${{ github.event.inputs.stage == 'test' || github.event.inputs.stage == 'all' }}
-    runs-on: ubuntu-latest
+test:
+if: ${{ github.event.inputs.stage == 'test' || github.event.inputs.stage == 'all' }}
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+```
+steps:
+  - name: Checkout Code
+    uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            server/package-lock.json
-            client/package-lock.json
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: 22
+      cache: npm
+      cache-dependency-path: |
+        server/package-lock.json
+        client/package-lock.json
 
-      - name: Install Backend Dependencies
-        working-directory: ./server
-        run: npm ci
+  - name: Install Backend Dependencies
+    working-directory: ./server
+    run: npm ci
 
-      - name: Run Backend Tests
-        working-directory: ./server
-        run: npm test || true
+  - name: Run Backend Tests
+    working-directory: ./server
+    run: npm test || true
 
-      - name: Install Frontend Dependencies
-        working-directory: ./client
-        run: npm ci
+  - name: Install Frontend Dependencies
+    working-directory: ./client
+    run: npm ci
 
-      - name: Build Frontend
-        working-directory: ./client
-        run: npm run build
+  - name: Build Frontend
+    working-directory: ./client
+    run: npm run build
+```
 
-  # =========================
-  # 3. DEPLOY STAGE
-  # =========================
-  deploy:
-    if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
-    runs-on: ubuntu-latest
+deploy:
+if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+```
+steps:
+  - name: Checkout Code
+    uses: actions/checkout@v4
 
-      - name: Set lowercase owner
-        run: |
-          echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+  - name: Set lowercase owner
+    run: |
+      echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: Login to GHCR
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  - name: Debug Owner
+    run: |
+      echo "Repository Owner: $OWNER"
+      echo "GitHub Actor: ${{ github.actor }}"
 
-      - name: Build & Push Backend
-        run: |
-          docker build -t ghcr.io/$OWNER/backend:latest ./server
-          docker push ghcr.io/$OWNER/backend:latest
+  - name: Login to GHCR
+    uses: docker/login-action@v3
+    with:
+      registry: ghcr.io
+      username: ${{ github.actor }}
+      password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push Frontend
-        run: |
-          docker build -t ghcr.io/$OWNER/frontend:latest ./client
-          docker push ghcr.io/$OWNER/frontend:latest
+  - name: Build & Push Backend
+    run: |
+      docker build -t ghcr.io/$OWNER/backend-app:latest ./server
+      docker push ghcr.io/$OWNER/backend-app:latest
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
+  - name: Build & Push Frontend
+    run: |
+      docker build -t ghcr.io/$OWNER/frontend-app:latest ./client
+      docker push ghcr.io/$OWNER/frontend-app:latest
 
-      - name: Update kubeconfig
-        run: |
-          aws eks update-kubeconfig --name mern-cluster
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-region: us-east-1
+      role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
 
-      - name: Deploy with Helm
-        run: |
-          helm upgrade --install shift-planner ./helm/shift-planner \
-            --set image.tag=latest
+  - name: Update kubeconfig
+    run: aws eks update-kubeconfig --name mern-cluster
+
+  - name: Deploy with Helm
+    run: |
+      helm upgrade --install shift-planner ./helm/shift-planner \
+        --set image.tag=latest
+```
