@@ -31,12 +31,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Backend Image
-        run: |
-          docker build -t backend:latest ./server
+        run: docker build -t backend:latest ./server
 
       - name: Build Frontend Image
-        run: |
-          docker build -t frontend:latest ./client
+        run: docker build -t frontend:latest ./client
 
 
 # =========================
@@ -53,24 +51,31 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
-      # Backend tests
-      - name: Install Backend
+      # =========================
+      # BACKEND
+      # =========================
+      - name: Install Backend Dependencies
         working-directory: ./server
         run: npm ci
 
-      - name: Backend Tests
+      - name: Run Backend Tests
         working-directory: ./server
         run: npm test || true
 
-      # Frontend tests/build
-      - name: Install Frontend
+      # =========================
+      # FRONTEND
+      # =========================
+      - name: Install Frontend Dependencies
         working-directory: ./client
         run: npm ci
 
-      - name: Frontend Build
+      - name: Build Frontend
         working-directory: ./client
         run: npm run build
 
@@ -87,13 +92,13 @@ jobs:
         uses: actions/checkout@v4
 
       # =========================
-      # GHCR LOGIN
+      # LOGIN TO GHCR
       # =========================
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       # =========================
-      # BUILD + PUSH IMAGES
+      # BUILD & PUSH IMAGES
       # =========================
       - name: Build & Push Backend
         run: |
