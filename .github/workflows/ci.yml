@@ -14,18 +14,16 @@ on:
           - deploy
           - all
 
-# =========================
-#  IMPORTANT FIX (GHCR PERMISSIONS)
-# =========================
 permissions:
   contents: read
   packages: write
+  id-token: write
 
 jobs:
 
-# =========================
-# 1. BUILD STAGE
-# =========================
+  # =========================
+  # 1. BUILD STAGE
+  # =========================
   build:
     if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
@@ -43,10 +41,9 @@ jobs:
       - name: Build Frontend Image
         run: docker build -t frontend:latest ./client
 
-
-# =========================
-# 2. TEST STAGE
-# =========================
+  # =========================
+  # 2. TEST STAGE
+  # =========================
   test:
     if: ${{ github.event.inputs.stage == 'test' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
@@ -64,7 +61,6 @@ jobs:
             server/package-lock.json
             client/package-lock.json
 
-      # BACKEND
       - name: Install Backend Dependencies
         working-directory: ./server
         run: npm ci
@@ -73,7 +69,6 @@ jobs:
         working-directory: ./server
         run: npm test || true
 
-      # FRONTEND
       - name: Install Frontend Dependencies
         working-directory: ./client
         run: npm ci
@@ -82,10 +77,9 @@ jobs:
         working-directory: ./client
         run: npm run build
 
-
-# =========================
-# 3. DEPLOY STAGE
-# =========================
+  # =========================
+  # 3. DEPLOY STAGE
+  # =========================
   deploy:
     if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
@@ -94,43 +88,34 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # =========================
-      # LOGIN TO GHCR
-      # =========================
-      - name: Login to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Set lowercase owner
+        run: |
+          echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      # =========================
-      # BUILD & PUSH IMAGES
-      # =========================
+      - name: Login to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Build & Push Backend
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/backend:latest ./server
-          docker push ghcr.io/${{ github.repository_owner }}/backend:latest
+          docker build -t ghcr.io/$OWNER/backend:latest ./server
+          docker push ghcr.io/$OWNER/backend:latest
 
       - name: Build & Push Frontend
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/frontend:latest ./client
-          docker push ghcr.io/${{ github.repository_owner }}/frontend:latest
+          docker build -t ghcr.io/$OWNER/frontend:latest ./client
+          docker push ghcr.io/$OWNER/frontend:latest
 
-      # =========================
-      # AWS AUTH (OIDC)
-      # =========================
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
 
-      # =========================
-      # CONNECT TO EKS
-      # =========================
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name mern-cluster
+        run: |
+          aws eks update-kubeconfig --name mern-cluster
 
-      # =========================
-      # DEPLOY TO K8S
-      # =========================
       - name: Deploy with Helm
         run: |
           helm upgrade --install shift-planner ./helm/shift-planner \
