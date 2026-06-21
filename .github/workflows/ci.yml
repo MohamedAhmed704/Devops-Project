@@ -120,4 +120,4 @@ steps:
     run: |
       helm upgrade --install shift-planner ./helm/shift-planner \
         --set image.tag=latest
-```
+
