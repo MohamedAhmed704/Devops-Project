@@ -109,7 +109,7 @@ jobs:
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::948580599921:role/TadbirRole
-
+          role-session-name: GitHubActionsSession
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name mern-cluster --region us-east-1
@@ -117,4 +117,5 @@ jobs:
       - name: Deploy with Helm
         run: |
           helm upgrade --install shift-planner ./helm/shift-planner \
-            --set image.tag=latest
+            --set backend.image.tag=latest \
+            --set frontend.image.tag=latest
