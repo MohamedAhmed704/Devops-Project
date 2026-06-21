@@ -1,10 +1,10 @@
 frontend:
-  image: ghcr.io/mohamedkebal2/frontend-app:latest
+  image: ghcr.io/MohamedKebal2/frontend-app:latest
   replicas: 2
   port: 3000
 
 backend:
-  image: ghcr.io/mohamedkebal2/backend-app:latest
+  image: ghcr.io/MohamedKebal2/backend-app:latest
   replicas: 2
   port: 5000
 
