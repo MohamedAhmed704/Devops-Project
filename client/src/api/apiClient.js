@@ -1,7 +1,6 @@
 import axios from "axios";
 import { getToken, setToken, removeToken } from "../utils/tokenUtils";
-
-const BASE_URL = window.__ENV__.API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
