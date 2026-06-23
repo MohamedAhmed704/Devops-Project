@@ -4,6 +4,8 @@ frontend:
     tag: latest
   replicas: 2
   port: 80
+  env:
+    VITE_API_URL: http://backend-service:5000
 
 backend:
   image:
