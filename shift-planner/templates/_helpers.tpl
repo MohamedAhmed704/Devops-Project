@@ -54,9 +54,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "shift-planner.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "shift-planner.fullname" .) .Values.serviceAccount.name }}
+{{- $sa := .Values.serviceAccount | default dict }}
+{{- if ($sa.create | default false) }}
+{{- default (include "shift-planner.fullname" .) $sa.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" $sa.name }}
 {{- end }}
 {{- end }}

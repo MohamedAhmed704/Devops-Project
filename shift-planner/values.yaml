@@ -19,3 +19,12 @@ ingress:
 serviceAccount:
   create: false
   name: ""
+
+httpRoute:
+  enabled: false
+
+autoscaling:
+  enabled: false
+
+service:
+  type: ClusterIP
