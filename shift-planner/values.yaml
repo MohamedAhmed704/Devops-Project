@@ -1,21 +1,27 @@
 frontend:
-  image: ghcr.io/MohamedKebal2/frontend-app:latest
+  image:
+    repository: ghcr.io/mohamedkebal2/frontend-app
+    tag: latest
   replicas: 2
   port: 3000
 
 backend:
-  image: ghcr.io/MohamedKebal2/backend-app:latest
+  image:
+    repository: ghcr.io/mohamedkebal2/backend-app
+    tag: latest
   replicas: 2
   port: 5000
 
 mongo:
-  image: mongo:6
+  image:
+    repository: mongo
+    tag: 6
   port: 27017
   storage: 10Gi
 
 ingress:
   host: ""
-  
+
 serviceAccount:
   create: false
   name: ""
