@@ -3,7 +3,7 @@ frontend:
     repository: ghcr.io/mohamedkebal2/frontend-app
     tag: latest
   replicas: 2
-  port: 3000
+  port: 80
 
 backend:
   image:

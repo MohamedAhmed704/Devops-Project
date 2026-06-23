@@ -14,11 +14,21 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-secret
+
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           ports:
             - containerPort: {{ .Values.backend.port }}
+
           env:
             - name: MONGO_URI
-              value: mongodb://mongo-service:27017/shiftplanner
+              value: "mongodb://mongo-service:27017/shiftplanner"
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
