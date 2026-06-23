@@ -27,88 +27,78 @@ env:
 jobs:
 
 # =========================
-# BUILD JOB
+# BUILD
 # =========================
   build:
     if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build Backend Image
-        run: docker build -t backend:latest ./server
+        run: |
+          docker build \
+            -t backend:${{ github.run_number }} \
+            ./server
 
       - name: Build Frontend Image
         run: |
           docker build \
             --build-arg VITE_API_URL=${{ env.ALB_URL }}/api \
-            -t frontend:latest \
+            -t frontend:${{ github.run_number }} \
             ./client
 
+
 # =========================
-# TEST JOB
+# TEST
 # =========================
   test:
     if: ${{ github.event.inputs.stage == 'test' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            server/package-lock.json
-            client/package-lock.json
 
-      - name: Install Backend Dependencies
+      - name: Install Backend
         working-directory: ./server
         run: npm ci
 
-      - name: Run Backend Tests
+      - name: Test Backend
         working-directory: ./server
         run: npm test || true
 
-      - name: Install Frontend Dependencies
+      - name: Install Frontend
         working-directory: ./client
         run: npm ci
 
-      - name: Build Frontend (verify)
+      - name: Build Frontend
         working-directory: ./client
         run: npm run build
 
+
 # =========================
-# DEPLOY JOB
+# DEPLOY
 # =========================
   deploy:
     if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set lowercase owner
-        run: |
-          echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+      - name: Set OWNER
+        run: echo "OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
-      - name: Debug Owner
-        run: |
-          echo "Repository Owner: $OWNER"
-
-      # =========================
-      # GHCR LOGIN
-      # =========================
-      - name: Login to GHCR
+      - name: Login GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -116,30 +106,30 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # =========================
-      # BUILD & PUSH BACKEND
+      # PUSH BACKEND
       # =========================
       - name: Build & Push Backend
         run: |
           docker build \
-            -t ghcr.io/$OWNER/backend-app:latest \
+            -t ghcr.io/$OWNER/backend-app:${{ github.run_number }} \
             ./server
 
-          docker push ghcr.io/$OWNER/backend-app:latest
+          docker push ghcr.io/$OWNER/backend-app:${{ github.run_number }}
 
       # =========================
-      # BUILD & PUSH FRONTEND
+      # PUSH FRONTEND
       # =========================
       - name: Build & Push Frontend
         run: |
           docker build \
             --build-arg VITE_API_URL=${{ env.ALB_URL }}/api \
-            -t ghcr.io/$OWNER/frontend-app:latest \
+            -t ghcr.io/$OWNER/frontend-app:${{ github.run_number }} \
             ./client
 
-          docker push ghcr.io/$OWNER/frontend-app:latest
+          docker push ghcr.io/$OWNER/frontend-app:${{ github.run_number }}
 
       # =========================
-      # AWS CONFIG
+      # AWS
       # =========================
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -157,5 +147,5 @@ jobs:
       - name: Deploy with Helm
         run: |
           helm upgrade --install shift-planner ./shift-planner \
-            --set backend.image.tag=latest \
-            --set frontend.image.tag=latest
+            --set backend.image.tag=${{ github.run_number }} \
+            --set frontend.image.tag=${{ github.run_number }}
