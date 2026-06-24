@@ -111,7 +111,7 @@ jobs:
       - name: Build & Push Frontend
         run: |
           docker build \
-            --build-arg VITE_API_URL=${{ env.ALB_URL }}/api \
+            --build-arg VITE_API_URL=${{ env.ALB_URL }} \
             -t $ECR_REGISTRY/$FRONTEND_REPO:${{ github.run_number }} \
             ./client
 
