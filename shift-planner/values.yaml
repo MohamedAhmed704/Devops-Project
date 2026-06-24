@@ -1,7 +1,7 @@
 frontend:
   image:
-    repository: ghcr.io/mohamedkebal2/frontend-app
-    tag: 1
+    repository: 948580599921.dkr.ecr.us-east-1.amazonaws.com/frontend-app
+    tag: latest
   replicas: 2
   port: 80
   env:
@@ -9,8 +9,8 @@ frontend:
 
 backend:
   image:
-    repository: ghcr.io/mohamedkebal2/backend-app
-    tag: 1
+    repository: 948580599921.dkr.ecr.us-east-1.amazonaws.com/backend-app
+    tag: latest
   replicas: 2
   port: 5000
 
