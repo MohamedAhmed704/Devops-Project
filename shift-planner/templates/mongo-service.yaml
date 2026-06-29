@@ -7,7 +7,7 @@ spec:
   type: {{ .Values.mongo.service.type }}
 
   selector:
-    {{ .Values.mongo.selector | toYaml | nindent 4 }}
+    app: mongo
 
   ports:
     - port: {{ .Values.mongo.port }}

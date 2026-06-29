@@ -4,7 +4,7 @@ metadata:
   name: backend-service
 spec:
   selector:
-    {{ .Values.backend.labels | toYaml | nindent 4 }}
+    app: backend
   ports:
     - port: {{ .Values.backend.port }}
       targetPort: {{ .Values.backend.targetPort }}

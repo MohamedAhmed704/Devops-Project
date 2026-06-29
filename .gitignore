@@ -83,5 +83,4 @@ server/.env
 .env
 server/.env
 
-## Helm chart files
-shift-planner/values.yaml
+

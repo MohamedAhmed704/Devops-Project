@@ -8,12 +8,12 @@ spec:
 
   selector:
     matchLabels:
-      {{ .Values.backend.labels | toYaml | nindent 6 }}
+      app: backend
 
   template:
     metadata:
       labels:
-        {{ .Values.backend.labels | toYaml | nindent 8 }}
+        app: backend
 
     spec:
       imagePullSecrets:
@@ -29,6 +29,14 @@ spec:
           env:
             - name: MONGO_URI
               value: {{ .Values.backend.env.MONGO_URI | quote }}
+            - name: EMAIL_USER
+              value: {{ .Values.backend.env.EMAIL_USER | quote }}
+            - name: EMAIL_PASS
+              value: {{ .Values.backend.env.EMAIL_PASS | quote }}
+            - name: EMAIL_HOST
+              value: {{ .Values.backend.env.EMAIL_HOST | quote }}
+            - name: EMAIL_PORT
+              value: {{ .Values.backend.env.EMAIL_PORT | quote }}
 
           resources:
             requests:

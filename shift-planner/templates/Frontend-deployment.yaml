@@ -8,12 +8,13 @@ spec:
 
   selector:
     matchLabels:
-      {{ .Values.frontend.labels | toYaml | nindent 6 }}
+      app: frontend
+      
 
   template:
     metadata:
       labels:
-        {{ .Values.frontend.labels | toYaml | nindent 8 }}
+        app: frontend
 
     spec:
       imagePullSecrets:

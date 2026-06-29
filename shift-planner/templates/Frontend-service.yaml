@@ -4,7 +4,7 @@ metadata:
   name: frontend-service
 spec:
   selector:
-    {{ .Values.frontend.labels | toYaml | nindent 4 }}
+    app: frontend
   ports:
     - port: {{ .Values.frontend.port }}
       targetPort: {{ .Values.frontend.targetPort }}

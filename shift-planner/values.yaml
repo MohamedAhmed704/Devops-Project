@@ -9,8 +9,6 @@ frontend:
     VITE_API_URL: http://backend-service:5000
   service:
     type: ClusterIP
-  labels:
-    app: frontend
 
 backend:
   image:
@@ -21,8 +19,11 @@ backend:
   targetPort: 5000
   env:
     MONGO_URI: mongodb://mongo-service:27017/shiftplanner
-  labels:
-    app: backend
+    EMAIL_USER: mohamed.ashraf.kebal@gmail.com
+    EMAIL_PASS: bcae cxpb rapg afxu
+    EMAIL_HOST: smtp.gmail.com
+    EMAIL_PORT: "587"
+
   service:
     type: ClusterIP
 
@@ -36,8 +37,6 @@ mongo:
   service:
     type: ClusterIP
 
-  selector:
-    app: mongo
   
 
 ingress:
