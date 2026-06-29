@@ -1,0 +1,26 @@
+# apiVersion: eksctl.io/v1alpha5
+# kind: ClusterConfig
+
+# metadata:
+#   name: mern-cluster
+#   region: us-east-1
+
+# managedNodeGroups:
+#   - name: private-nodegroupp
+#     instanceType: c7i-flex.large
+
+#     desiredCapacity: 1
+#     minSize: 1
+#     maxSize: 2
+
+#     privateNetworking: true
+
+#     subnets:
+#       - subnet-0d40bc21bfb272549  
+
+#     labels:
+#       role: app
+
+#     iam:
+#       withAddonPolicies:
+#         albIngress: true
