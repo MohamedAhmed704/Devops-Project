@@ -84,5 +84,5 @@ server/.env
 server/.env
 
 ## Helm chart files
-.values.yaml
+values.yaml
 
