@@ -82,3 +82,7 @@ POSTMAN_TESTING.md
 server/.env
 .env
 server/.env
+
+## Helm chart files
+.values.yaml
+
