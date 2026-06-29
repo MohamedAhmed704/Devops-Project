@@ -2,33 +2,38 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
+
 spec:
   replicas: {{ .Values.backend.replicas }}
+
   selector:
     matchLabels:
-      app: backend
+      {{ .Values.backend.labels | toYaml | nindent 6 }}
+
   template:
     metadata:
       labels:
-        app: backend
+        {{ .Values.backend.labels | toYaml | nindent 8 }}
+
     spec:
       imagePullSecrets:
-        - name: ghcr-secret
+        - name: {{ .Values.imagePullSecrets.name }}
 
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+
           ports:
             - containerPort: {{ .Values.backend.port }}
 
           env:
             - name: MONGO_URI
-              value: "mongodb://mongo-service:27017/shiftplanner"
+              value: {{ .Values.backend.env.MONGO_URI | quote }}
 
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: {{ .Values.resources.backend.requests.cpu }}
+              memory: {{ .Values.resources.backend.requests.memory }}
             limits:
-              cpu: "1000m"
-              memory: "1Gi"
+              cpu: {{ .Values.resources.backend.limits.cpu }}
+              memory: {{ .Values.resources.backend.limits.memory }}

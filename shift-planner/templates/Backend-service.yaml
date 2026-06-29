@@ -4,8 +4,8 @@ metadata:
   name: backend-service
 spec:
   selector:
-    app: backend
+    {{ .Values.backend.labels | toYaml | nindent 4 }}
   ports:
-    - port: 5000
-      targetPort: {{ .Values.backend.port }}
-  type: ClusterIP
+    - port: {{ .Values.backend.port }}
+      targetPort: {{ .Values.backend.targetPort }}
+  type: {{ .Values.backend.service.type }}

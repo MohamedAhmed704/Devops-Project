@@ -2,22 +2,27 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
+
 spec:
   replicas: {{ .Values.frontend.replicas }}
+
   selector:
     matchLabels:
-      app: frontend
+      {{ .Values.frontend.labels | toYaml | nindent 6 }}
+
   template:
     metadata:
       labels:
-        app: frontend
+        {{ .Values.frontend.labels | toYaml | nindent 8 }}
+
     spec:
       imagePullSecrets:
-        - name: ghcr-secret
+        - name: {{ .Values.imagePullSecrets.name }}
 
       containers:
         - name: frontend
           image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+
           ports:
             - containerPort: {{ .Values.frontend.port }}
 
@@ -27,8 +32,8 @@ spec:
 
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: {{ .Values.resources.frontend.requests.cpu }}
+              memory: {{ .Values.resources.frontend.requests.memory }}
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: {{ .Values.resources.frontend.limits.cpu }}
+              memory: {{ .Values.resources.frontend.limits.memory }}

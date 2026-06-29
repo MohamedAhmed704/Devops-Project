@@ -4,8 +4,8 @@ metadata:
   name: frontend-service
 spec:
   selector:
-    app: frontend
+    {{ .Values.frontend.labels | toYaml | nindent 4 }}
   ports:
-    - port: 80
-      targetPort: {{ .Values.frontend.port }}
-  type: ClusterIP
+    - port: {{ .Values.frontend.port }}
+      targetPort: {{ .Values.frontend.targetPort }}
+  type: {{ .Values.frontend.service.type }}

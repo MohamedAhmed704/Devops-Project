@@ -4,8 +4,13 @@ frontend:
     tag: latest
   replicas: 2
   port: 80
+  targetPort: 80
   env:
     VITE_API_URL: http://backend-service:5000
+  service:
+    type: ClusterIP
+  labels:
+    app: frontend
 
 backend:
   image:
@@ -13,6 +18,13 @@ backend:
     tag: latest
   replicas: 2
   port: 5000
+  targetPort: 5000
+  env:
+    MONGO_URI: mongodb://mongo-service:27017/shiftplanner
+  labels:
+    app: backend
+  service:
+    type: ClusterIP
 
 mongo:
   image:
@@ -20,19 +32,41 @@ mongo:
     tag: 6
   port: 27017
   storage: 10Gi
+  storageClass: gp3-csi
+  service:
+    type: ClusterIP
+
+  selector:
+    app: mongo
+  
 
 ingress:
+  enabled: true
   host: ""
 
-serviceAccount:
-  create: false
-  name: ""
+service:
+  type: ClusterIP
+
+imagePullSecrets:
+  name: ghcr-secret
+
+resources:
+  backend:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+
+  frontend:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
 
 httpRoute:
   enabled: false
 
-autoscaling:
-  enabled: false
-
-service:
-  type: ClusterIP
