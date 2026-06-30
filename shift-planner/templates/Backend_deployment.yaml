@@ -37,6 +37,14 @@ spec:
               value: {{ .Values.backend.env.EMAIL_HOST | quote }}
             - name: EMAIL_PORT
               value: {{ .Values.backend.env.EMAIL_PORT | quote }}
+            - name: JWT_ACCESS_SECRET
+              value: {{ .Values.backend.env.JWT_ACCESS_SECRET | quote }}
+            - name: JWT_REFRESH_SECRET
+              value: {{ .Values.backend.env.JWT_REFRESH_SECRET | quote }}
+            - name: ACCESS_TOKEN_EXPIRE
+              value: {{ .Values.backend.env.ACCESS_TOKEN_EXPIRE | quote }}
+            - name: REFRESH_TOKEN_EXPIRE
+              value: {{ .Values.backend.env.REFRESH_TOKEN_EXPIRE | quote }}
 
           resources:
             requests:

@@ -19,11 +19,20 @@ import platformRoutes from "./routes/platformRoutes.js";
 import swapRoutes from "./routes/swapRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
+import client from "prom-client";
+
+
 
 dotenv.config();
 connectDB();
 
 const app = express();
+client.collectDefaultMetrics();
+
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", client.register.contentType);
+  res.end(await client.register.metrics());
+});
 
 
 app.use(cors({ origin: true, credentials: true }));
