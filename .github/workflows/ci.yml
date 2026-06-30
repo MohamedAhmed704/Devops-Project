@@ -120,6 +120,16 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
 
+      - name: Add Helm Repository
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+      - name: Deploy Monitoring Stack
+        run: |
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack
+
+
       - name: Deploy with Helm
         run: |
           helm upgrade --install shift-planner ./shift-planner \
