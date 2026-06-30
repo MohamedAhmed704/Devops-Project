@@ -6,6 +6,8 @@ spec:
   selector:
     app: backend
   ports:
-    - port: {{ .Values.backend.port }}
+    - name: http
+      protocol: TCP
+      port: {{ .Values.backend.port }}
       targetPort: {{ .Values.backend.targetPort }}
   type: {{ .Values.backend.service.type }}
